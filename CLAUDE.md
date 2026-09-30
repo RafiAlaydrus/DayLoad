@@ -7,7 +7,8 @@ A personal gym PWA that recommends what to train at whatever gym you are in, usi
 1. `docs/dayload-spec.md` is the full product spec (features, recommender rules, screens, data model, build phases).
 2. `DESIGN.md` is the design direction (transcribed from `docs/ui/STYLE_GUIDE.md`).
 3. `docs/ui/screens/*.html` are the approved mockups (Home, Hit the gym, Workout, Profile). Match them closely.
-4. The logo and all PWA icons are in `public/`. Do not regenerate or change them. The logo mark used in the UI is `src/components/LogoMark.tsx`.
+4. `docs/PROGRESS.md` is the progress log: what is done, decisions, open questions and what is unverified. **Update it at the end of every phase.**
+5. The logo and all PWA icons are in `public/`. Do not regenerate or change them. The logo mark used in the UI is `src/components/LogoMark.tsx`.
 
 ## Phone only
 
