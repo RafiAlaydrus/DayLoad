@@ -1,0 +1,70 @@
+# DayLoad Design Direction
+
+Transcribed from `docs/ui/STYLE_GUIDE.md` (the approved visual design). The mockups in `docs/ui/screens/` are the reference for how it looks. The author of this direction is the product owner; this file only formats it. Nothing here is new direction, except the Dial line, which is marked.
+
+Dial: ENERGY 2 / RHYTHM 2 / MOTION 2 (read from the style guide by the agent, not stated by the owner. Change it here if it is wrong.)
+
+## Look
+
+Dark, warm and minimal, taken from the logo: warm charcoal grounds, a taupe accent, off-white type and buttons. Soft, rounded shapes to match the curves in the logo mark. No gradients, no bright accent colors. Dark mode only for now.
+
+## Why these choices (the owner's reasons, per antislop R-31)
+
+- **Dark mode only for v1.** The brand comes from the logo's charcoal-to-taupe palette, and the app is used in gyms with harsh lighting. A light theme can come later.
+- **Uppercase small section labels.** They separate data labels from values at a glance on small phone screens. Used only for small labels.
+- **Lucide icons.** Consistent 2px round-cap strokes that match the logo's rounded line style.
+- **Barlow Condensed.** Condensed bold numbers and titles give a gym-poster feel and fit big weights and timers on narrow phone screens.
+
+## Colors
+
+| Token | Hex | Use |
+| --- | --- | --- |
+| `bg` | `#1B1A17` | App background |
+| `surface` | `#25231F` | Cards, tab bar, secondary buttons |
+| `surface-2` | `#302D27` | Selected cards, completed set rows |
+| `border` | `#3E3A33` | Card borders, dividers, inactive outlines |
+| `accent` | `#6B655A` | Hero "Hit the gym" card, rest timer (taupe from the logo) |
+| `ink` | `#F3EFE7` | Primary text, primary buttons, active states (the style guide calls this `text`) |
+| `muted` | `#B3AC9F` | Secondary text, labels, inactive icons |
+
+Primary buttons are `ink` background with `bg` colored text. Selected states use an `ink`-colored border or fill.
+
+## Typography
+
+Fonts from Google Fonts: Barlow Condensed (500, 600, 700) for display, Manrope (400 to 800) for everything else.
+
+| Role | Font | Size / weight |
+| --- | --- | --- |
+| Hero title ("Hit the gym") | Barlow Condensed | 46px / 700 |
+| Screen title | Barlow Condensed | 30 to 44px / 700, line-height about 1 |
+| Big numbers (weight, timer) | Barlow Condensed | 28 to 44px / 700 |
+| Section label | Manrope | 12px / 600, uppercase, 0.08em tracking, `muted` |
+| Body | Manrope | 14 to 16px / 500 to 700 |
+| Tab labels | Manrope | 11px / 500 (700 when active) |
+
+## Shape and spacing
+
+Screen padding 22px sides, content starts about 58px from the top (below the safe area). Cards: `surface`, 1px `border`, radius 22px, padding 18px. Hero card radius 28px. Pills and primary buttons are fully rounded. Chips and inner rows radius 14 to 16px. Vertical gap between sections 16 to 22px.
+
+Touch targets at least 44px. Icons are 2px stroke outline icons with round caps (Lucide).
+
+## Components
+
+- **Bottom tab bar:** Home, Plan, Library, Gyms, Profile. 84px tall including safe area, `surface` background, top border, active tab in `ink`, inactive in `muted`.
+- **Hero card:** `accent` background, large faded logo mark (22% opacity) bleeding off the bottom right, label + big title + white pill button.
+- **Selectable option (gym, time):** `surface` with `border`; when selected, `surface-2` with an `ink`-colored border and a filled check circle.
+- **Set row:** grid of set number, weight, reps, and a 44px round check button. Completed rows switch to `surface-2` with a filled check.
+- **Progress bar:** segmented, one segment per exercise; done = `ink`, current = `muted`, upcoming = `border`.
+- **Rest timer:** `accent` card pinned above the bottom button, big countdown in Barlow Condensed, "Skip rest" pill.
+
+## Motion (Motion library)
+
+The app should feel smooth and native. Use spring transitions for screen changes (slide + fade), a shared layout animation when the hero card expands into the Hit the gym screen, a quick scale-and-fill when a set is checked off, and a smooth countdown on the rest timer. Animate only transform and opacity, keep durations short (150 to 350ms), and respect `prefers-reduced-motion`.
+
+## Working notes for building (agent-added, not direction)
+
+- Focal point per screen: Home is the hero card, Profile is the weight card.
+- Identity motif: the logo mark bleeding off the hero card, and Barlow Condensed for every big number.
+- One accent: the taupe hero card. Nothing else uses `accent` on Home.
+- Contrast: `muted` text on `accent` fails WCAG AA, so text on the hero card is `ink`.
+- No red or other status colors exist in the palette. Errors are shown with an icon and words, on `surface-2`.

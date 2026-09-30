@@ -1,0 +1,80 @@
+@import "tailwindcss";
+
+/* Tokens from DESIGN.md. Tailwind v4 turns each --color-* into utilities: bg-surface, text-ink, border-border... */
+@theme {
+  --color-bg: #1b1a17;
+  --color-surface: #25231f;
+  --color-surface-2: #302d27;
+  --color-border: #3e3a33;
+  --color-accent: #6b655a;
+  --color-ink: #f3efe7;
+  --color-muted: #b3ac9f;
+
+  --font-display: "Barlow Condensed", ui-sans-serif, system-ui, sans-serif;
+  --font-sans: "Manrope", ui-sans-serif, system-ui, sans-serif;
+
+  --radius-card: 22px;
+  --radius-hero: 28px;
+  --radius-chip: 14px;
+}
+
+:root {
+  color-scheme: dark;
+  /* Kept as variables (not raw env()) so they can be overridden to test a notch on a desktop browser. */
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+  /* The mockups put content 58px from the top on a 47px status bar; 44px floor keeps that look off-device. */
+  --page-top: calc(max(var(--safe-top), 44px) + 12px);
+  /* 10px pad + 48px tab + bottom pad (26px on a home-bar iPhone, 12px elsewhere) + 1px border. */
+  --tabbar-h: calc(59px + max(12px, var(--safe-bottom) - 8px));
+}
+
+html,
+body {
+  background-color: var(--color-bg);
+}
+
+body {
+  color: var(--color-ink);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* 16px minimum stops iOS Safari zooming the page when an input gets focus. */
+input,
+select,
+textarea {
+  font-size: 16px;
+}
+
+/* Visible keyboard focus everywhere (antislop R-32). */
+:focus-visible {
+  outline: 2px solid var(--color-ink);
+  outline-offset: 2px;
+}
+
+/* Tap feedback: slight scale-down while pressed. Transform only. */
+@utility press {
+  transition: transform 120ms ease-out;
+  &:active {
+    transform: scale(0.97);
+  }
+}
+
+/* Loading indicators stay invisible for 250ms so a fast IndexedDB read never flashes a placeholder. */
+@keyframes appear {
+  to {
+    opacity: 1;
+  }
+}
+.loading-delay {
+  opacity: 0;
+  animation: appear 200ms 250ms forwards;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .press:active {
+    transform: none;
+  }
+}
