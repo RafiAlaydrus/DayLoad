@@ -11,7 +11,8 @@ import type {
   TimetableDay,
   WorkoutSet,
 } from '../types'
-import { seed } from './seed'
+import { migrateToV2 } from '../lib/migrate'
+import { SEED_EQUIPMENT, SEED_EXERCISES, seed } from './seed'
 
 export class DayLoadDB extends Dexie {
   profile!: Table<Profile, number>
@@ -27,7 +28,7 @@ export class DayLoadDB extends Dexie {
 
   constructor() {
     super('dayload')
-    // Never edit a released version. Add version(2) with the new stores (and an
+    // Never edit a released version. Add a new version() with the changed stores (and an
     // .upgrade() if data must change) so existing phones keep their data.
     this.version(1).stores({
       profile: 'id',
@@ -41,6 +42,23 @@ export class DayLoadDB extends Dexie {
       sets: '++id, sessionId, exerciseId',
       settings: 'id',
     })
+    // Version 2 changed data, not tables: the built-in equipment (now 40 items in groups) and
+    // exercise lists were replaced. Runs only on phones that already had version 1; a brand-new
+    // database is seeded directly (populate) and skips upgrades. It runs in one transaction, so
+    // it either fully applies or leaves the phone exactly as it was.
+    this.version(2)
+      .stores({})
+      .upgrade(async (tx) => {
+        const next = migrateToV2(
+          { exercises: await tx.table('exercises').toArray(), gyms: await tx.table('gyms').toArray() },
+          { equipment: SEED_EQUIPMENT, exercises: SEED_EXERCISES },
+        )
+        await tx.table('equipment').clear()
+        await tx.table('equipment').bulkAdd(next.equipment)
+        await tx.table('exercises').clear()
+        await tx.table('exercises').bulkAdd(next.exercises)
+        await tx.table('gyms').bulkPut(next.gyms)
+      })
     // Runs once, when the database is first created.
     this.on('populate', seed)
   }

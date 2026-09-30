@@ -66,21 +66,23 @@ Ten IndexedDB tables via Dexie. The key link is equipment: exercises need it, gy
 | profile | age, heightCm | — |
 | bodyLogs | date, weightKg, measurements | — |
 | goals | type, target, deadline | — |
-| equipment | id, name | — |
+| equipment | id, name, group | — |
 | exercises | name, muscleGroup, equipmentIds, alternativeIds, howTo, isCustom | equipment, exercises |
 | gyms | name, equipmentIds, isTemporary | equipment |
 | timetable | dayOfWeek, muscleGroup, defaultGymId | gyms |
-| sessions | date, gymId, muscleGroup, durationMin | gyms |
-| sets | sessionId, exerciseId, reps, weightKg, order | sessions, exercises |
+| sessions | date, gymId, muscleGroup, plannedMin, durationMin, startedAt, finishedAt, exerciseIds, currentIndex, setsPerExercise | gyms, exercises |
+| sets | sessionId, exerciseId, reps, weightKg, order (set number within its exercise) | sessions, exercises |
 | settings | workoutMode, avoidIds, favoriteIds, weightUnit, lengthUnit | exercises |
 
 Everything is stored in metric (kg, cm). The unit settings only change what is shown and typed. Units live in `settings`, not `profile`, because onboarding asks for height before a profile exists. Dark mode is fixed for v1, so there is no `darkMode` setting yet. The built-in "No equipment" gym has the id `no-equipment`.
 
-The equipment list and built-in exercises ship as seed data on first launch. Export/import dumps all tables to one JSON file.
+A session with no `finishedAt` is the workout in progress. Its plan (`exerciseIds`) and position (`currentIndex`) are stored on the row and every logged set is written the moment it is checked off, so "Continue workout" resumes after iOS closes the app. `durationMin` is the real length, filled in when the session finishes; `plannedMin` is the time the user said they had.
+
+The equipment list (40 items in 7 groups, each with a drawing) and the built-in exercises ship as seed data on first launch. Changing them later needs a database version with an upgrade, so phones that already have data are refreshed without losing anything (data version 2 did this). Export/import dumps all tables to one JSON file.
 
 ## Exercise library
 
-Start with 40 to 60 built-in exercises, written as a JSON seed file. Each needs: name, muscle group, required equipment, one or more alternatives for the same muscle, and a short how-to (target muscles, form cues, common mistakes).
+Started with 40 to 60 built-in exercises, written as a JSON seed file. The owner's 40-item equipment list needs an exercise for every item, so there are now 78. Each needs: name, muscle group, required equipment, one or more alternatives for the same muscle, and a short how-to (target muscles, form cues, common mistakes).
 
 Cover every muscle group in the timetable (chest, back, shoulders, arms, legs, core) with at least one bodyweight option each, so the "No equipment" location always works. Custom exercises use the same fields.
 
@@ -103,5 +105,5 @@ Design the full app now, build in phases so a usable version lands on the phone 
 ## Open questions
 
 - [ ] How many hard days in a row before adaptive mode suggests rest?
-- [ ] Exact exercise and set counts for 30, 45 and 60 minutes
+- [x] Exact exercise and set counts for 30, 45 and 60 minutes: 3, 5 and 6 exercises of 4 sets each for Phase 2. Phase 3 replaces this with real time scaling.
 - [ ] Is the bottom tab layout right, or should Hit the gym be its own tab?

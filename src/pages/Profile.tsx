@@ -12,7 +12,7 @@ import { IconButton, IconLink } from '../components/ui/IconButton'
 import { Loading } from '../components/ui/Loading'
 import { Measure } from '../components/ui/Measure'
 import { db } from '../db/db'
-import { useBodyLogs, useProfile, useSettings } from '../hooks/useData'
+import { useBodyLogs, useFinishedSessionCount, useProfile, useSettings } from '../hooks/useData'
 import { bmi } from '../lib/bmi'
 import { formatDate } from '../lib/dates'
 import { heightParts, partsToText, weightParts } from '../lib/units'
@@ -52,6 +52,7 @@ function ProfileView({ profile, logs, settings }: { profile: ProfileRow; logs: B
   const [deleteError, setDeleteError] = useState('')
 
   const latest = logs.at(-1)
+  const sessionCount = useFinishedSessionCount()
 
   async function confirmDelete() {
     const entry = deleting
@@ -105,7 +106,7 @@ function ProfileView({ profile, logs, settings }: { profile: ProfileRow; logs: B
         )}
       </Card>
 
-      <div className="grid auto-cols-fr grid-flow-col gap-2.5">
+      <div className="grid grid-cols-2 gap-2.5">
         {latest && (
           <StatCard label="BMI">
             <span className="font-display font-bold">{bmi(latest.weightKg, profile.heightCm).toFixed(1)}</span>
@@ -117,6 +118,11 @@ function ProfileView({ profile, logs, settings }: { profile: ProfileRow; logs: B
         <StatCard label="Age">
           <span className="font-display font-bold">{profile.age}</span>
         </StatCard>
+        {sessionCount !== undefined && (
+          <StatCard label="Sessions">
+            <span className="font-display font-bold">{sessionCount}</span>
+          </StatCard>
+        )}
       </div>
 
       <Card>

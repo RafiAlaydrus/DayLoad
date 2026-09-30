@@ -45,7 +45,10 @@ function Sheet({ onClose, title, children }: Omit<Props, 'open'>) {
         event.preventDefault()
         onClose()
       }}
-      className="fixed inset-0 m-0 size-full max-h-none max-w-none overflow-hidden border-0 bg-transparent p-0 text-ink backdrop:bg-transparent"
+      // overflow-clip, not hidden: on open the browser focuses a button while the panel is still sliding in
+      // off-screen, and it scrolls a hidden-overflow box to reveal it, leaving the sheet shifted up for good.
+      // Clip cannot be scrolled, even by the browser.
+      className="fixed inset-0 m-0 size-full max-h-none max-w-none overflow-clip border-0 bg-transparent p-0 text-ink backdrop:bg-transparent"
     >
       {/* Our own scrim instead of ::backdrop, because a pseudo-element can't be animated. */}
       <motion.div

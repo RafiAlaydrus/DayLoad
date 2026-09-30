@@ -37,6 +37,8 @@ export interface Goal {
 export interface Equipment {
   id: string
   name: string
+  /** The heading it is listed under: "Free weights", "Cable", ... */
+  group: string
 }
 
 export interface HowTo {
@@ -79,7 +81,19 @@ export interface Session {
   date: DateKey
   gymId: string
   muscleGroup: MuscleGroup
+  /** The time the user said they had: 30, 45 or 60. */
+  plannedMin: number
+  /** Real minutes, filled in when the session finishes. 0 while it is running. */
   durationMin: number
+  /** Date.now() when the session was built. */
+  startedAt: number
+  /** Date.now() when it finished. Missing means the session is still in progress. */
+  finishedAt?: number
+  /** The planned exercises in order. Swapping an exercise replaces its entry. */
+  exerciseIds: string[]
+  /** Index into exerciseIds of the exercise on screen, so "Continue workout" resumes in place. */
+  currentIndex: number
+  setsPerExercise: number
 }
 
 export interface WorkoutSet {
@@ -88,7 +102,7 @@ export interface WorkoutSet {
   exerciseId: string
   reps: number
   weightKg: number
-  /** Position within the session. */
+  /** Set number within its exercise, starting at 0. (id order is the order they were logged.) */
   order: number
 }
 

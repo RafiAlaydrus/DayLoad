@@ -10,10 +10,29 @@ const GROUPS = ['chest', 'back', 'shoulders', 'arms', 'legs', 'core']
 const equipmentIds = new Set(equipment.map((e) => e.id))
 const exerciseById = new Map(exercises.map((e) => [e.id, e]))
 
-test('ids are unique and the exercise count is 50 to 60', () => {
+test('ids are unique and there are at least 50 exercises', () => {
   assert.equal(equipmentIds.size, equipment.length, 'duplicate equipment id')
   assert.equal(exerciseById.size, exercises.length, 'duplicate exercise id')
-  assert.ok(exercises.length >= 50 && exercises.length <= 60, `got ${exercises.length} exercises`)
+  assert.ok(exercises.length >= 50, `got ${exercises.length} exercises`)
+})
+
+// The owner's list, in the owner's order and groups. If this changes, change it on purpose.
+const OWNER_LIST = {
+  'Free weights': ['Barbell', 'EZ curl bar', 'Dumbbells', 'Kettlebells', 'Weight plates'],
+  'Benches and racks': ['Flat bench', 'Adjustable bench', 'Preacher curl bench', 'Hyperextension bench', 'Squat rack / power rack', 'Smith machine'],
+  Bodyweight: ['Pull-up bar', 'Dip bars'],
+  Cable: ['Cable machine', 'Cable crossover', 'Lat pulldown', 'Seated cable row'],
+  'Upper body machines': ['Chest press machine', 'Pec deck', 'Shoulder press machine', 'Lateral raise machine', 'Rear delt machine', 'Assisted pull-up/dip machine', 'Seated row machine', 'T-bar row', 'Bicep curl machine', 'Tricep extension machine'],
+  'Lower body machines': ['Leg press', 'Hack squat', 'Leg extension', 'Leg curl', 'Hip thrust machine', 'Hip abductor', 'Hip adductor', 'Calf raise machine'],
+  'Core and accessories': ['Ab crunch machine', 'Ab wheel', 'Resistance bands', 'Medicine ball', 'Stability ball'],
+}
+
+test('equipment is the owner\'s 40 items, in their groups and order', () => {
+  const actual = {}
+  for (const e of equipment) (actual[e.group] ??= []).push(e.name)
+  assert.deepEqual(actual, OWNER_LIST)
+  assert.deepEqual(Object.keys(actual), Object.keys(OWNER_LIST), 'group order')
+  assert.equal(equipment.length, 40)
 })
 
 test('every exercise is well formed and points at real ids', () => {

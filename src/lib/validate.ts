@@ -68,3 +68,19 @@ export function validateDate(text: string): Result<string> {
   if (text > todayKey()) return { error: 'Pick today or an earlier date.' }
   return { value: text }
 }
+
+export function validateReps(text: string): Result<number> {
+  const reps = parseDecimal(text)
+  if (!Number.isInteger(reps) || reps < 1 || reps > 200) return { error: 'Enter reps from 1 to 200.' }
+  return { value: reps }
+}
+
+/** The weight of one set. Blank means bodyweight, stored as 0. */
+export function validateLoad(unit: WeightUnit, text: string): Result<number> {
+  if (text.trim() === '') return { value: 0 }
+  const kg = toKg(parseDecimal(text), unit)
+  if (!(kg >= 0 && kg <= LIMITS.loadKg.max)) {
+    return { error: `Enter a weight up to ${Math.round(fromKg(LIMITS.loadKg.max, unit))} ${unit}, or leave it blank for bodyweight.` }
+  }
+  return { value: kg }
+}

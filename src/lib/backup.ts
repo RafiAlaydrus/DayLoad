@@ -6,7 +6,7 @@ import { isDateKey } from './dates.ts'
 
 export const BACKUP_APP = 'dayload'
 /** Must match the highest Dexie version() in src/db/db.ts. */
-export const BACKUP_VERSION = 1
+export const BACKUP_VERSION = 2
 
 const MUSCLES = ['chest', 'back', 'shoulders', 'arms', 'legs', 'core'] as const
 
@@ -28,7 +28,7 @@ const TABLE_SHAPES = {
   },
   gyms: { id: 'string', name: 'string', equipmentIds: 'array' },
   timetable: { dayOfWeek: 'number' },
-  sessions: { date: 'date', gymId: 'string', muscleGroup: MUSCLES },
+  sessions: { date: 'date', gymId: 'string', muscleGroup: MUSCLES, exerciseIds: 'array', startedAt: 'number' },
   sets: { sessionId: 'number', exerciseId: 'string', reps: 'number', weightKg: 'number', order: 'number' },
   settings: {
     id: 'number',

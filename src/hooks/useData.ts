@@ -1,7 +1,8 @@
 import { useLiveQuery } from 'dexie-react-hooks'
 import { db } from '../db/db'
-import { DEFAULT_SETTINGS, PROFILE_ID, SETTINGS_ID } from '../db/seed'
-import type { BodyLog, Profile, Settings } from '../types'
+import { DEFAULT_SETTINGS, PROFILE_ID, SETTINGS_ID, sortBySeedOrder, sortEquipmentBySeedOrder } from '../db/seed'
+import { addDays, weekStartKey, todayKey } from '../lib/dates'
+import type { BodyLog, Equipment, Exercise, Gym, Profile, Session, Settings, TimetableDay, WorkoutSet } from '../types'
 
 // useLiveQuery returns undefined while loading and re-renders on every change to the
 // tables it read. It also throws query errors, which the route ErrorBoundary catches.
@@ -19,4 +20,65 @@ export function useProfile(): Profile | null | undefined {
 /** Oldest first. The latest entry is the last one. */
 export function useBodyLogs(): BodyLog[] | undefined {
   return useLiveQuery(() => db.bodyLogs.orderBy('date').toArray(), [])
+}
+
+/** In seed order (see sortBySeedOrder). */
+export function useExercises(): Exercise[] | undefined {
+  return useLiveQuery(async () => sortBySeedOrder(await db.exercises.toArray()), [])
+}
+
+/** In the owner's order and groups (see sortEquipmentBySeedOrder). */
+export function useEquipment(): Equipment[] | undefined {
+  return useLiveQuery(async () => sortEquipmentBySeedOrder(await db.equipment.toArray()), [])
+}
+
+/** The gym of the most recent session, so Hit the gym can preselect it. */
+export function useLastGymId(): string | null | undefined {
+  return useLiveQuery(async () => (await db.sessions.orderBy('date').last())?.gymId ?? null, [])
+}
+
+/** Saved gyms by name, with the built-in "No equipment" last. One-time gyms are included; callers filter `isTemporary`. */
+export function useGyms(): Gym[] | undefined {
+  return useLiveQuery(async () => {
+    const gyms = await db.gyms.toArray()
+    return gyms.sort((a, b) => Number(a.isBuiltIn) - Number(b.isBuiltIn) || a.name.localeCompare(b.name))
+  }, [])
+}
+
+/** The workout in progress. null means none. */
+export function useActiveSession(): Session | null | undefined {
+  return useLiveQuery(async () => (await db.sessions.filter((s) => s.finishedAt === undefined).first()) ?? null, [])
+}
+
+/** null means there is no session with that id. */
+export function useSession(id: number): Session | null | undefined {
+  return useLiveQuery(async () => (await db.sessions.get(id)) ?? null, [id])
+}
+
+export function useSessionSets(sessionId: number | undefined): WorkoutSet[] | undefined {
+  return useLiveQuery(
+    async () => (sessionId === undefined ? [] : db.sets.where('sessionId').equals(sessionId).sortBy('id')),
+    [sessionId],
+  )
+}
+
+/** Finished sessions from Monday to Sunday of the current week. */
+export function useWeekSessions(): Session[] | undefined {
+  return useLiveQuery(() => {
+    const monday = weekStartKey(todayKey())
+    return db.sessions
+      .where('date')
+      .between(monday, addDays(monday, 7), true, false)
+      .filter((s) => s.finishedAt !== undefined)
+      .toArray()
+  }, [])
+}
+
+export function useFinishedSessionCount(): number | undefined {
+  return useLiveQuery(() => db.sessions.filter((s) => s.finishedAt !== undefined).count(), [])
+}
+
+/** Today's row of the weekly timetable, or null. (The editor arrives in Phase 4; until then it only exists if imported.) */
+export function useTimetableToday(): TimetableDay | null | undefined {
+  return useLiveQuery(async () => (await db.timetable.get(new Date().getDay())) ?? null, [])
 }

@@ -26,6 +26,8 @@ function DbGuard() {
  */
 export function Shell() {
   const { pathname } = useLocation()
+  // Hit the gym, Workout and the summary are focused screens (see the mockups): no tab bar, a pinned button instead.
+  const focused = pathname === '/hit-the-gym' || pathname === '/workout' || pathname.startsWith('/summary')
 
   // A new screen starts at the top, like a native push.
   useEffect(() => {
@@ -41,7 +43,14 @@ export function Shell() {
         initial={{ opacity: 0, x: 16 }}
         animate={{ opacity: 1, x: 0 }}
         transition={{ type: 'spring', duration: 0.3, bounce: 0 }}
-        className="flex flex-col gap-[18px] px-[22px] pt-[var(--page-top)] pb-[calc(var(--tabbar-h)+24px)]"
+        className={`flex flex-col gap-[18px] px-[22px] pt-[var(--page-top)] ${
+          // Room for the pinned bar. The workout's is taller because the rest timer stacks above its button.
+          !focused
+            ? 'pb-[calc(var(--tabbar-h)+24px)]'
+            : pathname === '/workout'
+              ? 'pb-[calc(var(--safe-bottom)+240px)]'
+              : 'pb-[calc(var(--safe-bottom)+130px)]'
+        }`}
       >
         {/* Keyed by route so leaving a crashed screen clears the error. */}
         <ErrorBoundary key={pathname}>
@@ -49,7 +58,7 @@ export function Shell() {
           <Outlet />
         </ErrorBoundary>
       </motion.main>
-      <TabBar />
+      {!focused && <TabBar />}
     </div>
   )
 }

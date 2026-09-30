@@ -38,7 +38,7 @@
     "id": "incline-dumbbell-press",
     "name": "Incline Dumbbell Press",
     "muscleGroup": "chest",
-    "equipmentIds": ["dumbbells", "incline-bench"],
+    "equipmentIds": ["dumbbells", "adjustable-bench"],
     "alternativeIds": ["dumbbell-bench-press", "push-up", "chest-press-machine"],
     "howTo": {
       "targetMuscles": ["Upper chest", "Front shoulders", "Triceps"],
@@ -191,7 +191,7 @@
     "id": "seated-cable-row",
     "name": "Seated Cable Row",
     "muscleGroup": "back",
-    "equipmentIds": ["cable-machine"],
+    "equipmentIds": ["seated-cable-row"],
     "alternativeIds": ["machine-row", "one-arm-dumbbell-row", "superman"],
     "howTo": {
       "targetMuscles": ["Mid back", "Lats", "Biceps"],
@@ -417,7 +417,7 @@
     "id": "reverse-pec-deck",
     "name": "Reverse Pec Deck",
     "muscleGroup": "shoulders",
-    "equipmentIds": ["pec-deck"],
+    "equipmentIds": ["rear-delt-machine"],
     "alternativeIds": ["face-pull", "band-pull-apart", "prone-y-raise"],
     "howTo": {
       "targetMuscles": ["Rear shoulders", "Upper back"],
@@ -1011,6 +1011,315 @@
         "Pull back in by squeezing your abs, not your hips"
       ],
       "mistakes": ["Letting your lower back sag as you roll out", "Going further out than you can control"]
+    }
+  },
+  {
+    "id": "cable-crossover",
+    "name": "Cable Crossover",
+    "muscleGroup": "chest",
+    "equipmentIds": ["cable-crossover"],
+    "alternativeIds": ["cable-chest-fly", "pec-deck-fly", "wide-push-up"],
+    "howTo": {
+      "targetMuscles": ["Chest", "Front shoulders"],
+      "cues": [
+        "Set both pulleys high and step forward with one foot ahead, leaning slightly forward",
+        "Sweep your hands down and together in front of your hips with your elbows slightly bent",
+        "Squeeze your chest at the bottom, then return slowly until you feel a stretch"
+      ],
+      "mistakes": [
+        "Bending and straightening your elbows so it becomes a press",
+        "Rocking your torso to swing the handles"
+      ]
+    }
+  },
+  {
+    "id": "t-bar-row",
+    "name": "T-Bar Row",
+    "muscleGroup": "back",
+    "equipmentIds": ["t-bar-row"],
+    "alternativeIds": ["barbell-bent-over-row", "machine-row", "dumbbell-bent-over-row"],
+    "howTo": {
+      "targetMuscles": ["Mid back", "Lats", "Rear shoulders", "Biceps"],
+      "cues": [
+        "Set up with your chest on the pad, or hinge with a flat back, knees soft",
+        "Pull the handle toward your chest, driving your elbows back",
+        "Squeeze your shoulder blades together, then lower until your arms are straight"
+      ],
+      "mistakes": [
+        "Rounding your back to lift more weight",
+        "Shrugging your shoulders instead of pulling with your back"
+      ]
+    }
+  },
+  {
+    "id": "assisted-pull-up",
+    "name": "Assisted Pull-Up",
+    "muscleGroup": "back",
+    "equipmentIds": ["assisted-pullup-machine"],
+    "alternativeIds": ["lat-pulldown", "pull-up", "machine-row"],
+    "howTo": {
+      "targetMuscles": ["Lats", "Upper back", "Biceps"],
+      "cues": [
+        "Pick an assistance weight that lets you finish every rep with good form",
+        "Start by pulling your shoulder blades down, then pull your chest toward the handles",
+        "Lower slowly until your arms are straight"
+      ],
+      "mistakes": ["Bouncing out of the bottom of the rep", "Stopping short of a full stretch at the bottom"]
+    }
+  },
+  {
+    "id": "back-extension",
+    "name": "Back Extension",
+    "muscleGroup": "back",
+    "equipmentIds": ["hyperextension-bench"],
+    "alternativeIds": ["superman", "deadlift", "reverse-snow-angel"],
+    "howTo": {
+      "targetMuscles": ["Lower back", "Glutes", "Hamstrings"],
+      "cues": [
+        "Set the pad just below your hip bones and hook your feet under the rollers",
+        "Lower your torso with a straight back until you feel a hamstring stretch",
+        "Raise back up until your body is in a straight line, no higher"
+      ],
+      "mistakes": ["Swinging up so far that your lower back over-arches", "Rounding your back on the way down"]
+    }
+  },
+  {
+    "id": "straight-arm-pulldown",
+    "name": "Straight-Arm Pulldown",
+    "muscleGroup": "back",
+    "equipmentIds": ["cable-machine"],
+    "alternativeIds": ["lat-pulldown", "pull-up", "reverse-snow-angel"],
+    "howTo": {
+      "targetMuscles": ["Lats", "Rear shoulders"],
+      "cues": [
+        "Set a bar or rope on a high pulley, step back and hinge slightly at the hips",
+        "With straight arms, sweep the handle down in an arc to your thighs",
+        "Return slowly to shoulder height, keeping your arms almost straight"
+      ],
+      "mistakes": [
+        "Bending your elbows so it turns into a pushdown",
+        "Using your body's momentum instead of your lats"
+      ]
+    }
+  },
+  {
+    "id": "machine-lateral-raise",
+    "name": "Machine Lateral Raise",
+    "muscleGroup": "shoulders",
+    "equipmentIds": ["lateral-raise-machine"],
+    "alternativeIds": ["lateral-raise", "dumbbell-shoulder-press", "machine-shoulder-press"],
+    "howTo": {
+      "targetMuscles": ["Side shoulders"],
+      "cues": [
+        "Adjust the seat so your shoulders line up with the machine's pivots",
+        "Raise your arms out to the sides until your elbows reach shoulder height",
+        "Lower slowly without letting the weights touch down"
+      ],
+      "mistakes": ["Shrugging your shoulders up as you lift", "Using momentum by leaning back"]
+    }
+  },
+  {
+    "id": "plate-front-raise",
+    "name": "Plate Front Raise",
+    "muscleGroup": "shoulders",
+    "equipmentIds": ["weight-plates"],
+    "alternativeIds": ["dumbbell-shoulder-press", "lateral-raise", "overhead-press"],
+    "howTo": {
+      "targetMuscles": ["Front shoulders", "Upper chest"],
+      "cues": [
+        "Hold a plate at the sides of the rim with both hands and your arms straight",
+        "Raise it in front of you to shoulder height",
+        "Lower slowly under control"
+      ],
+      "mistakes": ["Leaning back to swing the plate up", "Lifting above shoulder height with a shrug"]
+    }
+  },
+  {
+    "id": "preacher-curl",
+    "name": "Preacher Curl",
+    "muscleGroup": "arms",
+    "equipmentIds": ["ez-bar", "preacher-bench"],
+    "alternativeIds": ["ez-bar-curl", "barbell-curl", "dumbbell-curl"],
+    "howTo": {
+      "targetMuscles": ["Biceps"],
+      "cues": [
+        "Set the seat so your armpits rest on top of the pad",
+        "Curl the bar up without lifting your elbows off the pad",
+        "Lower slowly until your arms are almost straight"
+      ],
+      "mistakes": [
+        "Letting the bar drop fast at the bottom",
+        "Lifting your chest off the pad to swing the weight up"
+      ]
+    }
+  },
+  {
+    "id": "machine-biceps-curl",
+    "name": "Machine Biceps Curl",
+    "muscleGroup": "arms",
+    "equipmentIds": ["biceps-curl-machine"],
+    "alternativeIds": ["dumbbell-curl", "ez-bar-curl", "hammer-curl"],
+    "howTo": {
+      "targetMuscles": ["Biceps"],
+      "cues": [
+        "Adjust the seat so your elbows line up with the machine's pivot and your arms rest on the pad",
+        "Curl the handles up while keeping your upper arms on the pad",
+        "Lower slowly until your arms are almost straight"
+      ],
+      "mistakes": ["Lifting your shoulders to help the curl", "Letting the weights slam down"]
+    }
+  },
+  {
+    "id": "machine-triceps-extension",
+    "name": "Machine Triceps Extension",
+    "muscleGroup": "arms",
+    "equipmentIds": ["triceps-extension-machine"],
+    "alternativeIds": ["triceps-pushdown", "overhead-triceps-extension", "skull-crusher"],
+    "howTo": {
+      "targetMuscles": ["Triceps"],
+      "cues": [
+        "Adjust the seat so your elbows sit level with the pivot",
+        "Press the handles down until your arms are straight",
+        "Return slowly until your forearms are just past parallel"
+      ],
+      "mistakes": ["Lifting your elbows away from the pad", "Bouncing at the top of the rep"]
+    }
+  },
+  {
+    "id": "hack-squat",
+    "name": "Hack Squat",
+    "muscleGroup": "legs",
+    "equipmentIds": ["hack-squat"],
+    "alternativeIds": ["leg-press", "barbell-back-squat", "smith-machine-squat"],
+    "howTo": {
+      "targetMuscles": ["Quads", "Glutes"],
+      "cues": [
+        "Stand on the platform with your back and shoulders against the pads, feet about shoulder-width apart",
+        "Lower until your thighs are at least parallel to the platform",
+        "Press up through your whole foot without locking your knees"
+      ],
+      "mistakes": [
+        "Placing your feet too low, so your knees travel far forward",
+        "Letting your lower back peel off the pad"
+      ]
+    }
+  },
+  {
+    "id": "machine-hip-thrust",
+    "name": "Machine Hip Thrust",
+    "muscleGroup": "legs",
+    "equipmentIds": ["hip-thrust-machine"],
+    "alternativeIds": ["hip-thrust", "glute-bridge", "kettlebell-swing"],
+    "howTo": {
+      "targetMuscles": ["Glutes", "Hamstrings"],
+      "cues": [
+        "Sit with your upper back against the pad and the belt or pad across your hips",
+        "Drive through your heels until your hips line up with your shoulders and knees",
+        "Squeeze your glutes at the top, then lower under control"
+      ],
+      "mistakes": ["Arching your lower back at the top", "Pushing through your toes instead of your heels"]
+    }
+  },
+  {
+    "id": "hip-abduction",
+    "name": "Machine Hip Abduction",
+    "muscleGroup": "legs",
+    "equipmentIds": ["hip-abductor"],
+    "alternativeIds": ["glute-bridge", "reverse-lunge", "hip-thrust"],
+    "howTo": {
+      "targetMuscles": ["Outer glutes", "Hip abductors"],
+      "cues": [
+        "Sit tall with your back against the pad and your legs against the outer pads",
+        "Press your legs out to the sides in a smooth motion",
+        "Bring them back slowly without letting the weights touch"
+      ],
+      "mistakes": [
+        "Leaning forward and swinging the weight",
+        "Using so much weight that your range of motion shrinks"
+      ]
+    }
+  },
+  {
+    "id": "hip-adduction",
+    "name": "Machine Hip Adduction",
+    "muscleGroup": "legs",
+    "equipmentIds": ["hip-adductor"],
+    "alternativeIds": ["reverse-lunge", "bulgarian-split-squat", "glute-bridge"],
+    "howTo": {
+      "targetMuscles": ["Inner thighs", "Hip adductors"],
+      "cues": [
+        "Sit tall with your legs apart and your inner thighs against the pads",
+        "Squeeze your legs together in a smooth motion",
+        "Let them open slowly to a comfortable stretch"
+      ],
+      "mistakes": ["Opening your legs wider than is comfortable", "Jerking the weight to start each rep"]
+    }
+  },
+  {
+    "id": "machine-calf-raise",
+    "name": "Machine Calf Raise",
+    "muscleGroup": "legs",
+    "equipmentIds": ["calf-raise-machine"],
+    "alternativeIds": ["leg-press-calf-raise", "bodyweight-calf-raise"],
+    "howTo": {
+      "targetMuscles": ["Calves"],
+      "cues": [
+        "Set the pads on your shoulders (or your lap, if seated) with the balls of your feet on the platform",
+        "Rise onto your toes as high as you can and pause",
+        "Lower slowly until you feel a deep calf stretch"
+      ],
+      "mistakes": ["Bouncing at the bottom", "Bending your knees to help lift"]
+    }
+  },
+  {
+    "id": "stability-ball-leg-curl",
+    "name": "Stability Ball Leg Curl",
+    "muscleGroup": "legs",
+    "equipmentIds": ["stability-ball"],
+    "alternativeIds": ["leg-curl", "glute-bridge", "romanian-deadlift"],
+    "howTo": {
+      "targetMuscles": ["Hamstrings", "Glutes"],
+      "cues": [
+        "Lie on your back with your heels on the ball and your hips lifted",
+        "Bend your knees to roll the ball toward your glutes",
+        "Straighten your legs slowly, keeping your hips up"
+      ],
+      "mistakes": ["Letting your hips drop as you roll the ball", "Rushing the return so the ball shoots away"]
+    }
+  },
+  {
+    "id": "machine-crunch",
+    "name": "Machine Crunch",
+    "muscleGroup": "core",
+    "equipmentIds": ["ab-crunch-machine"],
+    "alternativeIds": ["crunch", "cable-crunch", "hanging-leg-raise"],
+    "howTo": {
+      "targetMuscles": ["Abs"],
+      "cues": [
+        "Set the seat so the pivot lines up with your waist, then hold the handles or pad",
+        "Curl your ribs toward your hips, rounding your spine",
+        "Return slowly without letting the weights rest"
+      ],
+      "mistakes": ["Pulling with your arms instead of your abs", "Using so much weight that your hips lift"]
+    }
+  },
+  {
+    "id": "medicine-ball-slam",
+    "name": "Medicine Ball Slam",
+    "muscleGroup": "core",
+    "equipmentIds": ["medicine-ball"],
+    "alternativeIds": ["mountain-climber", "cable-crunch", "plank"],
+    "howTo": {
+      "targetMuscles": ["Abs", "Shoulders", "Lats"],
+      "cues": [
+        "Stand tall and raise the ball overhead, rising onto your toes (a non-bouncing slam ball is best)",
+        "Brace your core and slam the ball down hard in front of you",
+        "Squat to pick it up and repeat"
+      ],
+      "mistakes": [
+        "Bending forward from your lower back instead of your hips and knees",
+        "Standing so close that the ball bounces back at you"
+      ]
     }
   }
 ]

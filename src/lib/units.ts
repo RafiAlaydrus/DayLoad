@@ -21,9 +21,13 @@ export function toKg(value: number, unit: WeightUnit) {
 
 export const fromKg = (kg: number, unit: WeightUnit) => (unit === 'kg' ? kg : kgToLb(kg))
 
+/** A set's weight as typed in the user's unit: "62.5", "60", or "" for bodyweight (0). */
+export const loadText = (kg: number, unit: WeightUnit) => (kg === 0 ? '' : String(Math.round(fromKg(kg, unit) * 10) / 10))
+
 /** Sanity limits for typed values (metric). Catches typos like 7.2 or 720, not real bodies. */
 export const LIMITS = {
   weightKg: { min: 20, max: 400 },
+  loadKg: { min: 0, max: 1000 },
   heightCm: { min: 50, max: 272 },
   age: { min: 5, max: 120 },
 } as const

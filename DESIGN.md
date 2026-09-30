@@ -80,5 +80,9 @@ One-line reasons for the choices the guide does not already explain (antislop R-
 - The date field is the native iOS date picker: it is touch-friendly and needs no library.
 - Screens slide 16px and fade in 300ms: it tells you which direction you moved, in transform and opacity only.
 - Buttons and cards shrink to 97% while pressed: it confirms the tap landed on a screen with no hover.
-- The hero button is disabled and labeled "Coming in Phase 2": a control that does nothing must say so.
 - Placeholder screens say "Coming in a later phase": an honest empty page beats fake content.
+- Equipment gets a small line drawing (`EquipmentIcon.tsx`): a person choosing a gym's gear has to know what "Hack squat" or "T-bar row" is, and a word alone does not tell them. They are drawn in the same 2px round-cap outline style as the Lucide icons, in one colour, so they read as part of the same family (antislop R-22 and R-04: an illustration with a stated purpose).
+- Equipment is grouped under small uppercase headings in the owner's order (Free weights, Benches and racks, Bodyweight, Cable, Upper body machines, Lower body machines, Core and accessories): 40 tiles in one list is unreadable, and the groups match how a gym floor is laid out.
+- The week strip on Home only marks days with a finished session: it is the one place "streak" data is real today, and it needs no plan or target number.
+- Hit the gym and Workout hide the tab bar and pin one big button to the bottom (as in the mockups): mid-workout there is one next action, and it belongs under the thumb.
+- The rest timer is the second `accent` surface, and it only exists during a rest: colour marks the one thing that is counting down.

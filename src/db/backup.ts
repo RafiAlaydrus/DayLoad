@@ -1,6 +1,8 @@
 import { BACKUP_APP, BACKUP_VERSION, TABLE_NAMES, type Backup } from '../lib/backup'
 import { todayKey } from '../lib/dates'
+import { migrateToV2 } from '../lib/migrate'
 import { db } from './db'
+import { SEED_EQUIPMENT, SEED_EXERCISES } from './seed'
 
 export async function buildBackup(): Promise<Backup> {
   const tables = {} as Backup['tables']
@@ -16,11 +18,17 @@ export async function buildBackup(): Promise<Backup> {
  * transaction rolls back and the current data is untouched.
  */
 export async function restoreBackup(backup: Backup): Promise<void> {
+  // A backup made by an older app holds the old built-in lists. Upgrade it the same way the
+  // database itself is upgraded, so restoring never brings back retired equipment.
+  const tables =
+    backup.version < 2
+      ? { ...backup.tables, ...migrateToV2(backup.tables, { equipment: SEED_EQUIPMENT, exercises: SEED_EXERCISES }) }
+      : backup.tables
   await db.transaction('rw', db.tables, async () => {
     for (const name of TABLE_NAMES) {
       const table = db.table(name)
       await table.clear()
-      await table.bulkPut(backup.tables[name])
+      await table.bulkPut(tables[name])
     }
   })
 }

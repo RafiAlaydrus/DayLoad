@@ -28,3 +28,15 @@ export function formatDate(key: DateKey, { weekday = false } = {}): string {
     year: date.getFullYear() === new Date().getFullYear() ? undefined : 'numeric',
   })
 }
+
+export function addDays(key: DateKey, days: number): DateKey {
+  const d = parseDateKey(key)
+  d.setDate(d.getDate() + days)
+  return toDateKey(d)
+}
+
+/** The Monday of the week containing `key` (the week strip runs Monday to Sunday). */
+export function weekStartKey(key: DateKey): DateKey {
+  const day = parseDateKey(key).getDay() // 0 = Sunday
+  return addDays(key, -((day + 6) % 7))
+}

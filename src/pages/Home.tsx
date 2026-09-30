@@ -1,10 +1,14 @@
+import { ChevronRight } from 'lucide-react'
+import { Link } from 'react-router-dom'
 import { LogoMark } from '../components/LogoMark'
+import { WeekStrip } from '../components/WeekStrip'
 import { ButtonLink } from '../components/ui/Button'
 import { Card, CardLink, SectionLabel } from '../components/ui/Card'
 import { Loading } from '../components/ui/Loading'
 import { Measure } from '../components/ui/Measure'
-import { useBodyLogs, useSettings } from '../hooks/useData'
+import { useActiveSession, useBodyLogs, useSettings, useTimetableToday, useWeekSessions } from '../hooks/useData'
 import { formatDate, todayKey } from '../lib/dates'
+import { muscleLabel } from '../lib/recommend'
 import { weightParts } from '../lib/units'
 
 export default function Home() {
@@ -21,33 +25,58 @@ export default function Home() {
         </time>
       </header>
 
+      <TodayPlan />
       <Hero />
+      <Week />
       <LatestWeight />
     </>
   )
 }
 
-/** The one focal point on Home. Its button comes alive in Phase 2. */
-function Hero() {
+/** Only appears when today's timetable row exists (the timetable editor arrives in Phase 4). */
+function TodayPlan() {
+  const entry = useTimetableToday()
+  if (!entry) return null
   return (
-    <section className="relative flex h-[190px] flex-col justify-between overflow-hidden rounded-hero bg-accent p-[22px]">
+    <p className="font-display text-[40px] font-bold leading-none">
+      {entry.muscleGroup ? `Today is ${entry.muscleGroup} day` : 'Today is a rest day'}
+    </p>
+  )
+}
+
+/** The one focal point on Home: start a session, or pick the running one back up. */
+function Hero() {
+  const active = useActiveSession()
+  if (active === undefined) return <Loading className="h-[190px]" />
+
+  const total = active?.exerciseIds.length ?? 0
+  return (
+    <Link
+      to={active ? '/workout' : '/hit-the-gym'}
+      className="press relative flex h-[190px] flex-col justify-between overflow-hidden rounded-hero bg-accent p-[22px]"
+    >
       {/* The logo mark bleeding off the corner is the identity motif (DESIGN.md). */}
       <LogoMark size={210} className="pointer-events-none absolute -right-6 -bottom-[30px] opacity-[0.22]" />
       {/* Ink, not muted: muted text on the taupe accent fails WCAG AA contrast. */}
-      <p className="relative text-[13px] font-semibold uppercase tracking-[0.08em]">Next session</p>
+      <p className="relative text-[13px] font-semibold uppercase tracking-[0.08em]">
+        {active ? 'Workout in progress' : 'Ready when you are'}
+      </p>
       <div className="relative">
-        <h1 className="font-display text-[46px] font-bold leading-[0.95]">Hit the gym</h1>
-        {/* TODO(phase 2): make this a link that starts a session. It stays disabled and labeled until then. */}
-        <button
-          type="button"
-          disabled
-          className="mt-2 inline-flex min-h-11 items-center rounded-full border border-ink/60 px-4 text-sm font-bold text-ink"
-        >
-          Coming in Phase 2
-        </button>
+        <h1 className="font-display text-[46px] font-bold leading-[0.95]">{active ? 'Continue workout' : 'Hit the gym'}</h1>
+        {/* A span, not a button: the whole card is the link. The arrow says it opens a new screen. */}
+        <span className="mt-2 inline-flex min-h-11 items-center gap-2 rounded-full bg-ink px-4 text-sm font-bold text-bg">
+          {active ? `${muscleLabel(active.muscleGroup)}, exercise ${Math.min(active.currentIndex + 1, total)} of ${total}` : 'Start session'}
+          <ChevronRight size={16} strokeWidth={2.4} aria-hidden="true" />
+        </span>
       </div>
-    </section>
+    </Link>
   )
+}
+
+function Week() {
+  const sessions = useWeekSessions()
+  if (!sessions) return <Loading className="h-[122px]" />
+  return <WeekStrip sessions={sessions} />
 }
 
 function LatestWeight() {
