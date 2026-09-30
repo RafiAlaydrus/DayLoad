@@ -1,0 +1,1016 @@
+[
+  {
+    "id": "barbell-bench-press",
+    "name": "Barbell Bench Press",
+    "muscleGroup": "chest",
+    "equipmentIds": ["barbell", "flat-bench"],
+    "alternativeIds": ["dumbbell-bench-press", "chest-press-machine", "push-up"],
+    "howTo": {
+      "targetMuscles": ["Chest", "Front shoulders", "Triceps"],
+      "cues": [
+        "Lie back with your eyes under the bar, feet flat, shoulder blades pinched together",
+        "Lower the bar to your mid-chest with your forearms vertical",
+        "Press up and slightly back until your arms are straight"
+      ],
+      "mistakes": ["Bouncing the bar off your chest", "Lifting your hips off the bench"]
+    }
+  },
+  {
+    "id": "dumbbell-bench-press",
+    "name": "Dumbbell Bench Press",
+    "muscleGroup": "chest",
+    "equipmentIds": ["dumbbells", "flat-bench"],
+    "alternativeIds": ["barbell-bench-press", "incline-dumbbell-press", "push-up"],
+    "howTo": {
+      "targetMuscles": ["Chest", "Front shoulders", "Triceps"],
+      "cues": [
+        "Start with the dumbbells over your chest, palms facing forward",
+        "Lower until your upper arms are about level with the bench",
+        "Press up without letting the dumbbells clank together"
+      ],
+      "mistakes": [
+        "Flaring your elbows straight out to the sides",
+        "Letting the dumbbells drift out of line with your shoulders"
+      ]
+    }
+  },
+  {
+    "id": "incline-dumbbell-press",
+    "name": "Incline Dumbbell Press",
+    "muscleGroup": "chest",
+    "equipmentIds": ["dumbbells", "incline-bench"],
+    "alternativeIds": ["dumbbell-bench-press", "push-up", "chest-press-machine"],
+    "howTo": {
+      "targetMuscles": ["Upper chest", "Front shoulders", "Triceps"],
+      "cues": [
+        "Set the bench to a low incline, about 30 degrees",
+        "Keep your shoulder blades pinched back against the pad",
+        "Press the dumbbells up and slightly together over your upper chest"
+      ],
+      "mistakes": [
+        "Setting the bench so steep that it turns into a shoulder press",
+        "Arching your lower back off the bench"
+      ]
+    }
+  },
+  {
+    "id": "push-up",
+    "name": "Push-Up",
+    "muscleGroup": "chest",
+    "equipmentIds": [],
+    "alternativeIds": ["wide-push-up", "dumbbell-bench-press", "chest-press-machine"],
+    "howTo": {
+      "targetMuscles": ["Chest", "Front shoulders", "Triceps", "Core"],
+      "cues": [
+        "Put your hands just wider than your shoulders and keep your body in one straight line",
+        "Lower until your chest is about a fist's height from the floor",
+        "Push the floor away and keep your core tight"
+      ],
+      "mistakes": ["Letting your hips sag or pike up", "Flaring your elbows out to 90 degrees"]
+    }
+  },
+  {
+    "id": "wide-push-up",
+    "name": "Wide Push-Up",
+    "muscleGroup": "chest",
+    "equipmentIds": [],
+    "alternativeIds": ["push-up", "cable-chest-fly", "pec-deck-fly"],
+    "howTo": {
+      "targetMuscles": ["Chest", "Front shoulders"],
+      "cues": [
+        "Place your hands about one and a half times shoulder width apart",
+        "Lower under control until your chest nearly touches the floor",
+        "Keep your body in a straight line from head to heels"
+      ],
+      "mistakes": ["Going so wide that your shoulders feel pinched", "Only doing half reps"]
+    }
+  },
+  {
+    "id": "chest-press-machine",
+    "name": "Chest Press Machine",
+    "muscleGroup": "chest",
+    "equipmentIds": ["chest-press-machine"],
+    "alternativeIds": ["barbell-bench-press", "dumbbell-bench-press", "push-up"],
+    "howTo": {
+      "targetMuscles": ["Chest", "Front shoulders", "Triceps"],
+      "cues": [
+        "Adjust the seat so the handles line up with your mid-chest",
+        "Keep your back and head flat against the pad",
+        "Press until your arms are almost straight, then return slowly"
+      ],
+      "mistakes": ["Shrugging your shoulders up toward your ears", "Letting the weight stack slam back down"]
+    }
+  },
+  {
+    "id": "cable-chest-fly",
+    "name": "Cable Chest Fly",
+    "muscleGroup": "chest",
+    "equipmentIds": ["cable-machine"],
+    "alternativeIds": ["pec-deck-fly", "wide-push-up", "dumbbell-bench-press"],
+    "howTo": {
+      "targetMuscles": ["Chest"],
+      "cues": [
+        "Set both pulleys at shoulder height and step forward into a split stance",
+        "Keep a slight bend in your elbows and sweep your hands together in front of your chest",
+        "Return slowly until you feel a stretch across your chest"
+      ],
+      "mistakes": [
+        "Bending your elbows more and more until it becomes a press",
+        "Swinging your body to move the handles"
+      ]
+    }
+  },
+  {
+    "id": "pec-deck-fly",
+    "name": "Pec Deck Fly",
+    "muscleGroup": "chest",
+    "equipmentIds": ["pec-deck"],
+    "alternativeIds": ["cable-chest-fly", "wide-push-up", "chest-press-machine"],
+    "howTo": {
+      "targetMuscles": ["Chest"],
+      "cues": [
+        "Set the seat so the handles sit at chest height",
+        "Keep your chest up and your shoulder blades back against the pad",
+        "Bring the handles together in front of you, then return slowly"
+      ],
+      "mistakes": ["Letting your shoulders roll forward", "Opening your arms further back than is comfortable"]
+    }
+  },
+  {
+    "id": "chest-dip",
+    "name": "Chest Dip",
+    "muscleGroup": "chest",
+    "equipmentIds": ["dip-bars"],
+    "alternativeIds": ["push-up", "chest-press-machine", "barbell-bench-press"],
+    "howTo": {
+      "targetMuscles": ["Lower chest", "Triceps", "Front shoulders"],
+      "cues": [
+        "Grip the bars and lean your torso forward slightly",
+        "Lower until your upper arms are about parallel to the floor",
+        "Press up until your elbows are straight"
+      ],
+      "mistakes": [
+        "Dropping so deep that your shoulders hurt",
+        "Staying fully upright, which shifts the work to your triceps"
+      ]
+    }
+  },
+  {
+    "id": "pull-up",
+    "name": "Pull-Up",
+    "muscleGroup": "back",
+    "equipmentIds": ["pull-up-bar"],
+    "alternativeIds": ["lat-pulldown", "barbell-bent-over-row", "superman"],
+    "howTo": {
+      "targetMuscles": ["Lats", "Upper back", "Biceps"],
+      "cues": [
+        "Grip the bar just wider than your shoulders, palms facing away",
+        "Start each rep by pulling your shoulder blades down",
+        "Pull until your chin clears the bar, then lower fully"
+      ],
+      "mistakes": ["Kicking or swinging to get up", "Cutting the range short at the bottom"]
+    }
+  },
+  {
+    "id": "lat-pulldown",
+    "name": "Lat Pulldown",
+    "muscleGroup": "back",
+    "equipmentIds": ["lat-pulldown"],
+    "alternativeIds": ["pull-up", "seated-cable-row", "reverse-snow-angel"],
+    "howTo": {
+      "targetMuscles": ["Lats", "Upper back", "Biceps"],
+      "cues": [
+        "Grip the bar wider than your shoulders and lean back slightly",
+        "Pull the bar to your upper chest, driving your elbows down",
+        "Let the bar rise slowly until your arms are straight"
+      ],
+      "mistakes": ["Leaning far back and swinging the weight", "Pulling the bar behind your neck"]
+    }
+  },
+  {
+    "id": "seated-cable-row",
+    "name": "Seated Cable Row",
+    "muscleGroup": "back",
+    "equipmentIds": ["cable-machine"],
+    "alternativeIds": ["machine-row", "one-arm-dumbbell-row", "superman"],
+    "howTo": {
+      "targetMuscles": ["Mid back", "Lats", "Biceps"],
+      "cues": [
+        "Sit tall with your knees slightly bent and your chest up",
+        "Pull the handle to your lower ribs and squeeze your shoulder blades together",
+        "Let your arms extend slowly without rounding your back"
+      ],
+      "mistakes": ["Rocking your torso back and forth", "Shrugging your shoulders toward your ears"]
+    }
+  },
+  {
+    "id": "machine-row",
+    "name": "Machine Row",
+    "muscleGroup": "back",
+    "equipmentIds": ["seated-row-machine"],
+    "alternativeIds": ["seated-cable-row", "dumbbell-bent-over-row", "reverse-snow-angel"],
+    "howTo": {
+      "targetMuscles": ["Mid back", "Lats", "Biceps"],
+      "cues": [
+        "Set the seat so you can reach the handles with your chest against the pad",
+        "Pull your elbows back and squeeze your shoulder blades together",
+        "Return slowly until your arms are straight"
+      ],
+      "mistakes": [
+        "Pulling with your arms only instead of your back",
+        "Letting your shoulders roll forward at the end of each rep"
+      ]
+    }
+  },
+  {
+    "id": "barbell-bent-over-row",
+    "name": "Barbell Bent-Over Row",
+    "muscleGroup": "back",
+    "equipmentIds": ["barbell"],
+    "alternativeIds": ["dumbbell-bent-over-row", "one-arm-dumbbell-row", "superman"],
+    "howTo": {
+      "targetMuscles": ["Lats", "Mid back", "Lower back", "Biceps"],
+      "cues": [
+        "Hinge at your hips with a flat back until your torso is about 45 degrees",
+        "Pull the bar to your lower ribs and keep your elbows close",
+        "Lower under control without letting your back round"
+      ],
+      "mistakes": ["Standing up on every rep to heave the weight", "Rounding your lower back"]
+    }
+  },
+  {
+    "id": "dumbbell-bent-over-row",
+    "name": "Dumbbell Bent-Over Row",
+    "muscleGroup": "back",
+    "equipmentIds": ["dumbbells"],
+    "alternativeIds": ["one-arm-dumbbell-row", "barbell-bent-over-row", "reverse-snow-angel"],
+    "howTo": {
+      "targetMuscles": ["Lats", "Mid back", "Biceps"],
+      "cues": [
+        "Hinge forward with a flat back and the dumbbells hanging under your shoulders",
+        "Row both dumbbells toward your hips",
+        "Lower slowly to a full stretch"
+      ],
+      "mistakes": ["Jerking the weight up with your torso", "Looking up and straining your neck"]
+    }
+  },
+  {
+    "id": "one-arm-dumbbell-row",
+    "name": "One-Arm Dumbbell Row",
+    "muscleGroup": "back",
+    "equipmentIds": ["dumbbells", "flat-bench"],
+    "alternativeIds": ["dumbbell-bent-over-row", "seated-cable-row", "superman"],
+    "howTo": {
+      "targetMuscles": ["Lats", "Mid back", "Biceps"],
+      "cues": [
+        "Rest one hand and the same-side knee on a flat bench with your back flat",
+        "Pull the dumbbell toward your hip, not your chest",
+        "Lower until your arm is fully straight"
+      ],
+      "mistakes": ["Twisting your torso to lift the weight", "Pulling the dumbbell straight up to your shoulder"]
+    }
+  },
+  {
+    "id": "deadlift",
+    "name": "Deadlift",
+    "muscleGroup": "back",
+    "equipmentIds": ["barbell"],
+    "alternativeIds": ["barbell-bent-over-row", "dumbbell-bent-over-row", "superman"],
+    "howTo": {
+      "targetMuscles": ["Lower back", "Glutes", "Hamstrings", "Upper back"],
+      "cues": [
+        "Stand with the bar over your mid-foot and grip just outside your legs",
+        "Brace your core, keep your back flat and push the floor away",
+        "Stand tall, then lower the bar back down along your legs"
+      ],
+      "mistakes": [
+        "Rounding your lower back",
+        "Jerking the bar off the floor instead of pulling the slack out first"
+      ]
+    }
+  },
+  {
+    "id": "superman",
+    "name": "Superman",
+    "muscleGroup": "back",
+    "equipmentIds": [],
+    "alternativeIds": ["reverse-snow-angel", "dumbbell-bent-over-row"],
+    "howTo": {
+      "targetMuscles": ["Lower back", "Glutes", "Upper back"],
+      "cues": [
+        "Lie face down with your arms extended in front of you",
+        "Lift your arms, chest and legs off the floor together and squeeze your back",
+        "Hold for a second, then lower slowly"
+      ],
+      "mistakes": ["Cranking your neck up to look forward", "Using momentum instead of holding the top"]
+    }
+  },
+  {
+    "id": "reverse-snow-angel",
+    "name": "Reverse Snow Angel",
+    "muscleGroup": "back",
+    "equipmentIds": [],
+    "alternativeIds": ["superman", "seated-cable-row"],
+    "howTo": {
+      "targetMuscles": ["Upper back", "Rear shoulders", "Lower back"],
+      "cues": [
+        "Lie face down with your arms at your sides, palms down",
+        "Lift your chest slightly and sweep your arms in a wide arc overhead",
+        "Reverse the arc slowly back to your sides"
+      ],
+      "mistakes": [
+        "Letting your arms drop to the floor between reps",
+        "Arching your lower back hard to get higher"
+      ]
+    }
+  },
+  {
+    "id": "overhead-press",
+    "name": "Overhead Press",
+    "muscleGroup": "shoulders",
+    "equipmentIds": ["barbell"],
+    "alternativeIds": ["dumbbell-shoulder-press", "machine-shoulder-press", "pike-push-up"],
+    "howTo": {
+      "targetMuscles": ["Shoulders", "Triceps", "Upper chest"],
+      "cues": [
+        "Hold the bar at your collarbones with your elbows just in front of it",
+        "Squeeze your glutes and brace your core, then press the bar straight up",
+        "Move your head forward through the gap once the bar passes your forehead"
+      ],
+      "mistakes": [
+        "Leaning back until it turns into an incline press",
+        "Flaring your ribs and arching your lower back"
+      ]
+    }
+  },
+  {
+    "id": "dumbbell-shoulder-press",
+    "name": "Dumbbell Shoulder Press",
+    "muscleGroup": "shoulders",
+    "equipmentIds": ["dumbbells"],
+    "alternativeIds": ["overhead-press", "machine-shoulder-press", "pike-push-up"],
+    "howTo": {
+      "targetMuscles": ["Shoulders", "Triceps"],
+      "cues": [
+        "Start with the dumbbells at shoulder height, palms facing forward",
+        "Press up until your arms are straight above your shoulders",
+        "Lower to ear level under control"
+      ],
+      "mistakes": [
+        "Arching your back to push the weight up",
+        "Pressing the dumbbells forward instead of straight up"
+      ]
+    }
+  },
+  {
+    "id": "machine-shoulder-press",
+    "name": "Machine Shoulder Press",
+    "muscleGroup": "shoulders",
+    "equipmentIds": ["shoulder-press-machine"],
+    "alternativeIds": ["dumbbell-shoulder-press", "overhead-press", "pike-push-up"],
+    "howTo": {
+      "targetMuscles": ["Shoulders", "Triceps"],
+      "cues": [
+        "Set the seat so the handles start at shoulder height",
+        "Keep your back against the pad and press straight up",
+        "Lower slowly until your elbows are level with your shoulders"
+      ],
+      "mistakes": ["Shrugging your shoulders up as you press", "Letting the weights drop at the bottom"]
+    }
+  },
+  {
+    "id": "lateral-raise",
+    "name": "Lateral Raise",
+    "muscleGroup": "shoulders",
+    "equipmentIds": ["dumbbells"],
+    "alternativeIds": ["dumbbell-shoulder-press", "prone-y-raise"],
+    "howTo": {
+      "targetMuscles": ["Side shoulders"],
+      "cues": [
+        "Hold light dumbbells at your sides with a slight bend in your elbows",
+        "Raise your arms out to the side until they reach shoulder height",
+        "Lower slowly instead of dropping them"
+      ],
+      "mistakes": [
+        "Swinging the weights up with your body",
+        "Lifting past shoulder height with your shoulders shrugged"
+      ]
+    }
+  },
+  {
+    "id": "face-pull",
+    "name": "Face Pull",
+    "muscleGroup": "shoulders",
+    "equipmentIds": ["cable-machine"],
+    "alternativeIds": ["reverse-pec-deck", "band-pull-apart", "prone-y-raise"],
+    "howTo": {
+      "targetMuscles": ["Rear shoulders", "Upper back"],
+      "cues": [
+        "Set a rope at head height and step back until the cable is tight",
+        "Pull the rope toward your face with your elbows high and wide",
+        "Squeeze your shoulder blades together, then return slowly"
+      ],
+      "mistakes": ["Using too much weight and leaning back", "Letting your elbows drop below your hands"]
+    }
+  },
+  {
+    "id": "reverse-pec-deck",
+    "name": "Reverse Pec Deck",
+    "muscleGroup": "shoulders",
+    "equipmentIds": ["pec-deck"],
+    "alternativeIds": ["face-pull", "band-pull-apart", "prone-y-raise"],
+    "howTo": {
+      "targetMuscles": ["Rear shoulders", "Upper back"],
+      "cues": [
+        "Face the pad and set the handles at shoulder height",
+        "Sweep your arms back with a slight bend in your elbows",
+        "Squeeze your shoulder blades together, then return slowly"
+      ],
+      "mistakes": ["Shrugging your shoulders", "Swinging your torso to move the weight"]
+    }
+  },
+  {
+    "id": "band-pull-apart",
+    "name": "Band Pull-Apart",
+    "muscleGroup": "shoulders",
+    "equipmentIds": ["resistance-bands"],
+    "alternativeIds": ["face-pull", "reverse-pec-deck", "prone-y-raise"],
+    "howTo": {
+      "targetMuscles": ["Rear shoulders", "Upper back"],
+      "cues": [
+        "Hold the band in front of you at shoulder height with your arms straight",
+        "Pull the band apart until it touches your chest",
+        "Return slowly, keeping tension on the band"
+      ],
+      "mistakes": ["Shrugging your shoulders toward your ears", "Arching your back to get the band wider"]
+    }
+  },
+  {
+    "id": "pike-push-up",
+    "name": "Pike Push-Up",
+    "muscleGroup": "shoulders",
+    "equipmentIds": [],
+    "alternativeIds": ["dumbbell-shoulder-press", "overhead-press", "machine-shoulder-press"],
+    "howTo": {
+      "targetMuscles": ["Shoulders", "Triceps", "Upper chest"],
+      "cues": [
+        "Start in a downward-dog shape with your hips high and your legs straight",
+        "Lower the top of your head toward the floor between your hands",
+        "Press back up until your arms are straight"
+      ],
+      "mistakes": ["Letting your hips sag so it turns into a regular push-up", "Flaring your elbows wide"]
+    }
+  },
+  {
+    "id": "prone-y-raise",
+    "name": "Prone Y Raise",
+    "muscleGroup": "shoulders",
+    "equipmentIds": [],
+    "alternativeIds": ["band-pull-apart", "lateral-raise", "face-pull"],
+    "howTo": {
+      "targetMuscles": ["Lower traps", "Rear shoulders"],
+      "cues": [
+        "Lie face down with your arms out in a Y shape and your thumbs pointing up",
+        "Lift your arms off the floor by squeezing your upper back",
+        "Hold for a second, then lower slowly"
+      ],
+      "mistakes": [
+        "Lifting with your lower back instead of your upper back",
+        "Shrugging your shoulders up to your ears"
+      ]
+    }
+  },
+  {
+    "id": "barbell-curl",
+    "name": "Barbell Curl",
+    "muscleGroup": "arms",
+    "equipmentIds": ["barbell"],
+    "alternativeIds": ["ez-bar-curl", "dumbbell-curl", "towel-curl"],
+    "howTo": {
+      "targetMuscles": ["Biceps", "Forearms"],
+      "cues": [
+        "Stand tall with a shoulder-width grip, palms up",
+        "Curl the bar up while keeping your elbows pinned at your sides",
+        "Lower fully under control"
+      ],
+      "mistakes": ["Swinging your torso to lift the weight", "Letting your elbows drift forward"]
+    }
+  },
+  {
+    "id": "ez-bar-curl",
+    "name": "EZ-Bar Curl",
+    "muscleGroup": "arms",
+    "equipmentIds": ["ez-bar"],
+    "alternativeIds": ["barbell-curl", "dumbbell-curl", "towel-curl"],
+    "howTo": {
+      "targetMuscles": ["Biceps", "Forearms"],
+      "cues": [
+        "Grip the angled parts of the bar with your palms turned slightly inward",
+        "Curl up while keeping your elbows at your sides",
+        "Lower fully under control"
+      ],
+      "mistakes": ["Rocking your back to get the bar up", "Stopping short at the bottom of each rep"]
+    }
+  },
+  {
+    "id": "dumbbell-curl",
+    "name": "Dumbbell Curl",
+    "muscleGroup": "arms",
+    "equipmentIds": ["dumbbells"],
+    "alternativeIds": ["hammer-curl", "ez-bar-curl", "towel-curl"],
+    "howTo": {
+      "targetMuscles": ["Biceps"],
+      "cues": [
+        "Hold the dumbbells at your sides with your palms facing forward",
+        "Curl the weights up while keeping your elbows still",
+        "Lower slowly until your arms are straight"
+      ],
+      "mistakes": ["Swinging the dumbbells with your body", "Cutting the range short at the bottom"]
+    }
+  },
+  {
+    "id": "hammer-curl",
+    "name": "Hammer Curl",
+    "muscleGroup": "arms",
+    "equipmentIds": ["dumbbells"],
+    "alternativeIds": ["dumbbell-curl", "barbell-curl", "towel-curl"],
+    "howTo": {
+      "targetMuscles": ["Biceps", "Forearms"],
+      "cues": [
+        "Hold the dumbbells with your palms facing each other",
+        "Curl up without turning your wrists",
+        "Lower slowly to full extension"
+      ],
+      "mistakes": ["Letting your elbows drift forward", "Using momentum from your shoulders"]
+    }
+  },
+  {
+    "id": "triceps-pushdown",
+    "name": "Triceps Pushdown",
+    "muscleGroup": "arms",
+    "equipmentIds": ["cable-machine"],
+    "alternativeIds": ["overhead-triceps-extension", "skull-crusher", "diamond-push-up"],
+    "howTo": {
+      "targetMuscles": ["Triceps"],
+      "cues": [
+        "Set a rope or bar on a high pulley and pin your elbows to your sides",
+        "Push down until your arms are fully straight",
+        "Let the handle rise slowly until your forearms are just past parallel"
+      ],
+      "mistakes": [
+        "Leaning over the handle and using your body weight",
+        "Letting your elbows flare away from your sides"
+      ]
+    }
+  },
+  {
+    "id": "overhead-triceps-extension",
+    "name": "Overhead Triceps Extension",
+    "muscleGroup": "arms",
+    "equipmentIds": ["dumbbells"],
+    "alternativeIds": ["triceps-pushdown", "skull-crusher", "diamond-push-up"],
+    "howTo": {
+      "targetMuscles": ["Triceps"],
+      "cues": [
+        "Hold one dumbbell with both hands overhead and your arms straight",
+        "Lower it behind your head by bending only at the elbows",
+        "Extend back up without letting your elbows flare"
+      ],
+      "mistakes": ["Arching your lower back as you press", "Letting your elbows flare far apart"]
+    }
+  },
+  {
+    "id": "skull-crusher",
+    "name": "Skull Crusher",
+    "muscleGroup": "arms",
+    "equipmentIds": ["ez-bar", "flat-bench"],
+    "alternativeIds": ["overhead-triceps-extension", "triceps-pushdown", "diamond-push-up"],
+    "howTo": {
+      "targetMuscles": ["Triceps"],
+      "cues": [
+        "Lie on a flat bench holding the bar over your chest with your arms straight",
+        "Bend your elbows to lower the bar toward your forehead",
+        "Extend your arms back up, keeping your upper arms still"
+      ],
+      "mistakes": [
+        "Letting your elbows flare wide",
+        "Moving your upper arms back and forth so it becomes a press"
+      ]
+    }
+  },
+  {
+    "id": "diamond-push-up",
+    "name": "Diamond Push-Up",
+    "muscleGroup": "arms",
+    "equipmentIds": [],
+    "alternativeIds": ["triceps-pushdown", "overhead-triceps-extension"],
+    "howTo": {
+      "targetMuscles": ["Triceps", "Chest", "Front shoulders"],
+      "cues": [
+        "Make a diamond with your thumbs and index fingers under your chest",
+        "Keep your body straight and your elbows close to your ribs",
+        "Lower until your chest touches your hands, then press up"
+      ],
+      "mistakes": ["Letting your hips sag", "Flaring your elbows out to the sides"]
+    }
+  },
+  {
+    "id": "towel-curl",
+    "name": "Towel Isometric Curl",
+    "muscleGroup": "arms",
+    "equipmentIds": [],
+    "alternativeIds": ["dumbbell-curl", "hammer-curl"],
+    "howTo": {
+      "targetMuscles": ["Biceps", "Forearms"],
+      "cues": [
+        "Stand on the middle of a towel with one foot and hold both ends",
+        "Curl your hands up while pressing your foot down to resist",
+        "Hold the top for a second, then lower slowly and keep the tension on"
+      ],
+      "mistakes": ["Letting the towel go slack at the bottom", "Leaning back to lift instead of curling"]
+    }
+  },
+  {
+    "id": "barbell-back-squat",
+    "name": "Barbell Back Squat",
+    "muscleGroup": "legs",
+    "equipmentIds": ["barbell", "squat-rack"],
+    "alternativeIds": ["smith-machine-squat", "leg-press", "goblet-squat", "bodyweight-squat"],
+    "howTo": {
+      "targetMuscles": ["Quads", "Glutes", "Hamstrings", "Lower back"],
+      "cues": [
+        "Set the bar on your upper back and unrack it with your feet shoulder-width apart",
+        "Sit down and back until your thighs are at least parallel to the floor",
+        "Drive up through your whole foot and keep your chest up"
+      ],
+      "mistakes": ["Letting your knees cave inward", "Rounding your lower back at the bottom"]
+    }
+  },
+  {
+    "id": "smith-machine-squat",
+    "name": "Smith Machine Squat",
+    "muscleGroup": "legs",
+    "equipmentIds": ["smith-machine"],
+    "alternativeIds": ["barbell-back-squat", "leg-press", "bodyweight-squat"],
+    "howTo": {
+      "targetMuscles": ["Quads", "Glutes"],
+      "cues": [
+        "Set the bar on your upper back with your feet slightly in front of the bar",
+        "Sit down until your thighs are at least parallel to the floor",
+        "Press up through your heels and mid-foot"
+      ],
+      "mistakes": [
+        "Placing your feet directly under the bar, which strains your knees",
+        "Letting your heels lift off the floor"
+      ]
+    }
+  },
+  {
+    "id": "goblet-squat",
+    "name": "Goblet Squat",
+    "muscleGroup": "legs",
+    "equipmentIds": ["dumbbells"],
+    "alternativeIds": ["leg-press", "bodyweight-squat", "bulgarian-split-squat"],
+    "howTo": {
+      "targetMuscles": ["Quads", "Glutes", "Core"],
+      "cues": [
+        "Hold one dumbbell against your chest with both hands",
+        "Sit straight down between your knees, keeping your chest tall",
+        "Drive up through your whole foot"
+      ],
+      "mistakes": ["Letting your chest fall forward", "Letting your knees collapse inward"]
+    }
+  },
+  {
+    "id": "bodyweight-squat",
+    "name": "Bodyweight Squat",
+    "muscleGroup": "legs",
+    "equipmentIds": [],
+    "alternativeIds": ["goblet-squat", "leg-press", "reverse-lunge"],
+    "howTo": {
+      "targetMuscles": ["Quads", "Glutes"],
+      "cues": [
+        "Stand with your feet shoulder-width apart and toes slightly out",
+        "Sit down and back until your thighs are parallel to the floor",
+        "Stand up by pushing through your whole foot"
+      ],
+      "mistakes": ["Letting your heels rise", "Letting your knees cave inward"]
+    }
+  },
+  {
+    "id": "leg-press",
+    "name": "Leg Press",
+    "muscleGroup": "legs",
+    "equipmentIds": ["leg-press"],
+    "alternativeIds": ["barbell-back-squat", "goblet-squat", "bodyweight-squat"],
+    "howTo": {
+      "targetMuscles": ["Quads", "Glutes", "Hamstrings"],
+      "cues": [
+        "Place your feet shoulder-width apart in the middle of the platform",
+        "Lower until your knees are bent to about 90 degrees",
+        "Press through your whole foot without locking your knees at the top"
+      ],
+      "mistakes": ["Letting your lower back lift off the seat", "Locking your knees hard at the top"]
+    }
+  },
+  {
+    "id": "leg-extension",
+    "name": "Leg Extension",
+    "muscleGroup": "legs",
+    "equipmentIds": ["leg-extension-machine"],
+    "alternativeIds": ["bulgarian-split-squat", "reverse-lunge", "bodyweight-squat"],
+    "howTo": {
+      "targetMuscles": ["Quads"],
+      "cues": [
+        "Set the pad on your lower shins and line your knees up with the machine's pivot",
+        "Extend your legs until they are almost straight and squeeze your quads",
+        "Lower slowly without letting the weights crash"
+      ],
+      "mistakes": ["Swinging the weight up with momentum", "Lifting your hips off the seat"]
+    }
+  },
+  {
+    "id": "leg-curl",
+    "name": "Leg Curl",
+    "muscleGroup": "legs",
+    "equipmentIds": ["leg-curl-machine"],
+    "alternativeIds": ["romanian-deadlift", "glute-bridge"],
+    "howTo": {
+      "targetMuscles": ["Hamstrings"],
+      "cues": [
+        "Adjust the pad so it rests just above your heels",
+        "Curl your heels toward your glutes and squeeze",
+        "Return slowly to a nearly straight leg"
+      ],
+      "mistakes": ["Lifting your hips to cheat the weight up", "Dropping the weight quickly on the way down"]
+    }
+  },
+  {
+    "id": "romanian-deadlift",
+    "name": "Romanian Deadlift",
+    "muscleGroup": "legs",
+    "equipmentIds": ["barbell"],
+    "alternativeIds": ["leg-curl", "hip-thrust", "glute-bridge"],
+    "howTo": {
+      "targetMuscles": ["Hamstrings", "Glutes", "Lower back"],
+      "cues": [
+        "Hold the bar at your thighs with a soft bend in your knees",
+        "Push your hips back and slide the bar down your legs with a flat back",
+        "Stop when you feel a hamstring stretch, then drive your hips forward"
+      ],
+      "mistakes": [
+        "Rounding your back to reach lower",
+        "Bending your knees more each rep until it becomes a squat"
+      ]
+    }
+  },
+  {
+    "id": "reverse-lunge",
+    "name": "Reverse Lunge",
+    "muscleGroup": "legs",
+    "equipmentIds": [],
+    "alternativeIds": ["bulgarian-split-squat", "bodyweight-squat", "goblet-squat"],
+    "howTo": {
+      "targetMuscles": ["Quads", "Glutes", "Hamstrings"],
+      "cues": [
+        "Step one leg back and lower until both knees are bent to about 90 degrees",
+        "Keep your torso upright and your front heel down",
+        "Push through your front foot to return to standing"
+      ],
+      "mistakes": ["Letting your front knee cave inward", "Taking too short a step so your front knee shoots forward"]
+    }
+  },
+  {
+    "id": "bulgarian-split-squat",
+    "name": "Bulgarian Split Squat",
+    "muscleGroup": "legs",
+    "equipmentIds": ["flat-bench"],
+    "alternativeIds": ["reverse-lunge", "goblet-squat", "leg-press"],
+    "howTo": {
+      "targetMuscles": ["Quads", "Glutes"],
+      "cues": [
+        "Rest your rear foot on a bench behind you and stand on your front foot",
+        "Lower straight down until your front thigh is about parallel to the floor",
+        "Drive up through your front heel"
+      ],
+      "mistakes": ["Standing too close to the bench", "Letting your front knee cave inward"]
+    }
+  },
+  {
+    "id": "hip-thrust",
+    "name": "Hip Thrust",
+    "muscleGroup": "legs",
+    "equipmentIds": ["barbell", "flat-bench"],
+    "alternativeIds": ["glute-bridge", "romanian-deadlift", "kettlebell-swing"],
+    "howTo": {
+      "targetMuscles": ["Glutes", "Hamstrings"],
+      "cues": [
+        "Rest your upper back on a bench with the bar across your hips (use a pad)",
+        "Drive through your heels until your hips line up with your shoulders and knees",
+        "Squeeze your glutes at the top, then lower under control"
+      ],
+      "mistakes": [
+        "Arching your lower back instead of squeezing your glutes",
+        "Pushing up on your toes instead of your heels"
+      ]
+    }
+  },
+  {
+    "id": "glute-bridge",
+    "name": "Glute Bridge",
+    "muscleGroup": "legs",
+    "equipmentIds": [],
+    "alternativeIds": ["hip-thrust", "romanian-deadlift", "leg-curl"],
+    "howTo": {
+      "targetMuscles": ["Glutes", "Hamstrings"],
+      "cues": [
+        "Lie on your back with your knees bent and your feet flat",
+        "Drive through your heels to lift your hips until your body is straight from shoulders to knees",
+        "Squeeze your glutes at the top, then lower slowly"
+      ],
+      "mistakes": ["Arching your lower back at the top", "Pushing through your toes"]
+    }
+  },
+  {
+    "id": "bodyweight-calf-raise",
+    "name": "Bodyweight Calf Raise",
+    "muscleGroup": "legs",
+    "equipmentIds": [],
+    "alternativeIds": ["leg-press-calf-raise"],
+    "howTo": {
+      "targetMuscles": ["Calves"],
+      "cues": [
+        "Stand with the balls of your feet on a step edge, or on flat ground",
+        "Rise up onto your toes as high as you can",
+        "Lower slowly until your heels drop below the step"
+      ],
+      "mistakes": ["Bouncing quickly with no pause at the top", "Bending your knees to help"]
+    }
+  },
+  {
+    "id": "leg-press-calf-raise",
+    "name": "Leg Press Calf Raise",
+    "muscleGroup": "legs",
+    "equipmentIds": ["leg-press"],
+    "alternativeIds": ["bodyweight-calf-raise"],
+    "howTo": {
+      "targetMuscles": ["Calves"],
+      "cues": [
+        "Sit in the leg press with your toes on the bottom edge of the platform and your legs almost straight",
+        "Push through the balls of your feet to rise onto your toes",
+        "Lower slowly until you feel a stretch in your calves"
+      ],
+      "mistakes": ["Bending your knees to move the weight", "Bouncing at the bottom"]
+    }
+  },
+  {
+    "id": "kettlebell-swing",
+    "name": "Kettlebell Swing",
+    "muscleGroup": "legs",
+    "equipmentIds": ["kettlebell"],
+    "alternativeIds": ["hip-thrust", "romanian-deadlift", "glute-bridge"],
+    "howTo": {
+      "targetMuscles": ["Glutes", "Hamstrings", "Lower back", "Core"],
+      "cues": [
+        "Stand slightly wider than your shoulders and hinge your hips back with the kettlebell in both hands",
+        "Snap your hips forward to swing the bell up to chest height",
+        "Let it fall back and hinge again, keeping your back flat"
+      ],
+      "mistakes": ["Squatting the movement instead of hinging", "Lifting the bell with your arms instead of your hips"]
+    }
+  },
+  {
+    "id": "plank",
+    "name": "Plank",
+    "muscleGroup": "core",
+    "equipmentIds": [],
+    "alternativeIds": ["side-plank", "dead-bug", "ab-wheel-rollout"],
+    "howTo": {
+      "targetMuscles": ["Core", "Shoulders"],
+      "cues": [
+        "Rest on your forearms with your elbows under your shoulders",
+        "Keep a straight line from your head to your heels",
+        "Squeeze your glutes and breathe steadily"
+      ],
+      "mistakes": ["Letting your hips sag or pike up", "Holding your breath"]
+    }
+  },
+  {
+    "id": "side-plank",
+    "name": "Side Plank",
+    "muscleGroup": "core",
+    "equipmentIds": [],
+    "alternativeIds": ["plank", "dead-bug"],
+    "howTo": {
+      "targetMuscles": ["Obliques", "Core", "Glutes"],
+      "cues": [
+        "Lie on your side with your elbow under your shoulder",
+        "Lift your hips so your body forms a straight line",
+        "Keep your hips stacked and hold"
+      ],
+      "mistakes": ["Letting your hips drop toward the floor", "Rolling your chest forward or backward"]
+    }
+  },
+  {
+    "id": "crunch",
+    "name": "Crunch",
+    "muscleGroup": "core",
+    "equipmentIds": [],
+    "alternativeIds": ["cable-crunch", "dead-bug", "hanging-leg-raise"],
+    "howTo": {
+      "targetMuscles": ["Upper abs"],
+      "cues": [
+        "Lie on your back with your knees bent and your feet flat",
+        "Curl your ribs toward your hips, lifting your shoulder blades off the floor",
+        "Lower slowly without letting your head drop back"
+      ],
+      "mistakes": ["Pulling on your neck with your hands", "Using momentum to swing up"]
+    }
+  },
+  {
+    "id": "dead-bug",
+    "name": "Dead Bug",
+    "muscleGroup": "core",
+    "equipmentIds": [],
+    "alternativeIds": ["plank", "crunch", "mountain-climber"],
+    "howTo": {
+      "targetMuscles": ["Deep core", "Abs"],
+      "cues": [
+        "Lie on your back with your arms up and your knees bent over your hips",
+        "Lower the opposite arm and leg toward the floor while your lower back stays pressed down",
+        "Return and switch sides"
+      ],
+      "mistakes": ["Letting your lower back arch off the floor", "Moving so fast that you lose control"]
+    }
+  },
+  {
+    "id": "mountain-climber",
+    "name": "Mountain Climber",
+    "muscleGroup": "core",
+    "equipmentIds": [],
+    "alternativeIds": ["plank", "dead-bug", "ab-wheel-rollout"],
+    "howTo": {
+      "targetMuscles": ["Core", "Shoulders", "Hip flexors"],
+      "cues": [
+        "Start in a straight-arm plank with your hands under your shoulders",
+        "Drive one knee toward your chest, then switch legs",
+        "Keep your hips level and your core tight"
+      ],
+      "mistakes": ["Bouncing your hips up and down", "Letting your hands drift forward of your shoulders"]
+    }
+  },
+  {
+    "id": "hanging-leg-raise",
+    "name": "Hanging Leg Raise",
+    "muscleGroup": "core",
+    "equipmentIds": ["pull-up-bar"],
+    "alternativeIds": ["crunch", "cable-crunch", "dead-bug"],
+    "howTo": {
+      "targetMuscles": ["Lower abs", "Hip flexors"],
+      "cues": [
+        "Hang from the bar with your shoulders pulled down",
+        "Raise your legs, bent or straight, until your hips curl up",
+        "Lower slowly without swinging"
+      ],
+      "mistakes": [
+        "Swinging your body to gain momentum",
+        "Lifting your legs without tilting your pelvis, so your hip flexors do all the work"
+      ]
+    }
+  },
+  {
+    "id": "cable-crunch",
+    "name": "Cable Crunch",
+    "muscleGroup": "core",
+    "equipmentIds": ["cable-machine"],
+    "alternativeIds": ["crunch", "hanging-leg-raise", "dead-bug"],
+    "howTo": {
+      "targetMuscles": ["Abs"],
+      "cues": [
+        "Kneel facing a high pulley and hold the rope beside your head",
+        "Curl your ribs toward your hips, rounding your spine",
+        "Return slowly without sitting back on your heels"
+      ],
+      "mistakes": [
+        "Pulling with your arms instead of curling your torso",
+        "Sitting your hips back and down"
+      ]
+    }
+  },
+  {
+    "id": "ab-wheel-rollout",
+    "name": "Ab Wheel Rollout",
+    "muscleGroup": "core",
+    "equipmentIds": ["ab-wheel"],
+    "alternativeIds": ["plank", "dead-bug", "mountain-climber"],
+    "howTo": {
+      "targetMuscles": ["Abs", "Core", "Lats"],
+      "cues": [
+        "Kneel with the wheel under your shoulders and brace your core",
+        "Roll out slowly until your body is nearly straight",
+        "Pull back in by squeezing your abs, not your hips"
+      ],
+      "mistakes": ["Letting your lower back sag as you roll out", "Going further out than you can control"]
+    }
+  }
+]

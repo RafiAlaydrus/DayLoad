@@ -1,0 +1,23 @@
+[
+  { "id": "barbell", "name": "Barbell" },
+  { "id": "ez-bar", "name": "EZ curl bar" },
+  { "id": "dumbbells", "name": "Dumbbells" },
+  { "id": "kettlebell", "name": "Kettlebell" },
+  { "id": "flat-bench", "name": "Flat bench" },
+  { "id": "incline-bench", "name": "Incline bench" },
+  { "id": "squat-rack", "name": "Squat rack" },
+  { "id": "cable-machine", "name": "Cable machine" },
+  { "id": "pull-up-bar", "name": "Pull-up bar" },
+  { "id": "dip-bars", "name": "Dip bars" },
+  { "id": "leg-press", "name": "Leg press" },
+  { "id": "smith-machine", "name": "Smith machine" },
+  { "id": "resistance-bands", "name": "Resistance bands" },
+  { "id": "lat-pulldown", "name": "Lat pulldown machine" },
+  { "id": "seated-row-machine", "name": "Seated row machine" },
+  { "id": "leg-curl-machine", "name": "Leg curl machine" },
+  { "id": "leg-extension-machine", "name": "Leg extension machine" },
+  { "id": "chest-press-machine", "name": "Chest press machine" },
+  { "id": "shoulder-press-machine", "name": "Shoulder press machine" },
+  { "id": "pec-deck", "name": "Pec deck / rear delt machine" },
+  { "id": "ab-wheel", "name": "Ab wheel" }
+]
