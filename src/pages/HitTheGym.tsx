@@ -1,6 +1,7 @@
 import { ChevronLeft, Plus } from 'lucide-react'
 import { useState, type ReactNode } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { formatDate, todayKey } from '../lib/dates'
 import { GymForm, type GymValues } from '../components/GymForm'
 import { BottomSheet } from '../components/ui/BottomSheet'
 import { Button, ButtonLink } from '../components/ui/Button'
@@ -12,10 +13,28 @@ import { Loading } from '../components/ui/Loading'
 import { Option } from '../components/ui/Option'
 import { Segmented } from '../components/ui/Segmented'
 import { startSession } from '../db/sessions'
-import { useActiveSession, useEquipment, useExercises, useGyms, useLastGymId, useTimetableToday } from '../hooks/useData'
+import {
+  useActiveSession,
+  useEquipment,
+  useExercises,
+  useFinishedSessions,
+  useGyms,
+  useLastGymId,
+  useSettings,
+  useTimetableToday,
+} from '../hooks/useData'
+import { longestAgo, REST_AFTER_DAYS, trainingStreak } from '../lib/adaptive'
 import { listNames, namesOf } from '../lib/format'
-import { MUSCLE_GROUPS, muscleLabel, PLAN_BY_TIME, recommend, TIME_OPTIONS } from '../lib/recommend'
-import type { Equipment, Exercise, Gym, MuscleGroup } from '../types'
+import {
+  candidatesFor,
+  estimateMin,
+  MUSCLE_GROUPS,
+  muscleLabel,
+  PLAN_BY_TIME,
+  recommend,
+  TIME_OPTIONS,
+} from '../lib/recommend'
+import type { Equipment, Exercise, Gym, MuscleGroup, Session, Settings } from '../types'
 
 const DRAFT = '__one-time__'
 
@@ -26,6 +45,8 @@ export default function HitTheGym() {
   const equipment = useEquipment()
   const timetable = useTimetableToday()
   const lastGymId = useLastGymId()
+  const settings = useSettings()
+  const sessions = useFinishedSessions()
 
   const header = (
     <div className="flex items-center gap-3">
@@ -42,7 +63,9 @@ export default function HitTheGym() {
     exercises === undefined ||
     equipment === undefined ||
     timetable === undefined ||
-    lastGymId === undefined
+    lastGymId === undefined ||
+    settings === undefined ||
+    sessions === undefined
   ) {
     return (
       <>
@@ -78,6 +101,8 @@ export default function HitTheGym() {
       gyms={gyms.filter((g) => !g.isTemporary)}
       exercises={exercises}
       equipment={equipment}
+      settings={settings}
+      sessions={sessions}
       timetableGroup={timetable?.muscleGroup ?? null}
       hasTimetableToday={timetable !== null}
       defaultGymId={timetable?.defaultGymId ?? lastGymId ?? undefined}
@@ -90,12 +115,25 @@ interface PlannerProps {
   gyms: Gym[]
   exercises: Exercise[]
   equipment: Equipment[]
+  settings: Settings
+  /** Finished sessions, for adaptive mode. */
+  sessions: Session[]
   timetableGroup: MuscleGroup | null
   hasTimetableToday: boolean
   defaultGymId?: string
 }
 
-function Planner({ header, gyms, exercises, equipment, timetableGroup, hasTimetableToday, defaultGymId }: PlannerProps) {
+function Planner({
+  header,
+  gyms,
+  exercises,
+  equipment,
+  settings,
+  sessions,
+  timetableGroup,
+  hasTimetableToday,
+  defaultGymId,
+}: PlannerProps) {
   const navigate = useNavigate()
   // Choices start as null and fall back to a default, so there is no effect syncing state from loaded data.
   const [chosenGymId, setChosenGymId] = useState<string | null>(null)
@@ -104,6 +142,7 @@ function Planner({ header, gyms, exercises, equipment, timetableGroup, hasTimeta
   const [time, setTime] = useState<number>(45)
   const [override, setOverride] = useState<MuscleGroup | null>(null)
   const [chooser, setChooser] = useState(false)
+  const [trainAnyway, setTrainAnyway] = useState(false)
   const [starting, setStarting] = useState(false)
   const [error, setError] = useState('')
 
@@ -113,11 +152,30 @@ function Planner({ header, gyms, exercises, equipment, timetableGroup, hasTimeta
   const usingDraft = gymId === DRAFT && draft !== null
   const equipmentIds = usingDraft ? draft.equipmentIds : (savedGym(gymId)?.equipmentIds ?? [])
 
-  const group = override ?? timetableGroup
+  // Adaptive mode picks the muscle group trained longest ago; timetable mode uses today's row.
+  const adaptive = settings.workoutMode === 'adaptive'
+  const suggestion = adaptive ? longestAgo(sessions) : null
+  const defaultGroup = suggestion?.group ?? timetableGroup
+  const group = override ?? defaultGroup
+  const streak = adaptive ? trainingStreak(sessions, todayKey()) : 0
+  const resting = adaptive && streak >= REST_AFTER_DAYS && !trainAnyway
+
   const target = PLAN_BY_TIME[time]
-  const picks = group ? recommend(exercises, group, equipmentIds, target.exercises) : []
+  const picks = group ? recommend(exercises, group, equipmentIds, target.exercises, settings) : []
+  // How many exercises the avoid list took out of this gym's options, so an empty or short plan can say why.
+  const avoidedHere = group
+    ? candidatesFor(exercises, group, equipmentIds).length - candidatesFor(exercises, group, equipmentIds, settings.avoidIds).length
+    : 0
   const describe = (ids: string[]) => listNames(namesOf(equipment, ids)) || 'Bodyweight only'
   const showChips = group === null || chooser || override !== null
+
+  const why = override
+    ? 'Your choice for today.'
+    : adaptive
+      ? suggestion?.last
+        ? `Picked because you trained it longest ago (last ${formatDate(suggestion.last, { weekday: true })}).`
+        : 'Picked because you have not trained it yet.'
+      : 'Follows your timetable.'
 
   async function build() {
     if (!group || picks.length === 0) return
@@ -188,17 +246,32 @@ function Planner({ header, gyms, exercises, equipment, timetableGroup, hasTimeta
       />
 
       <Card>
-        <SectionLabel>Plan</SectionLabel>
-        {group ? (
+        <SectionLabel>{resting ? 'Rest day suggested' : 'Plan'}</SectionLabel>
+        {resting ? (
+          <p className="mt-1.5 text-[15px] leading-relaxed">
+            You trained {streak} days in a row, so adaptive mode suggests a rest day. It is your call, you can still train today.
+          </p>
+        ) : group && picks.length === 0 ? (
+          <>
+            <p className="mt-1.5 text-[15px] leading-relaxed">
+              {avoidedHere > 0
+                ? `Every ${group} exercise this gym can do is on your avoid list.`
+                : `This gym has no ${group} exercise.`}
+            </p>
+            {avoidedHere > 0 && (
+              <ButtonLink to="/profile/settings" variant="secondary" size="sm" className="mt-3">
+                Open Settings
+              </ButtonLink>
+            )}
+          </>
+        ) : group ? (
           <>
             <p className="mt-1.5 text-[17px] font-bold">
               {muscleLabel(group)} · {picks.length} {picks.length === 1 ? 'exercise' : 'exercises'} · {time} min
             </p>
             <p className="mt-1 text-[13px] text-muted">
-              {override
-                ? 'Your choice for today.'
-                : 'Follows your timetable.'}
-              {picks.length < target.exercises && ` Only ${picks.length} fit this gym.`}
+              {target.sets} sets each, about {estimateMin(picks.length, target.sets)} min. {why}
+              {picks.length < target.exercises && ` Only ${picks.length} fit this gym${avoidedHere > 0 ? ' and your avoid list' : ''}.`}
             </p>
           </>
         ) : (
@@ -208,7 +281,7 @@ function Planner({ header, gyms, exercises, equipment, timetableGroup, hasTimeta
               : 'Your timetable has nothing for today, so pick a muscle group.'}
           </p>
         )}
-        {timetableGroup && !showChips && (
+        {defaultGroup && !showChips && !resting && (
           <button
             type="button"
             onClick={() => setChooser(true)}
@@ -217,7 +290,7 @@ function Planner({ header, gyms, exercises, equipment, timetableGroup, hasTimeta
             Train something else?
           </button>
         )}
-        {showChips && (
+        {showChips && !resting && (
           <div className="mt-3">
             <Segmented
               legend="Muscle group"
@@ -235,9 +308,15 @@ function Planner({ header, gyms, exercises, equipment, timetableGroup, hasTimeta
       {error && <FieldError>{error}</FieldError>}
 
       <BottomAction>
-        <Button size="lg" disabled={!group || picks.length === 0 || starting || (!gymId && !usingDraft)} onClick={build}>
-          Build my workout
-        </Button>
+        {resting ? (
+          <Button size="lg" variant="secondary" onClick={() => setTrainAnyway(true)}>
+            Train anyway
+          </Button>
+        ) : (
+          <Button size="lg" disabled={!group || picks.length === 0 || starting || (!gymId && !usingDraft)} onClick={build}>
+            Build my workout
+          </Button>
+        )}
       </BottomAction>
 
       <BottomSheet open={locationSheet} onClose={() => setLocationSheet(false)} title="New location">

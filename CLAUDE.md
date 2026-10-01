@@ -37,13 +37,13 @@ npm run preview        # serve the production build (this is where the service w
 
 | Folder | Holds |
 | --- | --- |
-| `db/` | Dexie database and versions (`db.ts`), first-launch seed (`seed.ts`), backup export/restore (`backup.ts`), workout writes: start, log a set, finish, discard (`sessions.ts`) |
+| `db/` | Dexie database and versions (`db.ts`), first-launch seed (`seed.ts`), backup export/restore (`backup.ts`), workout writes: start, log a set, finish, discard (`sessions.ts`), favorite and avoid writes (`prefs.ts`) |
 | `data/` | Seed JSON: `equipment.json` (the owner's 40 items in 7 groups), `exercises.json` (78 exercises) |
 | `types/` | One shared types file for every table |
-| `lib/` | Pure helpers: `recommend.ts` (the recommender), `migrate.ts` (data upgrades), `validate.ts`, `units.ts`, `bmi.ts`, `dates.ts`, `format.ts`, `backup.ts`. No DB access here, so they are testable in Node |
-| `hooks/` | Live-query hooks over the database |
+| `lib/` | Pure helpers: `recommend.ts` (the recommender, time plans, avoid and favorites), `progress.ts` (overload target, personal records), `adaptive.ts` (muscle group trained longest ago, rest streak), `migrate.ts` (data upgrades), `validate.ts`, `units.ts`, `bmi.ts`, `dates.ts`, `format.ts`, `backup.ts`. No DB access here, so they are testable in Node |
+| `hooks/` | Live-query hooks over the database (`useHistory` is finished sessions plus their sets) |
 | `components/ui/` | Small reusable pieces: Button, Card, BottomSheet, ConfirmDialog, Field... |
-| `components/` | App pieces: Shell, TabBar, LogoMark, WeightChart, ErrorBoundary, GymForm, EquipmentIcon (one drawing per equipment id), EquipmentTile, SetRow, RestTimer, WeekStrip, HowTo... |
+| `components/` | App pieces: Shell, TabBar, LogoMark, WeightChart, ErrorBoundary, GymForm, EquipmentIcon (one drawing per equipment id), EquipmentTile, MuscleIcon and MuscleTiles (the body figures in the Library filter), SetRow, RestTimer, WeekStrip, HowTo... |
 | `pages/` | One file per route |
 
 Outside `src/`: `tests/` (Node's built-in test runner, plain `.mjs`, no test framework), `vercel.json` (sends every URL to `index.html` so deep links survive a reload), `.claude/launch.json` (dev and preview servers for the Claude Code browser pane).
@@ -52,13 +52,15 @@ Routes: `/` Home, `/hit-the-gym`, `/workout`, `/summary/:sessionId`, `/plan` (pl
 
 ## Key rules
 
-- **The owner's decisions for Phase 2:** the muscle group is chosen each time on Hit the gym (a timetable row for today is used if one exists, but the editor is Phase 4); a session is 3, 5 or 6 exercises of 4 sets for 30, 45 or 60 minutes (`PLAN_BY_TIME` in `lib/recommend.ts`, replaced by real time scaling in Phase 3); custom exercises are not built yet.
+- **The owner's decisions for Phase 2:** the muscle group is chosen each time on Hit the gym (a timetable row for today is used if one exists, but the editor is Phase 4); a session was 3, 5 or 6 exercises of 4 sets for 30, 45 or 60 minutes (replaced by the Phase 3 plans below); custom exercises are not built yet.
+- **The owner's decisions for Phase 3** (details and numbers in the spec, "The numbers behind the rules"): overload is 8 reps on every set then +2.5 kg (5 lb); a PR is the heaviest weight (more reps at the same weight also counts; bodyweight is ranked by reps); adaptive mode suggests rest after 3 training days in a row; plans are 3x3, 4x4 and 5x4 (`PLAN_BY_TIME`); avoid and favorites are toggled on the exercise page and listed in Settings.
 - **Build only the current phase.** Phases are in the spec. Later-phase screens are honest placeholders ("Coming in a later phase"). No fake numbers, names or content anywhere.
 - **Store metric, show the user's units.** The database holds kg and cm. Convert only for display and input, through `src/lib/units.ts`. Units live in the `settings` table.
 - **Every screen that shows data has loading, empty and error states.** Live queries return `undefined` while loading and throw on error (caught by `ErrorBoundary`), so "no data" must be `null` or `[]`. `DbGuard` in `Shell.tsx` opens the database explicitly, because Dexie's `liveQuery` silently swallows the error from a database that fails to open and the screen would stay on "Loading" forever.
 - **Don't override a Tailwind utility with a second one** (for example `p-[14px]` on top of `p-[18px]`): which wins depends on generated CSS order, not class order. Give the component a prop (`Card compact`, `Button size`) instead.
 - **Effects must not return a value.** `useEffect(() => fn(), [])` returns whatever `fn` returns and React treats it as a cleanup function. Use a block body.
 - **Sheets and dialogs use `components/ui/BottomSheet.tsx`** (native `<dialog>`: focus trap, Escape, inert page). `ConfirmDialog` is built on it.
+- **Rules over history are pure functions** in `lib/progress.ts` and `lib/adaptive.ts`, fed by `useHistory` and `useFinishedSessions`. A workout in progress is never history (its sets do not feed its own target or records). Change a rule there and in `tests/progress.test.mjs`, not in a page.
 - **Seed data lives in the database after first launch.** `src/data/*.json` is copied in once (Dexie `populate`). Changing the JSON later does not update phones that already have the data. Do what data version 2 did: add a Dexie `version(n).upgrade()`, put the translation in a pure function in `lib/migrate.ts` (old ids to new ids, keep everything the user made), use it from both the upgrade and `restoreBackup` (old backup files), bump `BACKUP_VERSION`, and test it in `tests/migrate.test.mjs`.
 - **Every equipment item needs a drawing and at least one exercise.** `npm test` checks both, and that the equipment list matches the owner's list exactly. Adding equipment therefore means adding exercises that use it, an entry in `EquipmentIcon.tsx`, and a data upgrade.
 - **Workouts persist as they happen.** Each logged set is a database row the moment it is checked; the plan and position live on the session row. Never keep workout state only in React state. The rest timer and unlogged typing are the only things allowed to be lost.
@@ -78,7 +80,9 @@ Routes: `/` Home, `/hit-the-gym`, `/workout`, `/summary/:sessionId`, `/plan` (pl
 - `resize_window` to 390x844 (also 375x667 and 430x932). Reset to `desktop` when done.
 - Click coordinates are in the screenshot's frame, which is 2x CSS pixels. Prefer clicking by `ref`.
 - If the Claude window is not in front, the page reports `visibilityState: "hidden"` and `requestAnimationFrame` never fires, so Motion animations freeze (a new page stays at opacity 0, an exiting sheet never leaves the DOM). Take a screenshot to flush a frame, then read the DOM. Screenshots taken in that state can be stale; trust DOM reads.
-- Synthetic Tab and Escape key presses are unreliable in the pane. Verify focus rings by calling `el.focus({ focusVisible: true })` and reading the computed outline.
+- Synthetic Tab and Escape key presses are unreliable in the pane. Verify focus rings by calling `el.focus({ focusVisible: true })` and reading the computed outline. When the pane is not the focused window (`document.hasFocus()` is false), `:focus-visible` never matches for any control and every ring reads as `none`. Then check the compiled rules instead (`:focus-visible` and `.has-focus-visible\:outline-2:has(:focus-visible)` in `document.styleSheets`).
+- Click a text input by its `textbox` ref from `read_page`, not the `find` result for its label (that is a screen-reader-only span and the click misses the box).
+- To seed workout history, write sessions and sets into IndexedDB directly on the `dev-test` origin and reload (see the live-query note above). Use real local dates (`todayKey()` style), because adaptive mode counts calendar days.
 - The console buffer can accumulate old messages across navigations. For a trustworthy "no errors" reading, open a fresh tab (`tabs_create`), drive it with in-app navigation (`history.pushState` plus a `popstate` event) and read the console once at the end.
 - To test a notch: set `--safe-top: 59px` and `--safe-bottom: 34px` on `<html>` (see `src/index.css`).
 
@@ -86,5 +90,6 @@ Routes: `/` Home, `/hit-the-gym`, `/workout`, `/summary/:sessionId`, `/plan` (pl
 
 - Phase 1 (foundation) is built and verified: PWA, database and seed data, Home, Profile (onboarding, weight log and chart, BMI), Settings (units, export and import backup).
 - Phase 2 (core loop) is built and verified: gyms with an equipment checklist (40 items, grouped, each with a drawing) and one-time locations, the exercise library with filters and how-to pages, Hit the gym, workout mode with set logging, rest timer, swap, skip, resume, and the session summary. Database is at version 2.
-- Phase 3 (smart features: adaptive mode, progressive overload, PRs, time scaling, avoid and favorites) has **not** been started. Do not start it unless asked.
+- Phase 3 (smart features) is built and verified: adaptive mode (Settings control, longest-ago muscle group, rest suggestion), progressive overload (Target row and a pre-filled first set), personal records (Profile card, "New records" on the summary), real time scaling, and avoid and favorites (exercise page, Library markers, Settings lists). No seed data or table changed, so the database is still at version 2 and `BACKUP_VERSION` is still 2. At the owner's request the Library's muscle filter also got body figures.
+- Phase 4 (planning: timetable editor, calendar, goals, measurements) has **not** been started. Do not start it unless asked.
 - Not verified on a real iPhone yet: the Web Share export sheet in a home-screen app, the iOS date picker, keyboard behavior with the bottom sheets and the workout set inputs, and how the equipment drawings look at real phone size. Check these first if the owner reports an iPhone-only problem.

@@ -1,13 +1,12 @@
-import { ChevronDown, ChevronRight } from 'lucide-react'
+import { Ban, ChevronDown, ChevronRight, Heart } from 'lucide-react'
 import { useId } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
+import { MuscleTiles } from '../components/MuscleTiles'
 import { Card } from '../components/ui/Card'
 import { Loading } from '../components/ui/Loading'
-import { Segmented } from '../components/ui/Segmented'
-import { useEquipment, useExercises } from '../hooks/useData'
+import { useEquipment, useExercises, useSettings } from '../hooks/useData'
 import { groupBy, listNames } from '../lib/format'
 import { MUSCLE_GROUPS, muscleLabel } from '../lib/recommend'
-import type { MuscleGroup } from '../types'
 
 const ANY = 'all'
 const BODYWEIGHT = 'none'
@@ -15,12 +14,13 @@ const BODYWEIGHT = 'none'
 export default function Library() {
   const exercises = useExercises()
   const equipment = useEquipment()
+  const settings = useSettings()
   // Filters live in the address (?muscle=chest&equipment=barbell), so Back from an exercise keeps them.
   const [params, setParams] = useSearchParams()
   const selectId = useId()
 
   const title = <h1 className="font-display text-[34px] font-bold leading-none">Library</h1>
-  if (!exercises || !equipment) {
+  if (!exercises || !equipment || !settings) {
     return (
       <>
         {title}
@@ -57,15 +57,7 @@ export default function Library() {
     <>
       {title}
 
-      <Segmented
-        legend="Muscle group"
-        hideLegend
-        wrap
-        name="muscle"
-        value={muscle as MuscleGroup | typeof ANY}
-        options={[{ value: ANY, label: 'All' }, ...MUSCLE_GROUPS.map((g) => ({ value: g, label: muscleLabel(g) }))]}
-        onChange={(v) => setFilter('muscle', v)}
-      />
+      <MuscleTiles name="muscle" value={muscle} onChange={(v) => setFilter('muscle', v)} />
 
       <div>
         <label htmlFor={selectId} className="mb-1.5 block text-[13px] font-semibold text-muted">
@@ -115,7 +107,21 @@ export default function Library() {
                       {muscleLabel(e.muscleGroup)} · {listNames(e.equipmentIds.map((id) => name.get(id) ?? id)) || 'Bodyweight'}
                     </span>
                   </span>
-                  <ChevronRight size={20} strokeWidth={2} aria-hidden="true" className="shrink-0 text-muted" />
+                  <span className="flex shrink-0 items-center gap-2 text-muted">
+                    {settings.favoriteIds.includes(e.id) && (
+                      <>
+                        <Heart size={18} strokeWidth={2} fill="currentColor" aria-hidden="true" />
+                        <span className="sr-only">Favorite</span>
+                      </>
+                    )}
+                    {settings.avoidIds.includes(e.id) && (
+                      <>
+                        <Ban size={18} strokeWidth={2} aria-hidden="true" />
+                        <span className="sr-only">On your avoid list</span>
+                      </>
+                    )}
+                    <ChevronRight size={20} strokeWidth={2} aria-hidden="true" />
+                  </span>
                 </Link>
               </li>
             ))}

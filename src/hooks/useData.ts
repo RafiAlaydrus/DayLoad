@@ -2,6 +2,7 @@ import { useLiveQuery } from 'dexie-react-hooks'
 import { db } from '../db/db'
 import { DEFAULT_SETTINGS, PROFILE_ID, SETTINGS_ID, sortBySeedOrder, sortEquipmentBySeedOrder } from '../db/seed'
 import { addDays, weekStartKey, todayKey } from '../lib/dates'
+import type { History } from '../lib/progress'
 import type { BodyLog, Equipment, Exercise, Gym, Profile, Session, Settings, TimetableDay, WorkoutSet } from '../types'
 
 // useLiveQuery returns undefined while loading and re-renders on every change to the
@@ -71,6 +72,20 @@ export function useWeekSessions(): Session[] | undefined {
       .between(monday, addDays(monday, 7), true, false)
       .filter((s) => s.finishedAt !== undefined)
       .toArray()
+  }, [])
+}
+
+/** Every finished workout, for adaptive mode. */
+export function useFinishedSessions(): Session[] | undefined {
+  return useLiveQuery(() => db.sessions.filter((s) => s.finishedAt !== undefined).toArray(), [])
+}
+
+/** Finished workouts and all their sets: what overload targets and personal records are worked out from. */
+export function useHistory(): History | undefined {
+  return useLiveQuery(async () => {
+    const sessions = await db.sessions.filter((s) => s.finishedAt !== undefined).toArray()
+    const sets = await db.sets.where('sessionId').anyOf(sessions.map((s) => s.id!)).toArray()
+    return { sessions, sets }
   }, [])
 }
 

@@ -4,8 +4,9 @@ import { ButtonLink } from '../components/ui/Button'
 import { Card, SectionLabel } from '../components/ui/Card'
 import { Loading } from '../components/ui/Loading'
 import { Measure } from '../components/ui/Measure'
-import { useExercises, useGyms, useSession, useSessionSets, useSettings } from '../hooks/useData'
+import { useExercises, useGyms, useHistory, useSession, useSessionSets, useSettings } from '../hooks/useData'
 import { formatDate } from '../lib/dates'
+import { bestText, newRecords } from '../lib/progress'
 import { muscleLabel } from '../lib/recommend'
 import { fromKg, loadText } from '../lib/units'
 import type { WeightUnit } from '../types'
@@ -17,8 +18,9 @@ export default function Summary() {
   const exercises = useExercises()
   const gyms = useGyms()
   const settings = useSettings()
+  const history = useHistory()
 
-  if (session === undefined || !sets || !exercises || !gyms || !settings) {
+  if (session === undefined || !sets || !exercises || !gyms || !settings || !history) {
     return (
       <>
         <Loading className="h-11" />
@@ -61,6 +63,7 @@ export default function Summary() {
   const skipped = session.exerciseIds.filter((eid) => !done.includes(eid))
   const volumeKg = sets.reduce((sum, s) => sum + s.weightKg * s.reps, 0)
   const gym = gyms.find((g) => g.id === session.gymId)
+  const records = newRecords(history, session)
 
   return (
     <>
@@ -91,6 +94,23 @@ export default function Summary() {
           </Card>
         )}
       </div>
+
+      {records.length > 0 && (
+        <Card>
+          <SectionLabel>{records.length === 1 ? 'New record' : 'New records'}</SectionLabel>
+          <ul>
+            {records.map((r) => (
+              <li key={r.exerciseId} className="border-t border-border py-3 first:mt-1.5">
+                <div className="flex items-baseline justify-between gap-3">
+                  <p className="text-[15px] font-bold">{name.get(r.exerciseId) ?? 'Removed exercise'}</p>
+                  <p className="shrink-0 text-[15px] font-bold">{bestText(r.now, unit)}</p>
+                </div>
+                <p className="mt-1 text-[13px] text-muted">Beat {bestText(r.before, unit)}</p>
+              </li>
+            ))}
+          </ul>
+        </Card>
+      )}
 
       <Card>
         <SectionLabel>What you did</SectionLabel>

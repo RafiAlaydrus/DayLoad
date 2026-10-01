@@ -41,6 +41,14 @@ The recommender picks a muscle group, then fills it with exercises the chosen gy
 7. Add a warm-up suggestion at the start.
 8. For each exercise, show the progressive overload target from the last logged session.
 
+### The numbers behind the rules (the owner's Phase 3 decisions)
+
+- **Rest (rule 2):** adaptive mode suggests a rest day after 3 days in a row with a finished workout (counted back from today, or from yesterday if today is not trained yet). "Hard day" means a finished session, because sets have no effort score. The suggestion can be overridden with "Train anyway".
+- **Time (rule 6):** a set takes about 2.25 min counting the 90 s rest, and changing exercise about 2 min. 30 min is 3 exercises of 3 sets, 45 min is 4 of 4, 60 min is 5 of 4 (about 26, 44 and 55 min; the 60 min plan leaves room for the Phase 5 warm-up).
+- **Overload (rule 8):** if every set last time reached 8 reps, the target is the same lift 2.5 kg heavier (5 lb in lb mode), for 8 reps. Otherwise repeat the weight and aim for 8 on every set. Bodyweight exercises aim for one more rep than the best set. The first set of an exercise starts filled in with the target.
+- **Personal record:** the heaviest weight ever logged for an exercise, with more reps at the same weight also counting. Bodyweight sets (weight 0) are ranked by reps. The summary lists records that beat an earlier session; the first time an exercise is logged is a starting point, not a record.
+- **Avoid and favorites (rule 4):** avoided exercises are never suggested and not offered as a swap. Favorites are picked first. An exercise cannot be both. They are set on the exercise page and listed in Settings.
+
 ## Screens and navigation
 
 Home opens on the big "Hit the gym" button, with five bottom tabs for everything else. Proposed layout, open to change:
@@ -104,6 +112,6 @@ Design the full app now, build in phases so a usable version lands on the phone 
 
 ## Open questions
 
-- [ ] How many hard days in a row before adaptive mode suggests rest?
-- [x] Exact exercise and set counts for 30, 45 and 60 minutes: 3, 5 and 6 exercises of 4 sets each for Phase 2. Phase 3 replaces this with real time scaling.
+- [x] How many hard days in a row before adaptive mode suggests rest? 3 days in a row (Phase 3).
+- [x] Exact exercise and set counts for 30, 45 and 60 minutes: 3x3, 4x4 and 5x4 (exercises x sets), from a pace estimate (Phase 3). Phase 2 used 3, 5 and 6 exercises of 4 sets, which overran the time.
 - [ ] Is the bottom tab layout right, or should Hit the gym be its own tab?

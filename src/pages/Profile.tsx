@@ -12,11 +12,12 @@ import { IconButton, IconLink } from '../components/ui/IconButton'
 import { Loading } from '../components/ui/Loading'
 import { Measure } from '../components/ui/Measure'
 import { db } from '../db/db'
-import { useBodyLogs, useFinishedSessionCount, useProfile, useSettings } from '../hooks/useData'
+import { useBodyLogs, useExercises, useFinishedSessionCount, useHistory, useProfile, useSettings } from '../hooks/useData'
 import { bmi } from '../lib/bmi'
 import { formatDate } from '../lib/dates'
+import { bestText, personalRecords } from '../lib/progress'
 import { heightParts, partsToText, weightParts } from '../lib/units'
-import type { BodyLog, Profile as ProfileRow, Settings } from '../types'
+import type { BodyLog, Profile as ProfileRow, Settings, WeightUnit } from '../types'
 
 export default function Profile() {
   const profile = useProfile()
@@ -40,6 +41,53 @@ function StatCard({ label, children }: { label: string; children: ReactNode }) {
     <Card compact>
       <SectionLabel>{label}</SectionLabel>
       <div className="mt-1 text-[28px] leading-none">{children}</div>
+    </Card>
+  )
+}
+
+const RECORDS_SHOWN = 5
+
+/** The best set for each exercise. Own loading state, so the weight card never waits for workout history. */
+function Records({ unit }: { unit: WeightUnit }) {
+  const history = useHistory()
+  const exercises = useExercises()
+  const [all, setAll] = useState(false)
+
+  if (!history || !exercises) return <Loading className="h-[150px]" />
+
+  const records = personalRecords(history)
+  const name = new Map(exercises.map((e) => [e.id, e.name]))
+  const shown = all ? records : records.slice(0, RECORDS_SHOWN)
+
+  return (
+    <Card>
+      <SectionLabel>Personal records</SectionLabel>
+      {records.length === 0 ? (
+        <p className="mt-2 text-[15px] leading-relaxed text-muted">
+          No records yet. Finish a workout and your best set for each exercise shows up here.
+        </p>
+      ) : (
+        <>
+          <ul className="mt-1.5">
+            {shown.map((r) => (
+              <li key={r.exerciseId} className="flex items-baseline justify-between gap-3 border-t border-border py-3">
+                <span className="min-w-0 text-[15px] font-semibold">{name.get(r.exerciseId) ?? 'Removed exercise'}</span>
+                <span className="shrink-0 text-[15px] font-semibold text-muted">{bestText(r, unit)}</span>
+              </li>
+            ))}
+          </ul>
+          {records.length > RECORDS_SHOWN && (
+            <button
+              type="button"
+              onClick={() => setAll(!all)}
+              aria-expanded={all}
+              className="press -ml-2 mt-1 min-h-11 px-2 text-[13px] font-bold text-ink underline"
+            >
+              {all ? 'Show fewer' : `Show all ${records.length}`}
+            </button>
+          )}
+        </>
+      )}
     </Card>
   )
 }
@@ -124,6 +172,8 @@ function ProfileView({ profile, logs, settings }: { profile: ProfileRow; logs: B
           </StatCard>
         )}
       </div>
+
+      <Records unit={weightUnit} />
 
       <Card>
         <SectionLabel>Weight history</SectionLabel>

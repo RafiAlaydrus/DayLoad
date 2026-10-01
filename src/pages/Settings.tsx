@@ -1,21 +1,25 @@
-import { ChevronLeft, Download, Upload } from 'lucide-react'
+import { ChevronLeft, Download, Upload, X } from 'lucide-react'
 import { useRef, useState, type ChangeEvent } from 'react'
 import { Button } from '../components/ui/Button'
 import { Card, SectionLabel } from '../components/ui/Card'
 import { ConfirmDialog } from '../components/ui/ConfirmDialog'
 import { FieldError } from '../components/ui/Field'
-import { IconLink } from '../components/ui/IconButton'
+import { IconButton, IconLink } from '../components/ui/IconButton'
 import { Loading } from '../components/ui/Loading'
 import { Segmented } from '../components/ui/Segmented'
 import { exportBackup, restoreBackup } from '../db/backup'
 import { db } from '../db/db'
-import { useSettings } from '../hooks/useData'
+import { toggleExercisePref } from '../db/prefs'
+import { useExercises, useSettings } from '../hooks/useData'
+import { REST_AFTER_DAYS } from '../lib/adaptive'
 import { BackupError, backupSummary, parseBackup, type Backup } from '../lib/backup'
 import { formatDate, toDateKey } from '../lib/dates'
-import type { Settings as SettingsRow } from '../types'
+import type { Pref } from '../lib/recommend'
+import type { Exercise, Settings as SettingsRow, WorkoutMode } from '../types'
 
 export default function Settings() {
   const settings = useSettings()
+  const exercises = useExercises()
   return (
     <>
       <div className="-ml-2.5 flex items-center gap-1">
@@ -24,24 +28,113 @@ export default function Settings() {
         </IconLink>
         <h1 className="font-display text-[34px] font-bold leading-none">Settings</h1>
       </div>
+      {settings ? <Mode settings={settings} /> : <Loading className="h-[190px]" />}
       {settings ? <Units settings={settings} /> : <Loading className="h-[230px]" />}
+      {settings && exercises ? (
+        <>
+          <PrefList pref="favorite" ids={settings.favoriteIds} exercises={exercises} />
+          <PrefList pref="avoid" ids={settings.avoidIds} exercises={exercises} />
+        </>
+      ) : (
+        <Loading className="h-[140px]" />
+      )}
       <BackupCard />
     </>
   )
 }
 
-function Units({ settings }: { settings: SettingsRow }) {
+/** Saves a change to the settings row, and holds the error to show if it failed. */
+function useSave(settings: SettingsRow) {
   const [error, setError] = useState('')
-
   async function save(patch: Partial<SettingsRow>) {
     setError('')
     try {
-      // Only the display changes. Stored weights and heights stay in kg and cm.
       await db.settings.put({ ...settings, ...patch })
     } catch {
       setError('Could not save that setting. Try again.')
     }
   }
+  return { save, error }
+}
+
+function Mode({ settings }: { settings: SettingsRow }) {
+  const { save, error } = useSave(settings)
+  return (
+    <Card className="flex flex-col gap-4">
+      <SectionLabel>Workout mode</SectionLabel>
+      <Segmented<WorkoutMode>
+        legend="Choose the muscle group by"
+        hideLegend
+        name="workoutMode"
+        value={settings.workoutMode}
+        options={[
+          { value: 'timetable', label: 'Timetable' },
+          { value: 'adaptive', label: 'Adaptive' },
+        ]}
+        onChange={(workoutMode) => save({ workoutMode })}
+      />
+      <p className="text-[13px] leading-relaxed text-muted">
+        {settings.workoutMode === 'adaptive'
+          ? `Picks the muscle group you trained longest ago, and suggests a rest day after ${REST_AFTER_DAYS} training days in a row. You can always train something else.`
+          : 'Follows your weekly timetable. The timetable editor arrives in a later phase, so for now you pick the muscle group each time.'}
+      </p>
+      {error && <FieldError>{error}</FieldError>}
+    </Card>
+  )
+}
+
+const PREF_COPY: Record<Pref, { title: string; empty: string }> = {
+  favorite: {
+    title: 'Favorites',
+    empty: 'None yet. Favorite an exercise on its page and it is picked first when a workout is built.',
+  },
+  avoid: {
+    title: 'Avoid list',
+    empty: 'None yet. Avoid an exercise on its page and it is never suggested or offered as a swap.',
+  },
+}
+
+/** The exercises marked as favorite or avoided, each with a button to take it off the list. */
+function PrefList({ pref, ids, exercises }: { pref: Pref; ids: string[]; exercises: Exercise[] }) {
+  const [error, setError] = useState('')
+  const { title, empty } = PREF_COPY[pref]
+  // In the library's order. An id that is no longer in the library is skipped.
+  const listed = exercises.filter((e) => ids.includes(e.id))
+
+  async function remove(id: string) {
+    setError('')
+    try {
+      await toggleExercisePref(id, pref)
+    } catch {
+      setError('Could not save that. Try again.')
+    }
+  }
+
+  return (
+    <Card>
+      <SectionLabel>{title}</SectionLabel>
+      {listed.length === 0 ? (
+        <p className="mt-2 text-[15px] leading-relaxed text-muted">{empty}</p>
+      ) : (
+        <ul className="mt-1.5">
+          {listed.map((e) => (
+            <li key={e.id} className="flex items-center justify-between gap-2 border-t border-border">
+              <span className="min-w-0 py-2 text-[15px] font-semibold">{e.name}</span>
+              <IconButton label={`Remove ${e.name} from ${title.toLowerCase()}`} className="-mr-2.5" onClick={() => remove(e.id)}>
+                <X size={20} strokeWidth={2} aria-hidden="true" />
+              </IconButton>
+            </li>
+          ))}
+        </ul>
+      )}
+      {error && <FieldError>{error}</FieldError>}
+    </Card>
+  )
+}
+
+function Units({ settings }: { settings: SettingsRow }) {
+  // Only the display changes. Stored weights and heights stay in kg and cm.
+  const { save, error } = useSave(settings)
 
   return (
     <Card className="flex flex-col gap-5">

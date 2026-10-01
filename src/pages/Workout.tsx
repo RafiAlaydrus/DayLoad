@@ -14,9 +14,10 @@ import { FieldError } from '../components/ui/Field'
 import { IconButton } from '../components/ui/IconButton'
 import { Loading } from '../components/ui/Loading'
 import { discardSession, finishSession, goToExercise, logSet, swapExercise, unlogSet } from '../db/sessions'
-import { useActiveSession, useEquipment, useExercises, useGyms, useSessionSets, useSettings } from '../hooks/useData'
+import { useActiveSession, useEquipment, useExercises, useGyms, useHistory, useSessionSets, useSettings } from '../hooks/useData'
 import { useNow } from '../hooks/useNow'
 import { clock, listNames, secondsFromNow } from '../lib/format'
+import { lastSets, overloadTarget, targetText } from '../lib/progress'
 import { muscleLabel, swapOptions } from '../lib/recommend'
 import { loadText } from '../lib/units'
 import { validateLoad, validateReps } from '../lib/validate'
@@ -57,6 +58,7 @@ export default function Workout() {
       gym={gyms.find((g) => g.id === session.gymId)}
       equipmentName={new Map(equipment.map((e) => [e.id, e.name]))}
       unit={settings.weightUnit}
+      avoidIds={settings.avoidIds}
     />
   )
 }
@@ -78,11 +80,13 @@ interface ViewProps {
   gym: Gym | undefined
   equipmentName: Map<string, string>
   unit: WeightUnit
+  avoidIds: string[]
 }
 
-function WorkoutView({ session, exercises, gym, equipmentName, unit }: ViewProps) {
+function WorkoutView({ session, exercises, gym, equipmentName, unit, avoidIds }: ViewProps) {
   const navigate = useNavigate()
   const sets = useSessionSets(session.id)
+  const history = useHistory()
   // What has been typed but not logged yet. A logged set lives in the database, so a draft is dropped when it is logged.
   const [drafts, setDrafts] = useState<Record<string, Draft>>({})
   const [extraRows, setExtraRows] = useState<Record<string, number>>({})
@@ -93,11 +97,13 @@ function WorkoutView({ session, exercises, gym, equipmentName, unit }: ViewProps
   const [actionError, setActionError] = useState('')
   const stopRest = useCallback(() => setRestEndsAt(null), [])
 
-  if (!sets) return <Loading className="h-[300px]" />
+  if (!sets || !history) return <Loading className="h-[300px]" />
 
   const total = session.exerciseIds.length
   const index = Math.min(session.currentIndex, total - 1)
   const current = exercises.find((e) => e.id === session.exerciseIds[index])
+  // From the last finished session with this exercise. The workout in progress is not history yet.
+  const target = current ? overloadTarget(lastSets(history, current.id), unit) : null
   const isLast = index >= total - 1
   const setsHere = current ? sets.filter((s) => s.exerciseId === current.id) : []
   const byOrder = new Map(setsHere.map((s) => [s.order, s]))
@@ -111,12 +117,14 @@ function WorkoutView({ session, exercises, gym, equipmentName, unit }: ViewProps
   const firstOpen = Array.from({ length: rowCount }, (_, i) => i).find((i) => !byOrder.has(i))
 
   // A row shows what was typed, else what was logged, else the row above it (so one entry fills the rest).
+  // The first row starts at the target, so following the target takes one tap per set.
   const valueAt = (i: number): Draft => {
     const draft = drafts[key(i)]
     if (draft) return draft
     const logged = byOrder.get(i)
     if (logged) return { weight: loadText(logged.weightKg, unit), reps: String(logged.reps) }
-    return i > 0 ? valueAt(i - 1) : { weight: '', reps: '' }
+    if (i > 0) return valueAt(i - 1)
+    return target ? { weight: loadText(target.weightKg, unit), reps: String(target.reps) } : { weight: '', reps: '' }
   }
 
   async function toggle(i: number) {
@@ -171,7 +179,7 @@ function WorkoutView({ session, exercises, gym, equipmentName, unit }: ViewProps
     }
   }
 
-  const options = current ? swapOptions(exercises, current, session.exerciseIds, gym?.equipmentIds ?? []) : []
+  const options = current ? swapOptions(exercises, current, session.exerciseIds, gym?.equipmentIds ?? [], avoidIds) : []
   const nextLabel = isLast ? 'Finish workout' : setsHere.length > 0 ? 'Next exercise' : 'Skip exercise'
 
   return (
@@ -204,6 +212,13 @@ function WorkoutView({ session, exercises, gym, equipmentName, unit }: ViewProps
               {muscleLabel(current.muscleGroup)} · {listNames(current.equipmentIds.map((id) => equipmentName.get(id) ?? id)) || 'Bodyweight'}
             </p>
             <h1 className="mt-1 font-display text-[44px] font-bold leading-[0.95]">{current.name}</h1>
+          </div>
+
+          <div className="flex items-center gap-2.5 rounded-2xl border border-border bg-surface px-3.5 py-3">
+            <span className="shrink-0 rounded-lg bg-ink px-2 py-1 text-xs font-bold uppercase tracking-[0.06em] text-bg">Target</span>
+            <p className="text-sm leading-snug">
+              {target ? targetText(target, unit) : 'No history yet. What you log today sets your first target.'}
+            </p>
           </div>
 
           <button

@@ -3,7 +3,17 @@ import { readFileSync } from 'node:fs'
 import { test } from 'node:test'
 import { addDays, weekStartKey } from '../src/lib/dates.ts'
 import { clock, groupBy, listNames, namesOf } from '../src/lib/format.ts'
-import { canDo, candidatesFor, MUSCLE_GROUPS, PLAN_BY_TIME, recommend, swapOptions, TIME_OPTIONS } from '../src/lib/recommend.ts'
+import {
+  canDo,
+  candidatesFor,
+  estimateMin,
+  MUSCLE_GROUPS,
+  PLAN_BY_TIME,
+  recommend,
+  swapOptions,
+  TIME_OPTIONS,
+  withPref,
+} from '../src/lib/recommend.ts'
 import { validateLoad, validateReps } from '../src/lib/validate.ts'
 
 const load = (name) => JSON.parse(readFileSync(new URL(`../src/data/${name}.json`, import.meta.url), 'utf8'))
@@ -62,10 +72,57 @@ test('swapOptions: same muscle, possible here, not planned, own alternatives fir
   assert.deepEqual(swapOptions(exercises, byId.get('push-up'), ['push-up'], []).map((e) => e.id), ['wide-push-up'])
 })
 
-test('time plans: 30/45/60 minutes map to 3/5/6 exercises of 4 sets', () => {
+test('time plans: 30/45/60 minutes are 3x3, 4x4 and 5x4, each fits its time and one more exercise would not', () => {
   assert.deepEqual(TIME_OPTIONS, [30, 45, 60])
-  assert.deepEqual(TIME_OPTIONS.map((t) => PLAN_BY_TIME[t].exercises), [3, 5, 6])
-  assert.ok(TIME_OPTIONS.every((t) => PLAN_BY_TIME[t].sets === 4))
+  assert.deepEqual(TIME_OPTIONS.map((t) => [PLAN_BY_TIME[t].exercises, PLAN_BY_TIME[t].sets]), [[3, 3], [4, 4], [5, 4]])
+  for (const t of TIME_OPTIONS) {
+    const { exercises: n, sets } = PLAN_BY_TIME[t]
+    assert.ok(estimateMin(n, sets) <= t, `${t} min: the plan takes ${estimateMin(n, sets)}`)
+    assert.ok(estimateMin(n + 1, sets) > t, `${t} min: there was room for another exercise`)
+  }
+  assert.deepEqual(TIME_OPTIONS.map((t) => estimateMin(PLAN_BY_TIME[t].exercises, PLAN_BY_TIME[t].sets)), [26, 44, 55])
+})
+
+test('avoid and favorites: avoided exercises never appear, favorites get a slot and lead the plan', () => {
+  const none = { avoidIds: [], favoriteIds: [] }
+  const plain = recommend(exercises, 'chest', GYMS.full, 4)
+  assert.deepEqual(recommend(exercises, 'chest', GYMS.full, 4, none).map((e) => e.id), plain.map((e) => e.id))
+
+  const avoided = plain[0]
+  const without = recommend(exercises, 'chest', GYMS.full, 4, { avoidIds: [avoided.id], favoriteIds: [] })
+  assert.equal(without.length, 4)
+  assert.ok(without.every((e) => e.id !== avoided.id))
+
+  // a chest exercise that missed the cut is picked, and goes first, once it is a favorite
+  const missed = candidatesFor(exercises, 'chest', GYMS.full).find((e) => !plain.includes(e))
+  const liked = recommend(exercises, 'chest', GYMS.full, 4, { avoidIds: [], favoriteIds: [missed.id] })
+  assert.equal(liked[0].id, missed.id)
+  assert.equal(liked.length, 4)
+
+  // a bodyweight favorite still beats the equipment exercises for a slot
+  const pushUp = recommend(exercises, 'chest', GYMS.full, 3, { avoidIds: [], favoriteIds: ['push-up'] })
+  assert.equal(pushUp[0].id, 'push-up')
+
+  // nothing left to pick: an empty plan, not a crash
+  const every = candidatesFor(exercises, 'core', GYMS.none).map((e) => e.id)
+  assert.deepEqual(recommend(exercises, 'core', GYMS.none, 3, { avoidIds: every, favoriteIds: [] }), [])
+  assert.equal(candidatesFor(exercises, 'core', GYMS.none, every).length, 0)
+})
+
+test('avoid list: an avoided exercise is not offered as a swap either', () => {
+  const current = byId.get('barbell-bench-press')
+  const options = swapOptions(exercises, current, [current.id], GYMS.full)
+  const avoided = options[0].id
+  assert.ok(swapOptions(exercises, current, [current.id], GYMS.full, [avoided]).every((e) => e.id !== avoided))
+})
+
+test('withPref: toggles a mark, and an exercise cannot be both favorite and avoided', () => {
+  const start = { avoidIds: ['a'], favoriteIds: ['b'] }
+  assert.deepEqual(withPref(start, 'c', 'favorite'), { avoidIds: ['a'], favoriteIds: ['b', 'c'] })
+  assert.deepEqual(withPref(start, 'b', 'favorite'), { avoidIds: ['a'], favoriteIds: [] }) // tapping again unmarks
+  assert.deepEqual(withPref(start, 'a', 'favorite'), { avoidIds: [], favoriteIds: ['b', 'a'] }) // avoid becomes favorite
+  assert.deepEqual(withPref(start, 'b', 'avoid'), { avoidIds: ['a', 'b'], favoriteIds: [] }) // favorite becomes avoid
+  assert.deepEqual(start, { avoidIds: ['a'], favoriteIds: ['b'] }) // the input is not changed
 })
 
 test('week: Monday-based weeks and day arithmetic', () => {

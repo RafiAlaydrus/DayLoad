@@ -1,6 +1,6 @@
 # DayLoad Progress
 
-Last updated: 2026-09-30. Update this file at the end of every phase (what shipped, what was decided, what is still unverified). A new session can start from `CLAUDE.md` plus this file.
+Last updated: 2026-10-01. Update this file at the end of every phase (what shipped, what was decided, what is still unverified). A new session can start from `CLAUDE.md` plus this file.
 
 ## Where we are
 
@@ -8,13 +8,13 @@ Last updated: 2026-09-30. Update this file at the end of every phase (what shipp
 | --- | --- | --- |
 | 1. Foundation | PWA setup, database, seed data, profile and weight log, export/import | **Done** (`5b068e8`) |
 | 2. Core loop | Gyms with equipment, exercise library, Hit the gym, workout mode with logging | **Done** (`daea30b`) |
-| 3. Smart features | Adaptive mode, progressive overload, PRs, time scaling, avoid and favorites | **Next. Not started.** |
-| 4. Planning | Timetable editor, calendar, goals, BMI and measurements | Not started |
+| 3. Smart features | Adaptive mode, progressive overload, PRs, time scaling, avoid and favorites | **Done** (this commit) |
+| 4. Planning | Timetable editor, calendar, goals, BMI and measurements | **Next. Not started.** |
 | 5. Polish | General guides, streaks, warm-ups, rest day suggestions, light theme | Not started |
 
-Pulled forward: kg/lb and cm/ft-in units (Phase 1, planned for 5), BMI (Phase 1, planned for 4), a per-exercise how-to page (Phase 2), Home's week strip (Phase 2).
+Pulled forward: kg/lb and cm/ft-in units (Phase 1, planned for 5), BMI (Phase 1, planned for 4), a per-exercise how-to page (Phase 2), Home's week strip (Phase 2). Added at the owner's request during Phase 3: body figures on the Library's muscle filter.
 
-Size today: about 4,100 lines of TypeScript, 40 equipment items, 78 exercises, 30 automated tests, all passing.
+Size today: about 4,900 lines of TypeScript, 40 equipment items, 78 exercises, 42 automated tests, all passing.
 
 ## What works today
 
@@ -23,8 +23,12 @@ Size today: about 4,100 lines of TypeScript, 40 equipment items, 78 exercises, 3
 - **Settings:** kg or lb, cm or ft/in (stored metric underneath), backup export via the iOS share sheet, validated import that replaces data only after confirmation. Older backup files are upgraded on import.
 - **Gyms:** saved gyms with an equipment checklist (40 items in 7 groups, each with a drawing), one-time locations, and the built-in "No equipment" gym.
 - **Library:** 78 exercises, filtered by muscle group and equipment, with a how-to page per exercise (equipment, form cues, common mistakes, alternatives).
-- **Hit the gym:** pick a gym, 30/45/60 minutes and a muscle group. The recommender builds 3, 5 or 6 exercises the gym can support.
-- **Workout:** set logging that copies values forward, undo, add set, rest timer (90 s), how-to sheet, swap, skip, end early, resume after the app is closed, and a session summary.
+- **Hit the gym:** pick a gym, 30/45/60 minutes and a muscle group. The recommender builds 3x3, 4x4 or 5x4 (exercises x sets) from what the gym can support, with favorites first and the avoid list left out. In adaptive mode the muscle group is chosen for you and a rest day is suggested after 3 training days in a row.
+- **Workout:** set logging that copies values forward, undo, add set, rest timer (90 s), how-to sheet, swap (never offers an avoided exercise), skip, end early, resume after the app is closed, and a session summary. Each exercise shows a **Target** from the last time you did it, and its first set is filled in with it.
+- **Summary:** now lists **new records** (sets that beat an earlier session).
+- **Profile:** a **Personal records** card (best set per exercise, five shown, "Show all" for the rest).
+- **Library:** the muscle filter is a grid of tiles with body figures. Favorites and avoided exercises carry a small heart or crossed-circle mark. The exercise page has Favorite and Avoid toggles.
+- **Settings:** Workout mode (Timetable or Adaptive), the Favorites and Avoid lists (each with a remove button), then units and backup as before.
 - **Home:** hero that starts or resumes a workout, a week strip of days trained, latest weight.
 - **Plan tab:** still a placeholder ("Coming in a later phase").
 
@@ -58,6 +62,15 @@ Size today: about 4,100 lines of TypeScript, 40 equipment items, 78 exercises, 3
 ### Docs
 - `docs/PROGRESS.md` (this file). Spec, `DESIGN.md` and `CLAUDE.md` kept in step with the code.
 
+### Phase 3: smart features
+- Asked the owner the five Phase 3 questions; every answer was the recommended option (see Decisions).
+- Rules are pure functions with tests: overload target, personal records and new records (`lib/progress.ts`), the longest-ago muscle group and the rest streak (`lib/adaptive.ts`), time plans, avoid and favorites (`lib/recommend.ts`). 12 new tests (42 in total), including the Workout mockup's own example (60 kg x 8, try 62.5 kg).
+- New hooks `useHistory` and `useFinishedSessions`; one write helper (`db/prefs.ts`, a single transaction so two quick taps cannot lose one).
+- Screens changed: Workout (Target row, pre-filled first set, swap list), Summary (new records), Profile (records card), Hit the gym (adaptive, rest card, time plan, empty plan when everything is avoided), Settings (mode and lists), exercise page (toggles), Library (markers and body-figure filter).
+- No seed data or table changed, so there is **no new Dexie version** and `BACKUP_VERSION` stays 2. Mode, avoid and favorites were already in `settings` and already in the backup validation, so they export and import with no change.
+- Muscle filter figures (owner's request mid-session): a first pass of rectangles looked like a robot, so it was redrawn as a smooth silhouette with the worked muscle as its own shape (pecs split down the middle, abs in rows, legs apart, a spine gap on the back). Checked enlarged and at real size.
+- Verified in the browser at 375 and 390 wide on `dev-test` with seeded history: every new control clicked, no target under 44 px, no horizontal overflow, console clean. 430 wide was not tried.
+
 ## Bugs found by testing and fixed
 
 Things a green build did not catch, found by running the app:
@@ -75,6 +88,13 @@ Things a green build did not catch, found by running the app:
 - Sample-number placeholders in weight fields (antislop R-17) removed.
 - Bundle-size warning: the big libraries are now separate chunks, which also makes updates smaller.
 - Two Tailwind utilities on one element (for example two paddings) are decided by CSS order, not class order. Components now take props (`Card compact`, `Button size`) instead.
+
+Phase 3, caught while building or testing:
+
+- An interface named `Record` in `lib/progress.ts` would have hidden TypeScript's own `Record<K, V>` in the same file. Renamed to `PersonalRecord` before it compiled.
+- The first muscle figures merged both legs into one block and both pecs into one pill. Redrawn with a gap down the middle.
+- The rest-day sentence read badly ("after 3"). Reworded to say what was counted.
+- Not a bug but a trap: `find` returns the screen-reader-only label of a set input, and clicking it misses the box. Click the `textbox` ref instead (noted in `CLAUDE.md`).
 
 ## How it fits together
 
@@ -100,6 +120,8 @@ A session with no `finishedAt` is the workout in progress. It stores its plan (`
 - Phase 2: a session is 3, 5 or 6 exercises of 4 sets for 30, 45 or 60 minutes. Phase 3 replaces this with real time scaling.
 - Phase 2: custom exercises are not built yet.
 - The equipment list is the owner's 40 items in 7 groups, and each item gets a drawing.
+- Phase 3, all five questions answered with the recommended option: overload is "every set at 8 reps, then +2.5 kg (5 lb)"; a PR is the heaviest weight; adaptive rest after 3 training days in a row; plans 3x3, 4x4, 5x4; avoid and favorites on the exercise page plus lists in Settings.
+- Phase 3: the Library's muscle filter gets body-figure illustrations (asked for mid-session).
 
 ### Made by the agent (change any of these)
 - Units live in `settings`, not `profile`. Values are stored in kg and cm.
@@ -114,41 +136,46 @@ A session with no `finishedAt` is the workout in progress. It stores its plan (`
 - The Dial line in `DESIGN.md` (ENERGY 2 / RHYTHM 2 / MOTION 2) is the agent's reading of the style guide.
 - The Settings screen lives at `/profile/settings`; onboarding also links to it so a backup can be restored before a profile exists.
 
-## Next: Phase 3 (smart features)
+### Made by the agent in Phase 3 (change any of these)
+- **Overload details the owner did not specify:** the weight to build on is the heaviest set of last time; "every set reached 8" counts every logged set of that exercise (a short warm-up set would hold the weight back); bodyweight aims for the best set plus one rep; in lb mode the step is 5 lb, so a set logged in kg can show an odd lb value (15 kg is 33.1 lb, target 38.1 lb).
+- **The first set of each exercise is pre-filled with the target** (weight and reps), so following it is one tap. Typing over it works as before. Not in the spec.
+- **The first time an exercise is logged is not a record** (nothing to beat). It still appears in Personal records.
+- **Records only count finished workouts.** A discarded or unfinished session feeds nothing.
+- **Favorites go first in the plan, ahead of heavy compound lifts**, so a favorite isolation exercise can open a workout. "Rank higher" was read as "first". An exercise is never both favorite and avoided: marking one clears the other.
+- **Avoided exercises are also hidden from the swap list.** If everything a muscle has at a gym is avoided, Hit the gym says so and links to Settings instead of building an empty workout.
+- **Adaptive mode picks a never-trained muscle group first, in the order chest, back, shoulders, arms, legs, core.** A "day" is a calendar day with at least one finished session; two sessions in a day count once. The streak counts back from today if you trained today, otherwise from yesterday.
+- **Rest is a suggestion**: a card, and the bottom button becomes "Train anyway". "Train something else?" still works in adaptive mode.
+- **Default mode stays Timetable**, even though no timetable can be made until Phase 4 (so today you still choose the group each time). Switch to Adaptive in Settings to get a suggestion. You may want Adaptive as the default until Phase 4.
+- **The plan card shows an estimate** ("4 sets each, about 44 min") worked out from the pace constants, not measured. It is labelled "about".
+- **Personal records shows five exercises**, newest first, with "Show all".
+- **Muscle figures are flat shapes, not outlines** (unlike the equipment drawings), and only the Library uses them. The Hit the gym chooser kept plain chips.
 
-What the spec asks for, and what already exists to build on:
+## Next: Phase 4 (planning)
 
-| Feature | Spec | Already in place |
-| --- | --- | --- |
-| Adaptive mode | Pick the muscle group trained longest ago; suggest rest after too many hard days | `settings.workoutMode` exists (default `timetable`); sessions record `muscleGroup` and `date`. No Settings control yet. |
-| Progressive overload | Show the target from the last session ("last time 60 kg x 8, try 62.5 kg") | Sets are indexed by `exerciseId`. The Workout mockup has a "Target" row. Nothing reads history yet. |
-| PRs | Show new PRs on the summary and a PR list on Profile | The Profile mockup has a "Personal records" card. Nothing computes PRs yet. |
-| Time scaling | Fewer exercises and sets for 30 min, more for 60 | `PLAN_BY_TIME` in `lib/recommend.ts` is a fixed 3/5/6 x 4 placeholder. |
-| Avoid and favorites | Remove avoided exercises, rank favorites higher | `settings.avoidIds` and `favoriteIds` exist and are empty. No controls yet. |
-
-Questions to put to the owner before building (each has a sensible default):
-1. Overload rule: when do we suggest more weight (all sets hit the reps? by how much, 2.5 kg?).
-2. What counts as a PR: heaviest weight, best reps at a weight, or estimated one-rep max?
-3. How many hard days in a row before adaptive mode suggests rest? (Open question in the spec.)
-4. Real time scaling numbers for 30, 45 and 60 minutes.
-5. Where do avoid and favorite toggles live (Library rows, exercise page, Settings)?
+Timetable editor, calendar, goals, BMI and body measurements (the spec's Plan tab). Things already in place: `timetable` and `goals` tables (nothing writes to them yet), `settings.workoutMode`, Hit the gym already follows a timetable row if one exists, and Home shows "Today is X day" if one exists.
 
 Rules to remember when building it:
 - If exercise or equipment data changes, add a Dexie `version(3)` upgrade and a function in `lib/migrate.ts`, and test it. Never edit a released version.
 - Keep workout state in the database, not only in React state.
 - Any new equipment needs an exercise and a drawing (tests enforce this).
+- Adaptive mode and the timetable are two ways to pick the muscle group; the timetable editor should make Timetable mode usable and then it is worth revisiting which mode is the default.
 
 ## Open questions
 
-- How many hard days in a row before adaptive mode suggests rest? (Phase 3)
 - Is the bottom tab layout right, or should Hit the gym be its own tab? (Still unanswered from the spec.)
 - When should custom exercises be built?
 - The timetable editor is Phase 4, so following a timetable is written but cannot be tried in the app yet.
+- Should Adaptive be the default mode until the timetable editor exists?
+- Should the Hit the gym muscle chooser get the same body figures as the Library?
+- Overload at 8 reps jumps small isolation lifts by a lot (a 8 kg lateral raise would target 10.5 kg). Worth a smaller step per exercise type?
 
 ## Not verified yet
 
-- **On a real iPhone:** the share-sheet export in a home-screen app, the iOS date picker, keyboard behavior with the bottom sheets and the set inputs, and how the drawings look at real phone size. There is no Xcode on the dev Mac, so the iOS Simulator has never been used.
+- **On a real iPhone:** the share-sheet export in a home-screen app, the iOS date picker, keyboard behavior with the bottom sheets and the set inputs, and how the drawings and body figures look at real phone size. There is no Xcode on the dev Mac, so the iOS Simulator has never been used.
 - Real Tab-key order (only focus rings, Esc and Enter were checked).
+- Phase 3 focus rings in the browser pane: the pane was not the focused window, so no control could show `:focus-visible`. The compiled rules and the shared class names were checked instead.
+- A full workout in the production build under the service worker. The build loads, the service worker activates, the new screens open and the console is clean, but the workout flow itself was only run on the dev server.
+- 430 px wide.
 - "Today is chest day" and "Follows your timetable" (no way to create a timetable row until Phase 4).
 - iOS launch splash: there are no startup images, so expect a brief blank screen on launch.
 - Deployment: no git remote is set up in this repo, and it has not been deployed to Vercel from here. `vercel.json` (SPA fallback) is ready.
@@ -172,7 +199,7 @@ Rules to remember when building it:
 
 ## Checks that run automatically
 
-`npm test` (30 tests): seed data integrity (every id link, bodyweight options, the owner's exact equipment list, every equipment item has an exercise and a drawing), the recommender, units, validation, backup import, and the data upgrade. `npm run build` must finish with no warnings and `npm run lint` must be clean.
+`npm test` (42 tests): seed data integrity (every id link, bodyweight options, the owner's exact equipment list, every equipment item has an exercise and a drawing), the recommender (time plans, avoid, favorites, swaps), the Phase 3 rules (overload, records, adaptive group, rest streak), units, validation, backup import, and the data upgrade. `npm run build` must finish with no warnings and `npm run lint` must be clean.
 
 ## How to resume
 
@@ -194,3 +221,4 @@ On the iPhone (same Wi-Fi) open the "Network" address Vite prints. For the real 
 | `5b068e8` | Phase 1: foundation |
 | `daea30b` | Phase 2: core loop, plus the 40-item equipment list with drawings and data version 2 |
 | `efd35e4` | Progress log |
+| (this commit) | Phase 3: adaptive mode, overload targets, records, time scaling, avoid and favorites, Library body figures |

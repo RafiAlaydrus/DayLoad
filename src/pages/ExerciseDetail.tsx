@@ -1,18 +1,63 @@
-import { ChevronLeft, ChevronRight } from 'lucide-react'
+import { Ban, ChevronLeft, ChevronRight, Heart } from 'lucide-react'
+import { useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { EquipmentBadge } from '../components/EquipmentTile'
 import { HowTo } from '../components/HowTo'
-import { ButtonLink } from '../components/ui/Button'
+import { Button, ButtonLink } from '../components/ui/Button'
 import { Card, SectionLabel } from '../components/ui/Card'
+import { FieldError } from '../components/ui/Field'
 import { IconLink } from '../components/ui/IconButton'
 import { Loading } from '../components/ui/Loading'
-import { useEquipment, useExercises } from '../hooks/useData'
-import { muscleLabel } from '../lib/recommend'
+import { toggleExercisePref } from '../db/prefs'
+import { useEquipment, useExercises, useSettings } from '../hooks/useData'
+import { muscleLabel, type Pref } from '../lib/recommend'
+import type { Settings } from '../types'
+
+/** Favorite or avoid this exercise. Each is a toggle, and choosing one clears the other. */
+function PrefButtons({ id, settings }: { id: string; settings: Settings }) {
+  const [error, setError] = useState('')
+  const favorite = settings.favoriteIds.includes(id)
+  const avoided = settings.avoidIds.includes(id)
+
+  async function toggle(pref: Pref) {
+    setError('')
+    try {
+      await toggleExercisePref(id, pref)
+    } catch {
+      setError('Could not save that. Try again.')
+    }
+  }
+
+  return (
+    <div>
+      <div className="grid grid-cols-2 gap-2.5">
+        {/* Heart for favorite and a crossed circle for avoid: the two marks the Library rows show too. */}
+        <Button variant={favorite ? 'primary' : 'secondary'} aria-pressed={favorite} onClick={() => toggle('favorite')}>
+          <Heart size={18} strokeWidth={2.4} fill={favorite ? 'currentColor' : 'none'} aria-hidden="true" />
+          Favorite
+        </Button>
+        <Button variant={avoided ? 'primary' : 'secondary'} aria-pressed={avoided} onClick={() => toggle('avoid')}>
+          <Ban size={18} strokeWidth={2.4} aria-hidden="true" />
+          Avoid
+        </Button>
+      </div>
+      <p className="mt-2 text-[13px] leading-relaxed text-muted" aria-live="polite">
+        {favorite
+          ? 'A favorite: picked first when a workout is built.'
+          : avoided
+            ? 'On your avoid list: never suggested, and not offered as a swap.'
+            : 'Favorite it to have it picked first, or avoid it to keep it out of your workouts.'}
+      </p>
+      {error && <FieldError>{error}</FieldError>}
+    </div>
+  )
+}
 
 export default function ExerciseDetail() {
   const { id } = useParams()
   const exercises = useExercises()
   const equipment = useEquipment()
+  const settings = useSettings()
 
   const back = (
     <IconLink to="/library" label="Back to Library" outlined className="-ml-0.5">
@@ -20,7 +65,7 @@ export default function ExerciseDetail() {
     </IconLink>
   )
 
-  if (!exercises || !equipment) {
+  if (!exercises || !equipment || !settings) {
     return (
       <>
         {back}
@@ -58,6 +103,8 @@ export default function ExerciseDetail() {
         <p className="text-[13px] font-semibold text-muted">{muscleLabel(exercise.muscleGroup)}</p>
         <h1 className="mt-1 font-display text-[44px] font-bold leading-[0.95]">{exercise.name}</h1>
       </div>
+
+      <PrefButtons id={exercise.id} settings={settings} />
 
       <Card>
         <SectionLabel>Equipment</SectionLabel>
