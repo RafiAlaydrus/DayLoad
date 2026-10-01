@@ -33,10 +33,11 @@ export default function Home() {
   )
 }
 
-/** Only appears when today's timetable row exists (the timetable editor arrives in Phase 4). */
+/** Only appears in Timetable mode, when today's row is set (Plan tab). Adaptive mode does not use the timetable. */
 function TodayPlan() {
   const entry = useTimetableToday()
-  if (!entry) return null
+  const settings = useSettings()
+  if (!entry || settings?.workoutMode !== 'timetable') return null
   return (
     <p className="font-display text-[40px] font-bold leading-none">
       {entry.muscleGroup ? `Today is ${entry.muscleGroup} day` : 'Today is a rest day'}

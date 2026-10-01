@@ -32,6 +32,9 @@ export interface Goal {
   /** kg for weight goals, cm for measurement goals. */
   target: number
   deadline?: DateKey
+  /** Where you were when the goal was set (kg or cm), so progress has a starting point. Older rows may lack it. */
+  start?: number
+  startDate?: DateKey
 }
 
 export interface Equipment {

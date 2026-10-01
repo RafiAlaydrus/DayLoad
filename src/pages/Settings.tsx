@@ -76,7 +76,7 @@ function Mode({ settings }: { settings: SettingsRow }) {
       <p className="text-[13px] leading-relaxed text-muted">
         {settings.workoutMode === 'adaptive'
           ? `Picks the muscle group you trained longest ago, and suggests a rest day after ${REST_AFTER_DAYS} training days in a row. You can always train something else.`
-          : 'Follows your weekly timetable. The timetable editor arrives in a later phase, so for now you pick the muscle group each time.'}
+          : 'Follows your weekly timetable, which you set on the Plan tab. A weekday you leave unset means you pick the muscle group that day.'}
       </p>
       {error && <FieldError>{error}</FieldError>}
     </Card>

@@ -58,7 +58,16 @@ export default function Gyms() {
     if (!gym) return
     setDeleteError('')
     try {
-      await db.gyms.delete(gym.id)
+      // A timetable day that named this gym as its default must not point at nothing.
+      await db.transaction('rw', db.gyms, db.timetable, async () => {
+        await db.gyms.delete(gym.id)
+        // At most seven rows and no index on the gym, so filter them here.
+        await db.timetable
+          .filter((row) => row.defaultGymId === gym.id)
+          .modify((row) => {
+            delete row.defaultGymId
+          })
+      })
       setEditing(null)
     } catch {
       setDeleteError('Could not delete that gym. Try again.')

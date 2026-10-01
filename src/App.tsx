@@ -7,7 +7,7 @@ import HitTheGym from './pages/HitTheGym'
 import Home from './pages/Home'
 import Library from './pages/Library'
 import NotFound from './pages/NotFound'
-import Placeholder from './pages/Placeholder'
+import Plan from './pages/Plan'
 import Profile from './pages/Profile'
 import Settings from './pages/Settings'
 import Summary from './pages/Summary'
@@ -27,8 +27,7 @@ export default function App() {
             <Route path="library" element={<Library />} />
             <Route path="library/:id" element={<ExerciseDetail />} />
             <Route path="gyms" element={<Gyms />} />
-            {/* Built in a later phase. */}
-            <Route path="plan" element={<Placeholder title="Plan" />} />
+            <Route path="plan" element={<Plan />} />
             <Route path="profile" element={<Profile />} />
             <Route path="profile/settings" element={<Settings />} />
             <Route path="*" element={<NotFound />} />

@@ -3,7 +3,7 @@ import { db } from '../db/db'
 import { DEFAULT_SETTINGS, PROFILE_ID, SETTINGS_ID, sortBySeedOrder, sortEquipmentBySeedOrder } from '../db/seed'
 import { addDays, weekStartKey, todayKey } from '../lib/dates'
 import type { History } from '../lib/progress'
-import type { BodyLog, Equipment, Exercise, Gym, Profile, Session, Settings, TimetableDay, WorkoutSet } from '../types'
+import type { BodyLog, Equipment, Exercise, Goal, Gym, Profile, Session, Settings, TimetableDay, WorkoutSet } from '../types'
 
 // useLiveQuery returns undefined while loading and re-renders on every change to the
 // tables it read. It also throws query errors, which the route ErrorBoundary catches.
@@ -93,7 +93,29 @@ export function useFinishedSessionCount(): number | undefined {
   return useLiveQuery(() => db.sessions.filter((s) => s.finishedAt !== undefined).count(), [])
 }
 
-/** Today's row of the weekly timetable, or null. (The editor arrives in Phase 4; until then it only exists if imported.) */
+/** Every row of the weekly timetable. A weekday with no row was never set. */
+export function useTimetable(): TimetableDay[] | undefined {
+  return useLiveQuery(() => db.timetable.toArray(), [])
+}
+
+export function useGoals(): Goal[] | undefined {
+  return useLiveQuery(() => db.goals.toArray(), [])
+}
+
+/** Finished workouts from `from` to `to` (both included), for the calendar. */
+export function useSessionsBetween(from: string, to: string): Session[] | undefined {
+  return useLiveQuery(
+    () =>
+      db.sessions
+        .where('date')
+        .between(from, to, true, true)
+        .filter((s) => s.finishedAt !== undefined)
+        .toArray(),
+    [from, to],
+  )
+}
+
+/** Today's row of the weekly timetable, or null. */
 export function useTimetableToday(): TimetableDay | null | undefined {
   return useLiveQuery(async () => (await db.timetable.get(new Date().getDay())) ?? null, [])
 }

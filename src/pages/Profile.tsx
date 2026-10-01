@@ -1,5 +1,6 @@
 import { Pencil, Plus, Settings as SettingsIcon, Trash2 } from 'lucide-react'
 import { useState, type ReactNode } from 'react'
+import { GoalsCard } from '../components/GoalsCard'
 import { Onboarding } from '../components/Onboarding'
 import { StatsSheet } from '../components/StatsSheet'
 import { WeightChart } from '../components/WeightChart'
@@ -12,11 +13,12 @@ import { IconButton, IconLink } from '../components/ui/IconButton'
 import { Loading } from '../components/ui/Loading'
 import { Measure } from '../components/ui/Measure'
 import { db } from '../db/db'
-import { useBodyLogs, useExercises, useFinishedSessionCount, useHistory, useProfile, useSettings } from '../hooks/useData'
+import { useBodyLogs, useExercises, useFinishedSessionCount, useGoals, useHistory, useProfile, useSettings } from '../hooks/useData'
 import { bmi } from '../lib/bmi'
 import { formatDate } from '../lib/dates'
+import { changeSinceFirst, changeText, MEASUREMENTS, measurementLine, readings } from '../lib/goals'
 import { bestText, personalRecords } from '../lib/progress'
-import { heightParts, partsToText, weightParts } from '../lib/units'
+import { heightParts, measurementParts, partsToText, weightParts } from '../lib/units'
 import type { BodyLog, Profile as ProfileRow, Settings, WeightUnit } from '../types'
 
 export default function Profile() {
@@ -36,11 +38,12 @@ export default function Profile() {
   return <ProfileView profile={profile} logs={logs} settings={settings} />
 }
 
-function StatCard({ label, children }: { label: string; children: ReactNode }) {
+function StatCard({ label, note, children }: { label: string; note?: string; children: ReactNode }) {
   return (
     <Card compact>
       <SectionLabel>{label}</SectionLabel>
       <div className="mt-1 text-[28px] leading-none">{children}</div>
+      {note && <p className="mt-1.5 text-xs leading-snug text-muted">{note}</p>}
     </Card>
   )
 }
@@ -101,6 +104,9 @@ function ProfileView({ profile, logs, settings }: { profile: ProfileRow; logs: B
 
   const latest = logs.at(-1)
   const sessionCount = useFinishedSessionCount()
+  const goals = useGoals()
+  const weightGoal = goals?.find((g) => g.type === 'weight')
+  const units = { weight: weightUnit, length: lengthUnit }
 
   async function confirmDelete() {
     const entry = deleting
@@ -148,7 +154,7 @@ function ProfileView({ profile, logs, settings }: { profile: ProfileRow; logs: B
           </Button>
         </div>
         {logs.length > 0 ? (
-          <WeightChart logs={logs} unit={weightUnit} />
+          <WeightChart logs={logs} unit={weightUnit} targetKg={weightGoal?.target} />
         ) : (
           <p className="mt-3 text-[13px] leading-relaxed text-muted">Your trend line appears here after your first entry.</p>
         )}
@@ -171,7 +177,21 @@ function ProfileView({ profile, logs, settings }: { profile: ProfileRow; logs: B
             <span className="font-display font-bold">{sessionCount}</span>
           </StatCard>
         )}
+        {/* One card for each measurement that has been logged, with how far it moved since the first entry. */}
+        {MEASUREMENTS.map(({ id, label }) => {
+          const list = readings(logs, id)
+          const newest = list.at(-1)
+          if (!newest) return null
+          const change = changeSinceFirst(list, lengthUnit)
+          return (
+            <StatCard key={id} label={label} note={change ? changeText(change, lengthUnit) : undefined}>
+              <Measure parts={measurementParts(newest.value, lengthUnit)} />
+            </StatCard>
+          )
+        })}
       </div>
+
+      <GoalsCard goals={goals} logs={logs} units={units} />
 
       <Records unit={weightUnit} />
 
@@ -183,7 +203,12 @@ function ProfileView({ profile, logs, settings }: { profile: ProfileRow; logs: B
           <ul className="mt-1.5">
             {[...logs].reverse().map((entry) => (
               <li key={entry.id} className="flex items-center border-t border-border py-1">
-                <span className="min-w-0 flex-1 text-[15px] font-semibold">{formatDate(entry.date, { weekday: true })}</span>
+                <span className="min-w-0 flex-1">
+                  <span className="block text-[15px] font-semibold">{formatDate(entry.date, { weekday: true })}</span>
+                  {measurementLine(entry, lengthUnit) && (
+                    <span className="block text-xs leading-snug text-muted">{measurementLine(entry, lengthUnit)}</span>
+                  )}
+                </span>
                 <Measure parts={weightParts(entry.weightKg, weightUnit)} className="text-[22px]" />
                 <IconButton label={`Edit weight from ${formatDate(entry.date)}`} className="ml-1" onClick={() => setEditing(entry)}>
                   <Pencil size={18} strokeWidth={2} aria-hidden="true" />
@@ -198,14 +223,14 @@ function ProfileView({ profile, logs, settings }: { profile: ProfileRow; logs: B
         {deleteError && <FieldError>{deleteError}</FieldError>}
       </Card>
 
-      <WeightSheet entry={editing} unit={weightUnit} onClose={() => setEditing(null)} />
+      <WeightSheet entry={editing} unit={weightUnit} lengthUnit={lengthUnit} onClose={() => setEditing(null)} />
       <StatsSheet open={statsOpen} profile={profile} unit={lengthUnit} onClose={() => setStatsOpen(false)} />
       <ConfirmDialog
         open={deleting !== null}
         title="Delete this entry?"
         message={
           deleting
-            ? `${partsToText(weightParts(deleting.weightKg, weightUnit))} on ${formatDate(deleting.date, { weekday: true })} will be removed. This cannot be undone.`
+            ? `${partsToText(weightParts(deleting.weightKg, weightUnit))}${measurementLine(deleting, lengthUnit) ? ' and its measurements' : ''} on ${formatDate(deleting.date, { weekday: true })} will be removed. This cannot be undone.`
             : ''
         }
         confirmLabel="Delete entry"

@@ -24,11 +24,27 @@ export const fromKg = (kg: number, unit: WeightUnit) => (unit === 'kg' ? kg : kg
 /** A set's weight as typed in the user's unit: "62.5", "60", or "" for bodyweight (0). */
 export const loadText = (kg: number, unit: WeightUnit) => (kg === 0 ? '' : String(Math.round(fromKg(kg, unit) * 10) / 10))
 
+/**
+ * Body measurements (waist, arm...) are one number: cm, or inches for the ft/in setting (a waist
+ * in "2 ft 8 in" is not how anyone says it). Stored in cm either way.
+ */
+export const measurementUnit = (unit: LengthUnit) => (unit === 'cm' ? 'cm' : 'in')
+export const cmToIn = (cm: number) => cm / CM_PER_IN
+export const inToCm = (inches: number) => Math.round(inches * CM_PER_IN * 1000) / 1000
+export const fromCm = (cm: number, unit: LengthUnit) => (unit === 'cm' ? cm : cmToIn(cm))
+
+/** A measurement as typed in the user's unit: "80", "31.5". One decimal at most, so float noise never shows. */
+export const measurementText = (cm: number, unit: LengthUnit) => String(Math.round(fromCm(cm, unit) * 10) / 10)
+
+/** A measurement split for display: a big number and its unit. */
+export const measurementParts = (cm: number, unit: LengthUnit): Parts => [[measurementText(cm, unit), measurementUnit(unit)]]
+
 /** Sanity limits for typed values (metric). Catches typos like 7.2 or 720, not real bodies. */
 export const LIMITS = {
   weightKg: { min: 20, max: 400 },
   loadKg: { min: 0, max: 1000 },
   heightCm: { min: 50, max: 272 },
+  measurementCm: { min: 10, max: 300 },
   age: { min: 5, max: 120 },
 } as const
 

@@ -35,6 +35,14 @@ export function addDays(key: DateKey, days: number): DateKey {
   return toDateKey(d)
 }
 
+/** Whole days from one day to another (negative when `to` is earlier). Rounded, so a daylight-saving hour never changes it. */
+export const daysBetween = (from: DateKey, to: DateKey) =>
+  Math.round((parseDateKey(to).getTime() - parseDateKey(from).getTime()) / 86_400_000)
+
+/** "Monday" in the device language, for a Date#getDay() number (0 = Sunday). */
+export const weekdayName = (dayOfWeek: number) =>
+  parseDateKey(addDays('2023-12-31', dayOfWeek)).toLocaleDateString(undefined, { weekday: 'long' }) // 2023-12-31 was a Sunday
+
 /** The Monday of the week containing `key` (the week strip runs Monday to Sunday). */
 export function weekStartKey(key: DateKey): DateKey {
   const day = parseDateKey(key).getDay() // 0 = Sunday

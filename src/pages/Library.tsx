@@ -1,9 +1,9 @@
-import { Ban, ChevronDown, ChevronRight, Heart } from 'lucide-react'
-import { useId } from 'react'
+import { Ban, ChevronRight, Heart } from 'lucide-react'
 import { Link, useSearchParams } from 'react-router-dom'
 import { MuscleTiles } from '../components/MuscleTiles'
 import { Card } from '../components/ui/Card'
 import { Loading } from '../components/ui/Loading'
+import { Select } from '../components/ui/Select'
 import { useEquipment, useExercises, useSettings } from '../hooks/useData'
 import { groupBy, listNames } from '../lib/format'
 import { MUSCLE_GROUPS, muscleLabel } from '../lib/recommend'
@@ -17,7 +17,6 @@ export default function Library() {
   const settings = useSettings()
   // Filters live in the address (?muscle=chest&equipment=barbell), so Back from an exercise keeps them.
   const [params, setParams] = useSearchParams()
-  const selectId = useId()
 
   const title = <h1 className="font-display text-[34px] font-bold leading-none">Library</h1>
   if (!exercises || !equipment || !settings) {
@@ -59,32 +58,19 @@ export default function Library() {
 
       <MuscleTiles name="muscle" value={muscle} onChange={(v) => setFilter('muscle', v)} />
 
-      <div>
-        <label htmlFor={selectId} className="mb-1.5 block text-[13px] font-semibold text-muted">
-          Equipment
-        </label>
-        <div className="relative">
-          <select
-            id={selectId}
-            value={gear}
-            onChange={(e) => setFilter('equipment', e.target.value)}
-            className="min-h-12 w-full appearance-none rounded-chip border border-border bg-surface pr-11 pl-4 text-base font-semibold text-ink"
-          >
-            <option value={ANY}>Any equipment</option>
-            <option value={BODYWEIGHT}>Bodyweight only</option>
-            {groupBy(equipment).map(({ group, items }) => (
-              <optgroup key={group} label={group}>
-                {items.map((e) => (
-                  <option key={e.id} value={e.id}>
-                    {e.name}
-                  </option>
-                ))}
-              </optgroup>
+      <Select label="Equipment" value={gear} onChange={(e) => setFilter('equipment', e.target.value)}>
+        <option value={ANY}>Any equipment</option>
+        <option value={BODYWEIGHT}>Bodyweight only</option>
+        {groupBy(equipment).map(({ group, items }) => (
+          <optgroup key={group} label={group}>
+            {items.map((e) => (
+              <option key={e.id} value={e.id}>
+                {e.name}
+              </option>
             ))}
-          </select>
-          <ChevronDown size={20} strokeWidth={2} aria-hidden="true" className="pointer-events-none absolute top-1/2 right-4 -translate-y-1/2 text-muted" />
-        </div>
-      </div>
+          </optgroup>
+        ))}
+      </Select>
 
       <p className="text-[13px] text-muted" aria-live="polite">
         {shown.length} {shown.length === 1 ? 'exercise' : 'exercises'}

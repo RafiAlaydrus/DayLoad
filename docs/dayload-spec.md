@@ -49,6 +49,13 @@ The recommender picks a muscle group, then fills it with exercises the chosen gy
 - **Personal record:** the heaviest weight ever logged for an exercise, with more reps at the same weight also counting. Bodyweight sets (weight 0) are ranked by reps. The summary lists records that beat an earlier session; the first time an exercise is logged is a starting point, not a record.
 - **Avoid and favorites (rule 4):** avoided exercises are never suggested and not offered as a swap. Favorites are picked first. An exercise cannot be both. They are set on the exercise page and listed in Settings.
 
+### Planning, goals and measurements (the owner's Phase 4 decisions)
+
+- **Timetable:** each of the 7 weekdays is one muscle group or Rest, with an optional default gym (shown for a muscle group, not for Rest). A weekday that was never set is "not set" and you choose that day. Hit the gym follows today's row in Timetable mode and preselects its default gym over the last gym used. Deleting a gym clears it from any day that named it.
+- **Calendar:** one month at a time (arrows or a sideways swipe), Monday first. A filled dot marks a day with a finished workout, a ring marks today or a later day that the timetable plans a workout for (Timetable mode only; rest days and unset days have no mark). The panel under the grid shows what was done that day, with a link to its summary, and for today and later what the timetable says. In Adaptive mode there is no plan to show, so the calendar says so.
+- **Measurements:** five, all optional, entered with a weigh-in: Waist, Chest, Hips, Arm and Thigh. Stored in cm under `bodyLogs.measurements`; shown in cm, or in inches for the ft/in setting. Profile shows a card for each one you have logged, with how far it moved since the first entry.
+- **Goals:** at most one per thing (weight, or one of the five measurements), each with a target and an optional deadline. A goal remembers where you started (`start`, `startDate`, taken from your latest value when it is set), and progress is the share of the way from there to the target, for losing and gaining alike. Profile lists them with a bar, what is left, and the days to the deadline; the weight chart draws the weight target as a dashed line. There is no on-pace forecast.
+
 ## Screens and navigation
 
 Home opens on the big "Hit the gym" button, with five bottom tabs for everything else. Proposed layout, open to change:
@@ -73,7 +80,7 @@ Ten IndexedDB tables via Dexie. The key link is equipment: exercises need it, gy
 | --- | --- | --- |
 | profile | age, heightCm | — |
 | bodyLogs | date, weightKg, measurements | — |
-| goals | type, target, deadline | — |
+| goals | type, measurement, target, deadline, start, startDate | — |
 | equipment | id, name, group | — |
 | exercises | name, muscleGroup, equipmentIds, alternativeIds, howTo, isCustom | equipment, exercises |
 | gyms | name, equipmentIds, isTemporary | equipment |

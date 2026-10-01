@@ -11,13 +11,15 @@ const PAD_Y = 10
  * a two-week gap looks like a two-week gap. The line stretches to the card width (the SVG has
  * no fixed aspect), so the latest point is an HTML dot, which a stretched SVG circle can't be.
  */
-export function WeightChart({ logs, unit }: { logs: BodyLog[]; unit: WeightUnit }) {
+export function WeightChart({ logs, unit, targetKg }: { logs: BodyLog[]; unit: WeightUnit; targetKg?: number }) {
   const n = logs.length
   const first = logs[0]
   const last = logs[n - 1]
   const kgs = logs.map((l) => l.weightKg)
-  const min = Math.min(...kgs)
-  const max = Math.max(...kgs)
+  // The goal is drawn as a dashed line, so the scale has to reach it. With one entry there is no line to compare with.
+  const target = n > 1 ? targetKg : undefined
+  const min = Math.min(...kgs, ...(target === undefined ? [] : [target]))
+  const max = Math.max(...kgs, ...(target === undefined ? [] : [target]))
   const t0 = parseDateKey(first.date).getTime()
   const t1 = parseDateKey(last.date).getTime()
 
@@ -33,13 +35,28 @@ export function WeightChart({ logs, unit }: { logs: BodyLog[]; unit: WeightUnit 
   const description =
     n === 1
       ? `Weight ${partsToText(weightParts(last.weightKg, unit))}, one entry`
-      : `Weight trend from ${partsToText(weightParts(first.weightKg, unit))} to ${partsToText(weightParts(last.weightKg, unit))}, ${n} entries`
+      : `Weight trend from ${partsToText(weightParts(first.weightKg, unit))} to ${partsToText(weightParts(last.weightKg, unit))}, ${n} entries${
+          target === undefined ? '' : `, target ${partsToText(weightParts(target, unit))}`
+        }`
 
   return (
     <div className="mt-3">
       <div role="img" aria-label={description} className="relative h-[110px]">
         {n > 1 && (
           <svg viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="none" className="absolute inset-0 size-full overflow-visible">
+            {target !== undefined && (
+              <line
+                x1={0}
+                x2={W}
+                y1={y(target)}
+                y2={y(target)}
+                stroke="currentColor"
+                strokeWidth={1.5}
+                strokeDasharray="5 5"
+                opacity={0.6}
+                vectorEffect="non-scaling-stroke"
+              />
+            )}
             <polyline
               points={points}
               fill="none"
@@ -57,10 +74,18 @@ export function WeightChart({ logs, unit }: { logs: BodyLog[]; unit: WeightUnit 
         />
       </div>
       {n > 1 ? (
-        <div className="mt-2 flex justify-between text-xs text-muted">
-          <span>{formatDate(first.date)}</span>
-          <span>{last.date === todayKey() ? 'Today' : formatDate(last.date)}</span>
-        </div>
+        <>
+          <div className="mt-2 flex justify-between text-xs text-muted">
+            <span>{formatDate(first.date)}</span>
+            <span>{last.date === todayKey() ? 'Today' : formatDate(last.date)}</span>
+          </div>
+          {target !== undefined && (
+            <p className="mt-1.5 flex items-center gap-2 text-xs text-muted">
+              <span aria-hidden="true" className="w-5 border-t-[1.5px] border-dashed border-muted" />
+              Target {partsToText(weightParts(target, unit))}
+            </p>
+          )}
+        </>
       ) : (
         <p className="mt-2 text-[13px] text-muted">Log one more weight to see your trend.</p>
       )}
