@@ -3,8 +3,13 @@ import react from '@vitejs/plugin-react'
 import { defineConfig } from 'vite'
 import { VitePWA } from 'vite-plugin-pwa'
 
+// Where the app lives. "/" for the dev server and Vercel. GitHub Pages serves a project from
+// "/DayLoad/", so the Pages workflow builds with BASE_PATH=/DayLoad/ (see .github/workflows/pages.yml).
+const base = process.env.BASE_PATH ?? '/'
+
 // https://vite.dev/config/
 export default defineConfig({
+  base,
   build: {
     rolldownOptions: {
       output: {
@@ -33,7 +38,8 @@ export default defineConfig({
         orientation: 'portrait',
         theme_color: '#1B1A17',
         background_color: '#1B1A17',
-        start_url: '/',
+        start_url: base,
+        scope: base,
         icons: [
           { src: 'pwa-192x192.png', sizes: '192x192', type: 'image/png' },
           { src: 'pwa-512x512.png', sizes: '512x512', type: 'image/png' },
@@ -48,7 +54,7 @@ export default defineConfig({
       workbox: {
         // App shell: every built asset, so the app opens with no network.
         globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2}'],
-        navigateFallback: '/index.html',
+        navigateFallback: `${base}index.html`,
         // Google Fonts are cross-origin, so they can't be precached. Cache them
         // on first visit so the gym (bad signal) still gets the right type.
         runtimeCaching: [

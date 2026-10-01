@@ -96,6 +96,11 @@ Size today: about 6,300 lines of TypeScript, 40 equipment items, 78 exercises, 2
 - Rest suggestion: Hit the gym's card no longer depends on the mode, and Home got the same rule as a small card.
 - Verified in the browser on `dev-test` at 375 and 390 wide, in dark and light, in Timetable mode, and once on the production build under the service worker (see the delivery report).
 
+### Deployment: GitHub Pages (after Phase 5)
+- The owner created the GitHub repo and pushed the code. To host it on GitHub Pages the project now has: a `BASE_PATH` setting in `vite.config.ts` (the PWA manifest `start_url` and `scope` and the service worker fallback follow it), `basename` on the router, `.github/workflows/pages.yml` (tests, build with `BASE_PATH=/DayLoad/`, copy `index.html` to `404.html`, publish), and a real `README.md`. The default build (dev and Vercel) is unchanged.
+- Checked locally by building with `BASE_PATH=/DayLoad/` and serving it under `/DayLoad/` (`preview-pages` in `.claude/launch.json`): assets, manifest, icons and the service worker all under `/DayLoad/`, every tab link carries the prefix, and a deep link opened directly works. **Not checked: the workflow itself running on GitHub, and `404.html` on the real site** (a local server cannot reproduce GitHub's 404 handling).
+- 28 stray copies named like `Card 2.tsx` appeared in the project folder (untracked, byte-identical to the originals, and never pushed). They look like iCloud sync-conflict copies: this Mac has Desktop in iCloud. They were deleted. If they come back, move the project out of the Desktop folder.
+
 ## Bugs found by testing and fixed
 
 Things a green build did not catch, found by running the app:

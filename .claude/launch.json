@@ -39,6 +39,20 @@
         "--strictPort"
       ],
       "port": 5174
+    },
+    {
+      "name": "preview-pages",
+      "runtimeExecutable": "env",
+      "runtimeArgs": [
+        "BASE_PATH=/DayLoad/",
+        "npx",
+        "vite",
+        "preview",
+        "--port",
+        "4175",
+        "--strictPort"
+      ],
+      "port": 4175
     }
   ]
 }

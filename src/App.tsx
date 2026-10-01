@@ -20,7 +20,8 @@ export default function App() {
     // "user": when iOS Reduce Motion is on, slides and springs are skipped and only fades remain.
     <MotionConfig reducedMotion="user">
       <ThemeSync />
-      <BrowserRouter>
+      {/* BASE_URL is "/" normally and "/DayLoad/" on GitHub Pages, so every link and route keeps working under it. */}
+      <BrowserRouter basename={import.meta.env.BASE_URL}>
         <Routes>
           <Route element={<Shell />}>
             <Route index element={<Home />} />
