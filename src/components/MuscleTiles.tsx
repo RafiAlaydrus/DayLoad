@@ -7,8 +7,8 @@ export type Choice = MuscleGroup | 'all' | 'rest'
 
 interface Props {
   name: string
-  /** Nothing is selected when this is '' (a timetable day that was never set). */
-  value: Choice | ''
+  /** Nothing is selected when this is '' (a timetable day that was never set). A list means several can be on at once (checkboxes). */
+  value: Choice | '' | readonly Choice[]
   /** The tile before the six muscle groups: "All" for the Library filter, "Rest" for a timetable day. */
   first?: 'all' | 'rest'
   onChange: (value: Choice) => void
@@ -17,9 +17,10 @@ interface Props {
 /** Pick a muscle group, and "All" or "Rest", from tiles with a body figure. Real radio inputs inside, so keyboard arrows and screen readers work. */
 export function MuscleTiles({ name, value, first = 'all', onChange }: Props) {
   const options: Choice[] = [first, ...MUSCLE_GROUPS]
+  const multiple = typeof value !== 'string'
   return (
     <fieldset>
-      <legend className="sr-only">Muscle group</legend>
+      <legend className="sr-only">{multiple ? 'Muscle groups' : 'Muscle group'}</legend>
       <div className="grid grid-cols-4 gap-2">
         {options.map((option) => (
           <label
@@ -38,10 +39,10 @@ export function MuscleTiles({ name, value, first = 'all', onChange }: Props) {
               {option === 'all' ? 'All' : option === 'rest' ? 'Rest' : muscleLabel(option)}
             </span>
             <input
-              type="radio"
+              type={multiple ? 'checkbox' : 'radio'}
               name={name}
               value={option}
-              checked={value === option}
+              checked={multiple ? value.includes(option) : value === option}
               onChange={() => onChange(option)}
               className="sr-only"
             />

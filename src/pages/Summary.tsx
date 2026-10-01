@@ -7,7 +7,7 @@ import { Measure } from '../components/ui/Measure'
 import { useExercises, useGyms, useHistory, useSession, useSessionSets, useSettings } from '../hooks/useData'
 import { formatDate } from '../lib/dates'
 import { bestText, newRecords } from '../lib/progress'
-import { muscleLabel } from '../lib/recommend'
+import { groupsLabel, groupsOf } from '../lib/recommend'
 import { fromKg, loadText } from '../lib/units'
 import type { WeightUnit } from '../types'
 
@@ -71,7 +71,7 @@ export default function Summary() {
         <p className="text-[13px] font-semibold text-muted">
           {formatDate(session.date, { weekday: true })} · {gym?.name ?? 'Removed gym'}
         </p>
-        <h1 className="mt-1 font-display text-[44px] font-bold leading-[0.95]">{muscleLabel(session.muscleGroup)} day done</h1>
+        <h1 className="mt-1 font-display text-[44px] font-bold leading-[0.95]">{groupsLabel(groupsOf(session))} day done</h1>
       </div>
 
       <div className="grid auto-cols-fr grid-flow-col gap-2.5">

@@ -149,3 +149,10 @@ test('adaptive: rest is suggested after 3 training days in a row', () => {
   // two workouts on one day are one day, and a run can cross a month end
   assert.equal(trainingStreak([session(1, '2026-09-30'), session(2, '2026-09-30'), session(3, '2026-09-29')], '2026-10-01'), 2)
 })
+
+test('adaptive: a workout that combined groups counts for every group in it', () => {
+  const combined = { ...session(1, '2026-09-20', 'chest'), muscleGroups: ['chest', 'arms'] }
+  const rest = ['back', 'shoulders', 'legs', 'core'].map((g, i) => session(i + 2, '2026-09-10', g))
+  // chest and arms were trained on the 20th, the others on the 10th, so the longest-ago one is back.
+  assert.deepEqual(longestAgo([combined, ...rest]), { group: 'back', last: '2026-09-10' })
+})

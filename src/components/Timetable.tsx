@@ -4,7 +4,7 @@ import { db } from '../db/db'
 import { useGyms, useSettings, useTimetable } from '../hooks/useData'
 import { WEEK_ORDER } from '../lib/calendar'
 import { parseDateKey, todayKey, weekdayName } from '../lib/dates'
-import { muscleLabel } from '../lib/recommend'
+import { groupsLabel, groupsOf, MUSCLE_GROUPS } from '../lib/recommend'
 import type { Gym, TimetableDay } from '../types'
 import { AdaptiveNote } from './AdaptiveNote'
 import { MuscleTiles, type Choice } from './MuscleTiles'
@@ -44,7 +44,8 @@ export function Timetable() {
         <ul>
           {WEEK_ORDER.map((day) => {
             const entry = row(day)
-            const gym = entry?.muscleGroup ? gymName(entry.defaultGymId) : undefined
+            const groups = entry ? groupsOf(entry) : []
+            const gym = groups.length > 0 ? gymName(entry?.defaultGymId) : undefined
             return (
               <li key={day} className="border-t border-border first:border-t-0">
                 <button
@@ -59,7 +60,7 @@ export function Timetable() {
                   <span className="flex min-w-0 items-center gap-2">
                     <span className="min-w-0 text-right">
                       <span className={`block text-[15px] font-semibold ${entry ? '' : 'text-muted'}`}>
-                        {!entry ? 'Not set' : entry.muscleGroup ? muscleLabel(entry.muscleGroup) : 'Rest'}
+                        {!entry ? 'Not set' : groups.length > 0 ? groupsLabel(groups) : 'Rest'}
                       </span>
                       {gym && <span className="block truncate text-[13px] text-muted">{gym}</span>}
                     </span>
@@ -84,22 +85,42 @@ export function Timetable() {
 }
 
 function DayForm({ day, existing, gyms, onDone }: { day: number; existing?: TimetableDay; gyms: Gym[]; onDone: () => void }) {
-  const [choice, setChoice] = useState<Choice | ''>(existing ? (existing.muscleGroup ?? 'rest') : '')
+  // Several muscle groups can share a day, or the day is Rest. Rest and the groups exclude each other.
+  const [picked, setPicked] = useState<Choice[]>(existing ? (groupsOf(existing).length > 0 ? groupsOf(existing) : ['rest']) : [])
+  const training = picked.some((c) => c !== 'rest')
+
+  function toggle(option: Choice) {
+    setPicked((now) =>
+      option === 'rest'
+        ? now.includes('rest')
+          ? []
+          : ['rest']
+        : now.includes(option)
+          ? now.filter((c) => c !== option)
+          : [...now.filter((c) => c !== 'rest'), option],
+    )
+  }
   // A gym that was deleted since is not in the list, so the select falls back to "No default gym".
   const [gymId, setGymId] = useState(gyms.some((g) => g.id === existing?.defaultGymId) ? (existing?.defaultGymId ?? '') : '')
   const [error, setError] = useState('')
   const [busy, setBusy] = useState(false)
 
   async function save() {
-    if (choice === '' || choice === 'all') {
-      setError('Pick a muscle group, or Rest.')
+    if (picked.length === 0) {
+      setError('Pick at least one muscle group, or Rest.')
       return
     }
     setBusy(true)
     setError('')
     try {
-      const muscleGroup = choice === 'rest' ? null : choice
-      await db.timetable.put({ dayOfWeek: day, muscleGroup, ...(muscleGroup && gymId ? { defaultGymId: gymId } : {}) })
+      // In the same order as everywhere else, whatever order they were tapped in.
+      const groups = MUSCLE_GROUPS.filter((g) => picked.includes(g))
+      await db.timetable.put({
+        dayOfWeek: day,
+        muscleGroup: groups[0] ?? null,
+        ...(groups.length > 0 ? { muscleGroups: groups } : {}),
+        ...(groups.length > 0 && gymId ? { defaultGymId: gymId } : {}),
+      })
       onDone()
     } catch {
       setError('Could not save. Check that this phone has free storage, then try again.')
@@ -121,8 +142,9 @@ function DayForm({ day, existing, gyms, onDone }: { day: number; existing?: Time
 
   return (
     <div className="flex flex-col gap-4">
-      <MuscleTiles name="day" first="rest" value={choice} onChange={setChoice} />
-      {choice !== '' && choice !== 'rest' && choice !== 'all' && (
+      <MuscleTiles name="day" first="rest" value={picked} onChange={toggle} />
+      <p className="-mt-1 text-[13px] leading-relaxed text-muted">Tap more than one to combine them in one workout.</p>
+      {training && (
         <Select label="Default gym" value={gymId} onChange={(e) => setGymId(e.target.value)}>
           <option value="">No default gym</option>
           {gyms.map((g) => (

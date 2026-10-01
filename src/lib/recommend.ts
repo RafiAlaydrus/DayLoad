@@ -7,6 +7,16 @@ export const MUSCLE_GROUPS: readonly MuscleGroup[] = ['chest', 'back', 'shoulder
 
 export const muscleLabel = (group: MuscleGroup) => group[0].toUpperCase() + group.slice(1)
 
+/** The muscle groups of a timetable day or a session: the full list if it has one, else its single group (none for a rest day). */
+export const groupsOf = (x: { muscleGroup: MuscleGroup | null; muscleGroups?: readonly MuscleGroup[] }): MuscleGroup[] =>
+  x.muscleGroups?.length ? [...x.muscleGroups] : x.muscleGroup ? [x.muscleGroup] : []
+
+/** "Chest", "Chest and Arms", "Chest, Back and Arms". */
+export const groupsLabel = (groups: readonly MuscleGroup[]) =>
+  groups.length < 2
+    ? groups.map(muscleLabel).join('')
+    : `${groups.slice(0, -1).map(muscleLabel).join(', ')} and ${muscleLabel(groups[groups.length - 1])}`
+
 export const TIME_OPTIONS = [30, 45, 60] as const
 
 /**
@@ -89,6 +99,34 @@ export function recommend(
   for (const e of ranked) if (picked.length < count && !picked.some((p) => similar(p, e))) picked.push(e)
   for (const e of ranked) if (picked.length < count && !picked.includes(e)) picked.push(e)
   return picked
+}
+
+/**
+ * A workout that combines muscle groups: the exercises are shared out between them one at a time
+ * (chest, arms, chest, arms...), so every group gets its turn, and a group that runs out of
+ * exercises at this gym hands its slots to the others. The result is grouped by muscle, in the
+ * order given. One group is exactly `recommend`.
+ */
+export function recommendMix(
+  exercises: readonly Exercise[],
+  groups: readonly MuscleGroup[],
+  gymEquipmentIds: readonly string[],
+  count: number,
+  prefs: Prefs = NO_PREFS,
+): Exercise[] {
+  const lists = groups.map((g) => recommend(exercises, g, gymEquipmentIds, count, prefs))
+  const take = lists.map(() => 0)
+  for (let left = count, moved = true; left > 0 && moved; ) {
+    moved = false
+    lists.forEach((list, i) => {
+      if (left > 0 && take[i] < list.length) {
+        take[i]++
+        left--
+        moved = true
+      }
+    })
+  }
+  return lists.flatMap((list, i) => list.slice(0, take[i]))
 }
 
 /** Exercises the user can swap `current` for: same muscle, possible here, not already planned, not avoided. Its own alternatives come first. */

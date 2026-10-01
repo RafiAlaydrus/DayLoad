@@ -31,7 +31,9 @@ import {
   MUSCLE_GROUPS,
   muscleLabel,
   PLAN_BY_TIME,
-  recommend,
+  groupsLabel,
+  groupsOf,
+  recommendMix,
   TIME_OPTIONS,
 } from '../lib/recommend'
 import type { Equipment, Exercise, Gym, MuscleGroup, Session, Settings } from '../types'
@@ -84,7 +86,7 @@ export default function HitTheGym() {
         <Card>
           <SectionLabel>Workout in progress</SectionLabel>
           <p className="mt-2 text-[15px] leading-relaxed">
-            You already have a {muscleLabel(active.muscleGroup).toLowerCase()} workout running. Finish or end it before
+            You already have a {groupsLabel(groupsOf(active)).toLowerCase()} workout running. Finish or end it before
             starting another.
           </p>
           <ButtonLink to="/workout" className="mt-4">
@@ -103,7 +105,7 @@ export default function HitTheGym() {
       equipment={equipment}
       settings={settings}
       sessions={sessions}
-      timetableGroup={timetable?.muscleGroup ?? null}
+      timetableGroups={timetable ? groupsOf(timetable) : []}
       hasTimetableToday={timetable !== null}
       defaultGymId={timetable?.defaultGymId ?? lastGymId ?? undefined}
     />
@@ -118,7 +120,7 @@ interface PlannerProps {
   settings: Settings
   /** Finished sessions, for adaptive mode. */
   sessions: Session[]
-  timetableGroup: MuscleGroup | null
+  timetableGroups: MuscleGroup[]
   hasTimetableToday: boolean
   defaultGymId?: string
 }
@@ -130,7 +132,7 @@ function Planner({
   equipment,
   settings,
   sessions,
-  timetableGroup,
+  timetableGroups,
   hasTimetableToday,
   defaultGymId,
 }: PlannerProps) {
@@ -155,18 +157,22 @@ function Planner({
   // Adaptive mode picks the muscle group trained longest ago; timetable mode uses today's row.
   const adaptive = settings.workoutMode === 'adaptive'
   const suggestion = adaptive ? longestAgo(sessions) : null
-  const defaultGroup = suggestion?.group ?? timetableGroup
-  const group = override ?? defaultGroup
+  const defaultGroups = suggestion ? [suggestion.group] : timetableGroups
+  const groups = override ? [override] : defaultGroups
+  const group = groups.length > 0 ? groups : null
+  const defaultGroup = defaultGroups.length > 0 ? defaultGroups : null
+  const groupText = groupsLabel(groups)
   // The rest suggestion is the same in both modes: after enough training days in a row.
   const streak = trainingStreak(sessions, todayKey())
   const resting = streak >= REST_AFTER_DAYS && !trainAnyway
 
   const target = PLAN_BY_TIME[time]
-  const picks = group ? recommend(exercises, group, equipmentIds, target.exercises, settings) : []
+  const picks = group ? recommendMix(exercises, group, equipmentIds, target.exercises, settings) : []
   // How many exercises the avoid list took out of this gym's options, so an empty or short plan can say why.
-  const avoidedHere = group
-    ? candidatesFor(exercises, group, equipmentIds).length - candidatesFor(exercises, group, equipmentIds, settings.avoidIds).length
-    : 0
+  const avoidedHere = groups.reduce(
+    (n, g) => n + candidatesFor(exercises, g, equipmentIds).length - candidatesFor(exercises, g, equipmentIds, settings.avoidIds).length,
+    0,
+  )
   const describe = (ids: string[]) => listNames(namesOf(equipment, ids)) || 'Bodyweight only'
   const showChips = group === null || chooser || override !== null
 
@@ -185,7 +191,7 @@ function Planner({
     try {
       await startSession({
         gym: usingDraft ? draft : { id: gymId! },
-        muscleGroup: group,
+        muscleGroups: group,
         plannedMin: time,
         exerciseIds: picks.map((e) => e.id),
         setsPerExercise: target.sets,
@@ -256,8 +262,8 @@ function Planner({
           <>
             <p className="mt-1.5 text-[15px] leading-relaxed">
               {avoidedHere > 0
-                ? `Every ${group} exercise this gym can do is on your avoid list.`
-                : `This gym has no ${group} exercise.`}
+                ? `Every ${groupText.toLowerCase()} exercise this gym can do is on your avoid list.`
+                : `This gym has no ${groupText.toLowerCase()} exercise.`}
             </p>
             {avoidedHere > 0 && (
               <ButtonLink to="/profile/settings" variant="secondary" size="sm" className="mt-3">
@@ -268,7 +274,7 @@ function Planner({
         ) : group ? (
           <>
             <p className="mt-1.5 text-[17px] font-bold">
-              {muscleLabel(group)} · {picks.length} {picks.length === 1 ? 'exercise' : 'exercises'} · {time} min
+              {groupText} · {picks.length} {picks.length === 1 ? 'exercise' : 'exercises'} · {time} min
             </p>
             <p className="mt-1 text-[13px] text-muted">
               {target.sets} sets each, about {estimateMin(picks.length, target.sets)} min. {why}
@@ -298,7 +304,7 @@ function Planner({
               hideLegend
               wrap
               name="group"
-              value={(group ?? '') as MuscleGroup}
+              value={(override ?? '') as MuscleGroup}
               options={MUSCLE_GROUPS.map((g) => ({ value: g, label: muscleLabel(g) }))}
               onChange={setOverride}
             />

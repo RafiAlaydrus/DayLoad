@@ -17,7 +17,7 @@ import {
 } from '../hooks/useData'
 import { REST_AFTER_DAYS, trainingStreak } from '../lib/adaptive'
 import { formatDate, todayKey } from '../lib/dates'
-import { muscleLabel } from '../lib/recommend'
+import { groupsLabel, groupsOf } from '../lib/recommend'
 import { STREAK_MIN, weeklyStreak } from '../lib/streak'
 import { weightParts } from '../lib/units'
 
@@ -90,7 +90,7 @@ function TodayPlan() {
   if (!entry || settings?.workoutMode !== 'timetable') return null
   return (
     <p className="font-display text-[40px] font-bold leading-none">
-      {entry.muscleGroup ? `Today is ${entry.muscleGroup} day` : 'Today is a rest day'}
+      {groupsOf(entry).length > 0 ? `Today is ${groupsLabel(groupsOf(entry)).toLowerCase()} day` : 'Today is a rest day'}
     </p>
   )
 }
@@ -116,7 +116,7 @@ function Hero() {
         <h1 className="font-display text-[46px] font-bold leading-[0.95]">{active ? 'Continue workout' : 'Hit the gym'}</h1>
         {/* A span, not a button: the whole card is the link. The arrow says it opens a new screen. */}
         <span className="mt-2 inline-flex min-h-11 items-center gap-2 rounded-full bg-ink px-4 text-sm font-bold text-bg">
-          {active ? `${muscleLabel(active.muscleGroup)}, exercise ${Math.min(active.currentIndex + 1, total)} of ${total}` : 'Start session'}
+          {active ? `${groupsLabel(groupsOf(active))}, exercise ${Math.min(active.currentIndex + 1, total)} of ${total}` : 'Start session'}
           <ChevronRight size={16} strokeWidth={2.4} aria-hidden="true" />
         </span>
       </div>

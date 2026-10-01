@@ -76,8 +76,10 @@ export interface Gym {
 export interface TimetableDay {
   /** 0 = Sunday ... 6 = Saturday, same as Date#getDay(). */
   dayOfWeek: number
-  /** null is a rest day. */
+  /** The first muscle group of the day, or null for a rest day. Kept so older data and backups still read. */
   muscleGroup: MuscleGroup | null
+  /** Every muscle group of the day when it combines several (chest and arms). Missing on older rows: use groupsOf(). */
+  muscleGroups?: MuscleGroup[]
   defaultGymId?: string
 }
 
@@ -85,7 +87,10 @@ export interface Session {
   id?: number
   date: DateKey
   gymId: string
+  /** The first muscle group trained. Kept so older data and backups still read. */
   muscleGroup: MuscleGroup
+  /** Every muscle group when the workout combined several. Missing on older rows: use groupsOf(). */
+  muscleGroups?: MuscleGroup[]
   /** The time the user said they had: 30, 45 or 60. */
   plannedMin: number
   /** Real minutes, filled in when the session finishes. 0 while it is running. */

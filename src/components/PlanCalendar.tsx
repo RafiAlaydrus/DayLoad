@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom'
 import { useGyms, useSessionsBetween, useSettings, useTimetable } from '../hooks/useData'
 import { addMonths, monthWeeks, plannedFor, WEEK_ORDER } from '../lib/calendar'
 import { addDays, formatDate, todayKey, weekdayName } from '../lib/dates'
-import { muscleLabel } from '../lib/recommend'
+import { groupsLabel, groupsOf } from '../lib/recommend'
 import type { DateKey, Gym, Session, TimetableDay } from '../types'
 import { AdaptiveNote } from './AdaptiveNote'
 import { Card, SectionLabel } from './ui/Card'
@@ -140,13 +140,13 @@ interface CellProps {
 
 function DayCell({ day, today, selected, trained, planned, onSelect }: CellProps) {
   const isToday = day === today
-  const plannedGroup = planned?.muscleGroup ?? null
-  const status = trained.length > 0 ? 'trained' : plannedGroup ? 'planned' : null
+  const plannedGroups = planned ? groupsOf(planned) : []
+  const status = trained.length > 0 ? 'trained' : plannedGroups.length > 0 ? 'planned' : null
   const label = [
     formatDate(day, { weekday: true }),
     isToday ? 'today' : '',
-    trained.length > 0 ? `trained ${trained.map((s) => muscleLabel(s.muscleGroup).toLowerCase()).join(' and ')}` : '',
-    trained.length === 0 && plannedGroup ? `planned ${plannedGroup}` : '',
+    trained.length > 0 ? `trained ${trained.map((s) => groupsLabel(groupsOf(s)).toLowerCase()).join(' and ')}` : '',
+    trained.length === 0 && plannedGroups.length > 0 ? `planned ${groupsLabel(plannedGroups).toLowerCase()}` : '',
   ]
     .filter(Boolean)
     .join(', ')
@@ -211,8 +211,8 @@ function DayPanel({ day, today, sessions, plan, timetableMode, gyms }: PanelProp
   const upcoming = day >= today
   const planText = !plan
     ? 'Nothing set for this weekday.'
-    : plan.muscleGroup
-      ? `${muscleLabel(plan.muscleGroup)}${gymName(plan.defaultGymId) ? ` at ${gymName(plan.defaultGymId)}` : ''}`
+    : groupsOf(plan).length > 0
+      ? `${groupsLabel(groupsOf(plan))}${gymName(plan.defaultGymId) ? ` at ${gymName(plan.defaultGymId)}` : ''}`
       : 'Rest day'
 
   return (
@@ -225,7 +225,7 @@ function DayPanel({ day, today, sessions, plan, timetableMode, gyms }: PanelProp
             <li key={s.id} className="border-t border-border first:border-t-0">
               <Link to={`/summary/${s.id}`} className="press flex min-h-14 items-center justify-between gap-3 py-2">
                 <span className="min-w-0">
-                  <span className="block text-[15px] font-bold">{muscleLabel(s.muscleGroup)} day</span>
+                  <span className="block text-[15px] font-bold">{groupsLabel(groupsOf(s))} day</span>
                   <span className="block truncate text-[13px] text-muted">
                     {s.durationMin} min · {gymName(s.gymId) ?? 'Removed gym'}
                   </span>

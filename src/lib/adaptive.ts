@@ -1,6 +1,6 @@
 import type { DateKey, MuscleGroup, Session } from '../types'
 import { addDays } from './dates.ts'
-import { MUSCLE_GROUPS } from './recommend.ts'
+import { groupsOf, MUSCLE_GROUPS } from './recommend.ts'
 
 // Adaptive mode: choose the muscle group from what was actually trained, and suggest rest after
 // too many training days in a row. Works from finished sessions only.
@@ -14,7 +14,7 @@ export const REST_AFTER_DAYS = 3
  */
 export function longestAgo(sessions: readonly Session[]): { group: MuscleGroup; last: DateKey | null } {
   const last = new Map<MuscleGroup, DateKey>()
-  for (const s of sessions) if ((last.get(s.muscleGroup) ?? '') < s.date) last.set(s.muscleGroup, s.date)
+  for (const s of sessions) for (const g of groupsOf(s)) if ((last.get(g) ?? '') < s.date) last.set(g, s.date)
   // "YYYY-MM-DD" sorts in calendar order, and '' sorts before any date. The sort is stable.
   const day = (g: MuscleGroup) => last.get(g) ?? ''
   const [group] = [...MUSCLE_GROUPS].sort((a, b) => (day(a) < day(b) ? -1 : day(a) > day(b) ? 1 : 0))

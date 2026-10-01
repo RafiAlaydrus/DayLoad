@@ -10,7 +10,8 @@ const unfinished = (s: Session) => s.finishedAt === undefined
 interface StartInput {
   /** An existing gym, or a one-time location to create along with the session. */
   gym: { id: string } | { name: string; equipmentIds: string[] }
-  muscleGroup: MuscleGroup
+  /** One or more, in the order they are trained. */
+  muscleGroups: MuscleGroup[]
   plannedMin: number
   exerciseIds: string[]
   setsPerExercise: number
@@ -38,7 +39,8 @@ export function startSession(input: StartInput): Promise<number> {
     return db.sessions.add({
       date: todayKey(),
       gymId,
-      muscleGroup: input.muscleGroup,
+      muscleGroup: input.muscleGroups[0],
+      muscleGroups: input.muscleGroups,
       plannedMin: input.plannedMin,
       durationMin: 0,
       startedAt: Date.now(),

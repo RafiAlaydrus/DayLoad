@@ -7,9 +7,12 @@ import {
   canDo,
   candidatesFor,
   estimateMin,
+  groupsLabel,
+  groupsOf,
   MUSCLE_GROUPS,
   PLAN_BY_TIME,
   recommend,
+  recommendMix,
   swapOptions,
   TIME_OPTIONS,
   withPref,
@@ -183,4 +186,30 @@ test('every equipment item has its own drawing in EquipmentIcon', () => {
   const drawn = new Set([...source.matchAll(/^ {2}'?([a-z-]+)'?: \(/gm)].map((m) => m[1]))
   for (const { id } of load('equipment')) assert.ok(drawn.has(id), `no drawing for "${id}"`)
   for (const id of drawn) assert.ok(load('equipment').some((e) => e.id === id), `drawing "${id}" has no equipment`)
+})
+
+test('combined days: groupsOf reads the new list, the old single group, and a rest day', () => {
+  assert.deepEqual(groupsOf({ muscleGroup: 'chest', muscleGroups: ['chest', 'arms'] }), ['chest', 'arms'])
+  assert.deepEqual(groupsOf({ muscleGroup: 'back' }), ['back']) // a row saved before combining existed
+  assert.deepEqual(groupsOf({ muscleGroup: null }), [])
+  assert.equal(groupsLabel(['chest']), 'Chest')
+  assert.equal(groupsLabel(['chest', 'arms']), 'Chest and Arms')
+  assert.equal(groupsLabel(['chest', 'back', 'arms']), 'Chest, Back and Arms')
+})
+
+test('combined days: exercises are shared between the groups, grouped by muscle, and a short group hands over its slots', () => {
+  const two = recommendMix(exercises, ['chest', 'arms'], GYMS.full, 4)
+  assert.equal(two.length, 4)
+  assert.deepEqual(two.map((e) => e.muscleGroup), ['chest', 'chest', 'arms', 'arms'])
+  const three = recommendMix(exercises, ['chest', 'back', 'arms'], GYMS.full, 5)
+  assert.deepEqual(three.map((e) => e.muscleGroup), ['chest', 'chest', 'back', 'back', 'arms'])
+  // One group is exactly the single-group recommender.
+  assert.deepEqual(recommendMix(exercises, ['legs'], GYMS.full, 4).map((e) => e.id), recommend(exercises, 'legs', GYMS.full, 4).map((e) => e.id))
+  // No equipment at all: still fills the plan from what exists, never an impossible pick or a duplicate.
+  const bare = recommendMix(exercises, ['chest', 'core'], GYMS.none, 5)
+  assert.ok(bare.every((e) => canDo(e, GYMS.none)))
+  assert.equal(new Set(bare.map((e) => e.id)).size, bare.length)
+  // The avoid list still applies in a mix.
+  const first = two[0].id
+  assert.ok(!recommendMix(exercises, ['chest', 'arms'], GYMS.full, 4, { avoidIds: [first], favoriteIds: [] }).some((e) => e.id === first))
 })
