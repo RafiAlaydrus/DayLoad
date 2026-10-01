@@ -1,16 +1,16 @@
 # DayLoad Progress
 
-Last updated: 2026-10-01 (Phase 4). Update this file at the end of every phase (what shipped, what was decided, what is still unverified). A new session can start from `CLAUDE.md` plus this file.
+Last updated: 2026-10-01 (Phase 5 and deployment). Update this file at the end of every phase (what shipped, what was decided, what is still unverified). A new session can start from `CLAUDE.md` plus this file.
 
 ## Where we are
 
 | Phase | What the spec says | Status |
 | --- | --- | --- |
-| 1. Foundation | PWA setup, database, seed data, profile and weight log, export/import | **Done** (`5b068e8`) |
-| 2. Core loop | Gyms with equipment, exercise library, Hit the gym, workout mode with logging | **Done** (`daea30b`) |
-| 3. Smart features | Adaptive mode, progressive overload, PRs, time scaling, avoid and favorites | **Done** (`fba816a`) |
-| 4. Planning | Timetable editor, calendar, goals, BMI and measurements | **Done** (`4edb79b`) |
-| 5. Polish | General guides, streaks, warm-ups, rest day suggestions, light theme | **Done** (this commit) |
+| 1. Foundation | PWA setup, database, seed data, profile and weight log, export/import | **Done** (`59bc681`) |
+| 2. Core loop | Gyms with equipment, exercise library, Hit the gym, workout mode with logging | **Done** (`dde9510`) |
+| 3. Smart features | Adaptive mode, progressive overload, PRs, time scaling, avoid and favorites | **Done** (`b010ae9`) |
+| 4. Planning | Timetable editor, calendar, goals, BMI and measurements | **Done** (`eba06db`) |
+| 5. Polish | General guides, streaks, warm-ups, rest day suggestions, light theme | **Done** (`2c3760b`) |
 
 All five phases of the spec are built. What is left is outside the phases: custom exercises (never scheduled), deploying the app, and trying it on a real iPhone.
 
@@ -99,6 +99,7 @@ Size today: about 6,300 lines of TypeScript, 40 equipment items, 78 exercises, 2
 ### Deployment: GitHub Pages (after Phase 5)
 - The owner created the GitHub repo and pushed the code. To host it on GitHub Pages the project now has: a `BASE_PATH` setting in `vite.config.ts` (the PWA manifest `start_url` and `scope` and the service worker fallback follow it), `basename` on the router, `.github/workflows/pages.yml` (tests, build with `BASE_PATH=/DayLoad/`, copy `index.html` to `404.html`, publish), and a real `README.md`. The default build (dev and Vercel) is unchanged.
 - Checked locally by building with `BASE_PATH=/DayLoad/` and serving it under `/DayLoad/` (`preview-pages` in `.claude/launch.json`): assets, manifest, icons and the service worker all under `/DayLoad/`, every tab link carries the prefix, and a deep link opened directly works. **Not checked: the workflow itself running on GitHub, and `404.html` on the real site** (a local server cannot reproduce GitHub's 404 handling).
+- **Result:** first push of the workflow built fine but the deploy step failed (HTTP 404, "Ensure GitHub Pages has been enabled"), because Pages was not switched on. The owner set Settings, Pages, Source to GitHub Actions and re-ran the jobs; it succeeded and the site is live at https://rafialaydrus.github.io/DayLoad/. This is a one-time step.
 - 28 stray copies named like `Card 2.tsx` appeared in the project folder (untracked, byte-identical to the originals, and never pushed). They look like iCloud sync-conflict copies: this Mac has Desktop in iCloud. They were deleted. If they come back, move the project out of the Desktop folder.
 
 ## Bugs found by testing and fixed
@@ -229,7 +230,7 @@ A session with no `finishedAt` is the workout in progress. It stores its plan (`
 ## What is left
 
 The spec's five phases are all built. What is not done:
-- **Deploying.** The owner will create the GitHub repo and push. Hosting on GitHub Pages is possible (it needs a base path of `/DayLoad/` in the build, the PWA manifest and the service worker, a `404.html` copy for deep links, and a build workflow) and `vercel.json` is only for Vercel. Nothing has been pushed or deployed from here.
+- **Using it on a real iPhone.** The app is live (see below), so the next step is Add to Home Screen in Safari and a week or two of real use.
 - **A real iPhone.** The biggest unknown (see "Not verified").
 - **Custom exercises** (the spec lists them under Library; no phase scheduled them).
 - Smaller open questions below.
@@ -260,7 +261,7 @@ The spec's five phases are all built. What is not done:
 - A flash of the wrong theme at launch: the script that prevents it is in the production build and the choice is saved for it, but a flash cannot be seen from the pane.
 - Phase 5 in the production build: the guides, the theme switch and the Streak card's empty state were opened there. The warm-up, the Home rest card and a full light-theme pass were run on the dev server only.
 - iOS launch splash: there are no startup images, so expect a brief blank screen on launch (white or black, whichever iOS picks, whatever the theme).
-- Deployment: no git remote is set up in this repo and nothing has been pushed. The owner will do it.
+- Deployment: the workflow ran and the site is live. Not yet checked on the real site: reloading a deep link (`404.html`) and installing from Safari on an iPhone.
 
 ## Known limits
 
@@ -273,7 +274,7 @@ The spec's five phases are all built. What is not done:
 
 - **How the owner works:** they do not write code. They want a short summary, how to run it, decisions made, and the antislop Delivery Gate PASS/FAIL report at the end of each phase, and for the agent to stop after a phase. Ask when something is genuinely unclear (offer a recommended option); otherwise decide and flag it.
 - **antislop:** core file only (`.claude/skills/antislop/SKILL.md`), usage mode DURING, no pointer block. No em dashes in any text. No gradients, glow or shadows.
-- **Git:** the global git email is `ahmadalirgld@gmaiil.com` (double "i", probably a typo), so commits carry it. Fix with `git config --global user.email ahmadalirgld@gmail.com`. The commits are not pushed anywhere yet, so the author can still be rewritten.
+- **Git:** the global git email is now `ahmadalirgld@gmail.com` (it had a typo, `gmaiil.com`). Before the first push the owner rewrote the 8 local commits' author email, so every commit hash from before that changed (the hashes in the History table are the new ones). The repo is `RafiAlaydrus/DayLoad` on GitHub, public; the owner pushes, never the assistant.
 - **Servers** (`.claude/launch.json`): `dev` on 5173 holds the owner's own test data, so do not test destructive things there. `dev-test` on 5174 is a separate origin with its own database, for the agent's testing. `preview` on 4173 serves the production build, the only place the service worker runs.
 - **Browser pane quirks** are listed in `CLAUDE.md` under "Testing notes" (click coordinates are 2x, a hidden window freezes animations, the console buffer accumulates).
 - No Xcode on this Mac, so no iOS Simulator.
@@ -293,16 +294,18 @@ npm run build
 npm run dev -- --host
 ```
 
-On the iPhone (same Wi-Fi) open the "Network" address Vite prints. For the real PWA behavior (offline, install, share sheet) deploy to Vercel: push the repo to GitHub, import it in Vercel, and open the address in Safari, then Add to Home Screen. The data upgrade runs by itself the first time a phone opens a new version.
+On the iPhone (same Wi-Fi) open the "Network" address Vite prints for a quick look. The installed app is at https://rafialaydrus.github.io/DayLoad/ (open it in Safari, Add to Home Screen). To ship a change: commit, `git push` (the owner does this), and the GitHub Actions workflow tests, builds and publishes it in about a minute. On the phone, open the app once, wait a few seconds, then close and reopen it to get the update. The data upgrade, when there is one, runs by itself the first time a phone opens a new version.
 
 ## History
 
 | Commit | What |
 | --- | --- |
-| `0c4283b` | Project setup |
-| `5b068e8` | Phase 1: foundation |
-| `daea30b` | Phase 2: core loop, plus the 40-item equipment list with drawings and data version 2 |
-| `efd35e4` | Progress log |
-| `fba816a` | Phase 3: adaptive mode, overload targets, records, time scaling, avoid and favorites, Library body figures |
-| `4edb79b` | Phase 4: Plan tab (calendar and timetable), measurements, goals |
-| (this commit) | Phase 5: streak, warm-up, rest suggestions in both modes, guides, light theme |
+| `d1fdf85` | Project setup |
+| `59bc681` | Phase 1: foundation |
+| `dde9510` | Phase 2: core loop, plus the 40-item equipment list with drawings and data version 2 |
+| `2de2d48`, `5bc810b` | Progress log |
+| `b010ae9` | Phase 3: adaptive mode, overload targets, records, time scaling, avoid and favorites, Library body figures |
+| `eba06db` | Phase 4: Plan tab (calendar and timetable), measurements, goals |
+| `2c3760b` | Phase 5: streak, warm-up, rest suggestions in both modes, guides, light theme |
+| `19056df` | Merge with GitHub's first commit (the one-line README) |
+| `6f2b96b` | GitHub Pages deploy: base path support, workflow, README |
