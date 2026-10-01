@@ -107,7 +107,7 @@ Size today: about 6,300 lines of TypeScript, 40 equipment items, 78 exercises, 2
 - **When it shows:** only when there is no profile and `settings.introDone` is not true (`useNeedsIntro`). Anyone with a profile (an existing phone, a restored backup) never sees it. Finishing or skipping sets `introDone`. A skipped intro leaves the Profile tab's onboarding as the fallback. `introDone` is a new optional field, so there is still no new Dexie version (still 2, `BACKUP_VERSION` 2).
 - **Shell latch:** saving the profile makes "needs intro" false while the last step is on screen, so the Shell keeps the intro up until it says it is done.
 - **Hero art:** at the owner's request the logo watermark on the hero cards was replaced by solid gym drawings (`components/HeroArt.tsx`): a barbell on Home's "Hit the gym", a kettlebell on the intro's welcome and a dumbbell on its last step. Same 22% opacity and corner bleed. The logo itself is untouched and still in the Home header.
-- **Top spacing:** `--page-top` went from safe area + 12px to + 2px, on every screen.
+- **Top spacing:** `--page-top` went from safe area + 12px to + 2px, then back to + 10px because the iPhone status-bar blur covered the header at 2px, on every screen.
 - Verified in the browser pane on `dev-test` at 390x844 (dark) and 375x667 (light): every step, validation errors, lb units carrying through, Enter to submit, saving (180 lb stored as 81.647 kg), "Add my gym" landing on Gyms, Skip, and no intro after a reload. Console clean. **Not checked on a real iPhone** (keyboard over the form steps, the real status bar spacing, animation smoothness on a phone).
 
 ## Bugs found by testing and fixed

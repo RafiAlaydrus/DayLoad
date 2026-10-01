@@ -56,7 +56,7 @@
   --safe-top: env(safe-area-inset-top, 0px);
   --safe-bottom: env(safe-area-inset-bottom, 0px);
   /* The mockups put content 58px from the top on a 47px status bar; 44px floor keeps that look off-device. */
-  --page-top: calc(max(var(--safe-top), 44px) + 2px);
+  --page-top: calc(max(var(--safe-top), 44px) + 10px);
   /* 10px pad + 48px tab + bottom pad (26px on a home-bar iPhone, 12px elsewhere) + 1px border. */
   --tabbar-h: calc(59px + max(12px, var(--safe-bottom) - 8px));
 }
