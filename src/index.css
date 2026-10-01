@@ -64,6 +64,8 @@
 html,
 body {
   background-color: var(--color-bg);
+  /* No iOS rubber band at the top: pull-to-refresh draws its own pull (PullToRefresh.tsx). */
+  overscroll-behavior-y: none;
 }
 
 body {

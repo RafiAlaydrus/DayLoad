@@ -5,6 +5,7 @@ import { db } from '../db/db'
 import { useNeedsIntro, useSettings } from '../hooks/useData'
 import { ErrorBoundary } from './ErrorBoundary'
 import { Intro } from './Intro'
+import { PullToRefresh } from './PullToRefresh'
 import { TabBar } from './TabBar'
 
 /**
@@ -79,6 +80,8 @@ export function Shell() {
         </ErrorBoundary>
       </motion.main>
       {!focused && <TabBar />}
+      {/* Not on the workout: a reload there would throw away numbers typed but not yet logged. */}
+      <PullToRefresh disabled={pathname === '/workout'} />
     </div>
   )
 }
