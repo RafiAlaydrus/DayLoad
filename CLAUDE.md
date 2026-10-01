@@ -16,7 +16,7 @@ A personal gym PWA that recommends what to train at whatever gym you are in, usi
 - On a wider screen (a laptop during development) the phone layout is centered at max 430px. Nothing else.
 - Touch first: tap targets at least 44px, no hover-only interactions, no keyboard shortcuts needed.
 - Respect safe areas with `env(safe-area-inset-*)` (notch, Dynamic Island, home bar). They are exposed as `--safe-top`, `--safe-bottom`, `--page-top` and `--tabbar-h` in `src/index.css`. Override `--safe-top` and `--safe-bottom` on `<html>` to test a notch in a desktop browser.
-- Inputs are 16px or larger so iOS does not zoom. Never disable zoom.
+- Inputs are 16px or larger so iOS does not zoom on focus. At the owner's request (2026-10-01) pinch and double-tap zoom are disabled (viewport meta, `touch-action`, gesture listeners in `main.tsx`) and text selection and the copy/paste callout are off everywhere except inside inputs (`src/index.css`). Never set `user-select: none` on inputs: iOS then cannot type in them.
 - Test in an iPhone-sized viewport (390x844, also 375 and 430 wide).
 
 ## Stack

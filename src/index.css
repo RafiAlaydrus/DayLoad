@@ -75,6 +75,25 @@ body {
   -webkit-tap-highlight-color: transparent;
 }
 
+/*
+ * Behaves like an app, not a web page: no pinch or double-tap zoom, and no text selection or
+ * copy/paste menu on the screens. (iOS ignores user-scalable=no in Safari tabs, so the pinch is also
+ * blocked in main.tsx.) Fields stay selectable and pasteable, or typing would break on iOS.
+ */
+html {
+  touch-action: manipulation;
+}
+body {
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+}
+input,
+textarea {
+  -webkit-user-select: text;
+  user-select: text;
+}
+
 /* 16px minimum stops iOS Safari zooming the page when an input gets focus. */
 input,
 select,
