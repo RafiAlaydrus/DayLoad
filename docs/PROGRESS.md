@@ -46,9 +46,9 @@ Size today: about 6,300 lines of TypeScript, 40 equipment items, 78 exercises, 2
 - Read the spec, style guide, four mockups and the antislop skill. Updated the spec to say iPhone only.
 - Scaffolded Vite in a scratch folder and copied only config files in, so `docs/`, `public/` and `.claude/` were never touched.
 - Stack: React 19, Vite 8, TypeScript 6 (strict), Tailwind v4 (Vite plugin, tokens in `src/index.css`), `motion`, Dexie and dexie-react-hooks, react-router-dom 7, lucide-react, vite-plugin-pwa, oxlint.
-- Wrote `DESIGN.md` (transcribed from the style guide plus the owner's four reasons), `CLAUDE.md`, and a `.gitignore`. Commit `0c4283b`.
+- Wrote `DESIGN.md` (transcribed from the style guide plus the owner's four reasons), `CLAUDE.md`, and a `.gitignore`. Commit `d1fdf85`.
 
-### Phase 1: foundation (`5b068e8`)
+### Phase 1: foundation (`59bc681`)
 - Types and a 10-table Dexie database (versioned, indexed), seeded once on first launch (`populate`). `navigator.storage.persist()` on startup.
 - Seed data: 21 equipment items and 60 exercises at that time (later replaced, see Phase 2), plus the "No equipment" gym.
 - App shell: routes for every screen, bottom tab bar, slide-and-fade page transitions that respect reduced motion, press feedback, safe-area variables.
@@ -56,12 +56,12 @@ Size today: about 6,300 lines of TypeScript, 40 equipment items, 78 exercises, 2
 - Pure helpers with tests: units, BMI, dates, form validation, backup validation.
 - PWA verified on a production build: manifest, icons, service worker, precached shell, fonts cached, and the app opened with the server stopped.
 
-### Phase 2: core loop (`daea30b`)
+### Phase 2: core loop (`dde9510`)
 - Recommender (`lib/recommend.ts`): candidates are exercises whose equipment the gym has; equipment lifts first, bodyweight after; exercises that list each other as alternatives count as the same movement, so a first pass avoids near-duplicates. Same gym gives the same plan every time (good for overload later).
 - Workout writes to the database as it happens (`db/sessions.ts`), so resuming after iOS closes the app loses nothing.
 - Screens: Hit the gym, Workout, Session summary, Gyms, Library, exercise page. Home hero, week strip, and a Sessions card on Profile.
 
-### Mid-session change: equipment list and drawings (also in `daea30b`)
+### Mid-session change: equipment list and drawings (also in `dde9510`)
 - The owner supplied a 40-item, 7-group equipment list and asked for a drawing per item.
 - Replaced the equipment list, added 18 exercises (so every item has one), drew 40 SVG line illustrations (six were redrawn after review).
 - Database version 2 with an upgrade that refreshes the built-in lists and translates old gyms and custom exercises. The same translation runs when an old backup file is imported.
