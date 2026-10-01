@@ -126,8 +126,22 @@ textarea {
   animation: appear 200ms 250ms forwards;
 }
 
+/* The heatmap squares pop in one column after another (Home's activity card). Transform and opacity only. */
+@keyframes heat-in {
+  from {
+    opacity: 0;
+    transform: scale(0.5);
+  }
+}
+.heat-in {
+  animation: heat-in 300ms ease-out backwards;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .press:active {
     transform: none;
+  }
+  .heat-in {
+    animation: none;
   }
 }

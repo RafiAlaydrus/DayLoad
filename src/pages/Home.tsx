@@ -1,5 +1,6 @@
 import { ChevronRight } from 'lucide-react'
 import { Link } from 'react-router-dom'
+import { ActivityCard } from '../components/ActivityCard'
 import { CardioCard } from '../components/CardioCard'
 import { HeroArt } from '../components/HeroArt'
 import { LogoMark } from '../components/LogoMark'
@@ -12,7 +13,6 @@ import {
   useActiveSession,
   useBodyLogs,
   useCardioBetween,
-  useFinishedCardio,
   useFinishedSessions,
   useSettings,
   useTimetableToday,
@@ -22,7 +22,6 @@ import { REST_AFTER_DAYS, trainingStreak } from '../lib/adaptive'
 import { isRestDay } from '../lib/cardio'
 import { addDays, formatDate, todayKey, weekStartKey } from '../lib/dates'
 import { groupsLabel, groupsOf } from '../lib/recommend'
-import { STREAK_MIN, weeklyStreak } from '../lib/streak'
 import { weightParts } from '../lib/units'
 
 export default function Home() {
@@ -44,7 +43,7 @@ export default function Home() {
       <CardioCard />
       <RestSuggestion />
       <Week />
-      <Streak />
+      <ActivityCard />
       <LatestWeight />
     </>
   )
@@ -62,29 +61,6 @@ function RestSuggestion() {
     <Card compact>
       <SectionLabel>Rest day suggested</SectionLabel>
       <p className="mt-1.5 text-[15px] leading-relaxed">You trained {days} days in a row. It is your call, you can still train today.</p>
-    </Card>
-  )
-}
-
-/** Weeks in a row with at least 3 finished workouts. A week still running never breaks it. */
-function Streak() {
-  const sessions = useFinishedSessions()
-  const cardio = useFinishedCardio()
-  if (!sessions || !cardio) return <Loading className="h-[100px]" />
-  const { weeks, thisWeek } = weeklyStreak([...sessions, ...cardio], todayKey())
-  return (
-    <Card>
-      <SectionLabel>Streak</SectionLabel>
-      {weeks === 0 ? (
-        <p className="mt-2 text-[15px] font-semibold">No streak yet</p>
-      ) : (
-        <Measure parts={[[String(weeks), weeks === 1 ? 'week' : 'weeks']]} className="mt-1.5 block text-[38px] leading-none" />
-      )}
-      <p className="mt-2 text-[13px] leading-relaxed text-muted">
-        {thisWeek >= STREAK_MIN
-          ? 'This week is done.'
-          : `${thisWeek} of ${STREAK_MIN} workouts this week. A week with ${STREAK_MIN} or more adds to your streak.`}
-      </p>
     </Card>
   )
 }
