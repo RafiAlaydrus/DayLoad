@@ -1,6 +1,7 @@
 import Dexie, { type Table } from 'dexie'
 import type {
   BodyLog,
+  CardioSession,
   Equipment,
   Exercise,
   Goal,
@@ -25,6 +26,7 @@ export class DayLoadDB extends Dexie {
   sessions!: Table<Session, number>
   sets!: Table<WorkoutSet, number>
   settings!: Table<Settings, number>
+  cardio!: Table<CardioSession, number>
 
   constructor() {
     super('dayload')
@@ -59,6 +61,8 @@ export class DayLoadDB extends Dexie {
         await tx.table('exercises').bulkAdd(next.exercises)
         await tx.table('gyms').bulkPut(next.gyms)
       })
+    // Version 3 adds cardio sessions. A new table only: nothing existing changes, so there is no upgrade step.
+    this.version(3).stores({ cardio: '++id, date' })
     // Runs once, when the database is first created.
     this.on('populate', seed)
   }

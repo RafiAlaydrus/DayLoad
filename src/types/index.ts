@@ -8,6 +8,18 @@ export type LengthUnit = 'cm' | 'ftin'
 /** What the user chose: a fixed theme, or "system" to follow the phone. */
 export type ThemePref = 'system' | 'dark' | 'light'
 
+export type CardioKind = 'treadmill' | 'walk' | 'run' | 'cycling' | 'rowing' | 'elliptical' | 'stairs'
+/** A cardio target: whole minutes, or a step count (only for kinds you walk or run). */
+export interface CardioGoal {
+  type: 'minutes' | 'steps'
+  value: number
+}
+/** What a timetable day plans for cardio. */
+export interface CardioPlan {
+  kind: CardioKind
+  goal: CardioGoal
+}
+
 /** Dates are local calendar days as "YYYY-MM-DD" strings (never UTC timestamps). */
 export type DateKey = string
 
@@ -80,7 +92,26 @@ export interface TimetableDay {
   muscleGroup: MuscleGroup | null
   /** Every muscle group of the day when it combines several (chest and arms). Missing on older rows: use groupsOf(). */
   muscleGroups?: MuscleGroup[]
+  /** Cardio on this day, alone (a cardio day) or after lifting. A row with no groups and no cardio is a rest day. */
+  cardio?: CardioPlan
   defaultGymId?: string
+}
+
+/** One cardio session. Like a workout, it is saved when it starts and finished later: no finishedAt means it is running. */
+export interface CardioSession {
+  id?: number
+  date: DateKey
+  kind: CardioKind
+  /** The target it was started with, if any. */
+  goal?: CardioGoal
+  /** Date.now() when it started. A logged-afterwards session has this set back by its minutes. */
+  startedAt: number
+  /** Date.now() when it finished. Missing means it is still running. */
+  finishedAt?: number
+  /** Whole minutes, filled in when it finishes. 0 while it is running. */
+  minutes: number
+  /** Typed in by the user: a web app on iPhone cannot read the pedometer. */
+  steps?: number
 }
 
 export interface Session {

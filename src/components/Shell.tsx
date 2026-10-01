@@ -36,7 +36,7 @@ export function Shell() {
   const [intro, setIntro] = useState<'waiting' | 'on' | 'done'>('waiting')
   if (intro === 'waiting' && needsIntro) setIntro('on')
   // Hit the gym, Workout and the summary are focused screens (see the mockups): no tab bar, a pinned button instead.
-  const focused = pathname === '/hit-the-gym' || pathname === '/workout' || pathname.startsWith('/summary')
+  const focused = pathname === '/hit-the-gym' || pathname === '/workout' || pathname === '/cardio' || pathname.startsWith('/summary')
 
   // A new screen starts at the top, like a native push.
   useEffect(() => {
@@ -80,8 +80,8 @@ export function Shell() {
         </ErrorBoundary>
       </motion.main>
       {!focused && <TabBar />}
-      {/* Not on the workout: a reload there would throw away numbers typed but not yet logged. */}
-      <PullToRefresh disabled={pathname === '/workout'} />
+      {/* Not on the workout or cardio screens: a reload there would throw away numbers typed but not yet saved. */}
+      <PullToRefresh disabled={pathname === '/workout' || pathname === '/cardio'} />
     </div>
   )
 }

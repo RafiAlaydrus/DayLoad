@@ -4,9 +4,12 @@ import { db } from '../db/db'
 import { useGyms, useSettings, useTimetable } from '../hooks/useData'
 import { WEEK_ORDER } from '../lib/calendar'
 import { parseDateKey, todayKey, weekdayName } from '../lib/dates'
+import { cardioText, defaultCardioDraft, isRestDay, type CardioDraft } from '../lib/cardio'
+import { validateCardioGoal } from '../lib/validate'
 import { groupsLabel, groupsOf, MUSCLE_GROUPS } from '../lib/recommend'
 import type { Gym, TimetableDay } from '../types'
 import { AdaptiveNote } from './AdaptiveNote'
+import { CardioPicker } from './CardioPicker'
 import { MuscleTiles, type Choice } from './MuscleTiles'
 import { BottomSheet } from './ui/BottomSheet'
 import { Button } from './ui/Button'
@@ -46,6 +49,7 @@ export function Timetable() {
             const entry = row(day)
             const groups = entry ? groupsOf(entry) : []
             const gym = groups.length > 0 ? gymName(entry?.defaultGymId) : undefined
+            const parts = entry ? [groups.length > 0 ? groupsLabel(groups) : '', entry.cardio ? cardioText(entry.cardio) : ''].filter(Boolean) : []
             return (
               <li key={day} className="border-t border-border first:border-t-0">
                 <button
@@ -60,7 +64,7 @@ export function Timetable() {
                   <span className="flex min-w-0 items-center gap-2">
                     <span className="min-w-0 text-right">
                       <span className={`block text-[15px] font-semibold ${entry ? '' : 'text-muted'}`}>
-                        {!entry ? 'Not set' : groups.length > 0 ? groupsLabel(groups) : 'Rest'}
+                        {!entry ? 'Not set' : isRestDay(entry) ? 'Rest' : parts.join(' + ')}
                       </span>
                       {gym && <span className="block truncate text-[13px] text-muted">{gym}</span>}
                     </span>
@@ -86,8 +90,14 @@ export function Timetable() {
 
 function DayForm({ day, existing, gyms, onDone }: { day: number; existing?: TimetableDay; gyms: Gym[]; onDone: () => void }) {
   // Several muscle groups can share a day, or the day is Rest. Rest and the groups exclude each other.
-  const [picked, setPicked] = useState<Choice[]>(existing ? (groupsOf(existing).length > 0 ? groupsOf(existing) : ['rest']) : [])
-  const training = picked.some((c) => c !== 'rest')
+  const [picked, setPicked] = useState<Choice[]>(
+    existing ? (isRestDay(existing) ? ['rest'] : [...groupsOf(existing), ...(existing.cardio ? (['cardio'] as const) : [])]) : [],
+  )
+  const [cardio, setCardio] = useState<CardioDraft>(
+    existing?.cardio ? { kind: existing.cardio.kind, type: existing.cardio.goal.type, text: String(existing.cardio.goal.value) } : defaultCardioDraft(),
+  )
+  const [cardioError, setCardioError] = useState('')
+  const lifting = picked.some((c) => c !== 'rest' && c !== 'cardio')
 
   function toggle(option: Choice) {
     setPicked((now) =>
@@ -110,6 +120,10 @@ function DayForm({ day, existing, gyms, onDone }: { day: number; existing?: Time
       setError('Pick at least one muscle group, or Rest.')
       return
     }
+    // Cardio needs a goal (how long, or how many steps), so a day always says what to do.
+    const goal = picked.includes('cardio') ? validateCardioGoal(cardio.kind, cardio.type, cardio.text) : null
+    setCardioError(goal?.error ?? '')
+    if (goal?.error !== undefined) return
     setBusy(true)
     setError('')
     try {
@@ -119,6 +133,7 @@ function DayForm({ day, existing, gyms, onDone }: { day: number; existing?: Time
         dayOfWeek: day,
         muscleGroup: groups[0] ?? null,
         ...(groups.length > 0 ? { muscleGroups: groups } : {}),
+        ...(goal ? { cardio: { kind: cardio.kind, goal: { type: cardio.type, value: goal.value! } } } : {}),
         ...(groups.length > 0 && gymId ? { defaultGymId: gymId } : {}),
       })
       onDone()
@@ -142,9 +157,10 @@ function DayForm({ day, existing, gyms, onDone }: { day: number; existing?: Time
 
   return (
     <div className="flex flex-col gap-4">
-      <MuscleTiles name="day" first="rest" value={picked} onChange={toggle} />
-      <p className="-mt-1 text-[13px] leading-relaxed text-muted">Tap more than one to combine them in one workout.</p>
-      {training && (
+      <MuscleTiles name="day" first="rest" cardio value={picked} onChange={toggle} />
+      <p className="-mt-1 text-[13px] leading-relaxed text-muted">Tap more than one to combine them, and add Cardio to any day.</p>
+      {picked.includes('cardio') && <CardioPicker name="day-cardio" value={cardio} onChange={setCardio} error={cardioError} />}
+      {lifting && (
         <Select label="Default gym" value={gymId} onChange={(e) => setGymId(e.target.value)}>
           <option value="">No default gym</option>
           {gyms.map((g) => (

@@ -1,6 +1,6 @@
 import { ChevronLeft, Plus } from 'lucide-react'
 import { useState, type ReactNode } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { formatDate, todayKey } from '../lib/dates'
 import { GymForm, type GymValues } from '../components/GymForm'
 import { BottomSheet } from '../components/ui/BottomSheet'
@@ -24,6 +24,7 @@ import {
   useTimetableToday,
 } from '../hooks/useData'
 import { longestAgo, REST_AFTER_DAYS, trainingStreak } from '../lib/adaptive'
+import { isRestDay } from '../lib/cardio'
 import { listNames, namesOf } from '../lib/format'
 import {
   candidatesFor,
@@ -107,6 +108,7 @@ export default function HitTheGym() {
       sessions={sessions}
       timetableGroups={timetable ? groupsOf(timetable) : []}
       hasTimetableToday={timetable !== null}
+      timetableCardioOnly={timetable !== null && timetable !== undefined && !isRestDay(timetable) && groupsOf(timetable).length === 0}
       defaultGymId={timetable?.defaultGymId ?? lastGymId ?? undefined}
     />
   )
@@ -122,6 +124,7 @@ interface PlannerProps {
   sessions: Session[]
   timetableGroups: MuscleGroup[]
   hasTimetableToday: boolean
+  timetableCardioOnly: boolean
   defaultGymId?: string
 }
 
@@ -134,6 +137,7 @@ function Planner({
   sessions,
   timetableGroups,
   hasTimetableToday,
+  timetableCardioOnly,
   defaultGymId,
 }: PlannerProps) {
   const navigate = useNavigate()
@@ -284,10 +288,15 @@ function Planner({
         ) : (
           <p className="mt-1.5 text-[15px] leading-relaxed">
             {hasTimetableToday
-              ? 'Your timetable says rest today. Pick a muscle group to train anyway.'
+              ? timetableCardioOnly
+                ? 'Your timetable has cardio today, with no lifting. Pick a muscle group to lift anyway.'
+                : 'Your timetable says rest today. Pick a muscle group to train anyway.'
               : 'Your timetable has nothing for today, so pick a muscle group.'}
           </p>
         )}
+        <Link to="/cardio" className="press mt-1 -ml-2 flex min-h-11 items-center px-2 text-[13px] font-bold text-ink underline">
+          Just cardio today?
+        </Link>
         {defaultGroup && !showChips && !resting && (
           <button
             type="button"

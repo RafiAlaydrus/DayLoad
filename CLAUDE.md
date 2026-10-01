@@ -38,10 +38,10 @@ BASE_PATH=/DayLoad/ npm run build   # the GitHub Pages build (the app lives unde
 
 | Folder | Holds |
 | --- | --- |
-| `db/` | Dexie database and versions (`db.ts`), first-launch seed (`seed.ts`), backup export/restore (`backup.ts`), workout writes: start, log a set, finish, discard (`sessions.ts`), favorite and avoid writes (`prefs.ts`) |
+| `db/` | Dexie database and versions (`db.ts`), first-launch seed (`seed.ts`), backup export/restore (`backup.ts`), workout writes: start, log a set, finish, discard (`sessions.ts`), cardio writes: start, finish, log, discard (`cardio.ts`), favorite and avoid writes (`prefs.ts`) |
 | `data/` | Seed JSON: `equipment.json` (the owner's 40 items in 7 groups), `exercises.json` (78 exercises) |
 | `types/` | One shared types file for every table |
-| `lib/` | Pure helpers: `recommend.ts` (the recommender, time plans, avoid and favorites), `progress.ts` (overload target, personal records), `adaptive.ts` (muscle group trained longest ago, rest streak), `calendar.ts` (month grid, which timetable row a date uses), `goals.ts` (the five measurements, goal progress, change since first), `streak.ts` (weekly streak), `warmup.ts` (warm-up text, ramp-up sets), `theme.ts` (which theme is in use), `migrate.ts` (data upgrades), `validate.ts`, `units.ts`, `bmi.ts`, `dates.ts`, `format.ts`, `backup.ts`. No DB access here, so they are testable in Node |
+| `lib/` | Pure helpers: `recommend.ts` (the recommender, time plans, avoid and favorites), `progress.ts` (overload target, personal records), `adaptive.ts` (muscle group trained longest ago, rest streak), `calendar.ts` (month grid, which timetable row a date uses), `goals.ts` (the five measurements, goal progress, change since first), `streak.ts` (weekly streak), `warmup.ts` (warm-up text, ramp-up sets), `cardio.ts` (cardio kinds, goal text and progress, rest-day check), `theme.ts` (which theme is in use), `migrate.ts` (data upgrades), `validate.ts`, `units.ts`, `bmi.ts`, `dates.ts`, `format.ts`, `backup.ts`. No DB access here, so they are testable in Node |
 | `content/` | Written content that is not data: the Library guides (`guides.ts`) |
 | `hooks/` | Live-query hooks over the database (`useHistory` is finished sessions plus their sets) |
 | `components/ui/` | Small reusable pieces: Button, Card, BottomSheet, ConfirmDialog, Field, Select... |
@@ -50,7 +50,7 @@ BASE_PATH=/DayLoad/ npm run build   # the GitHub Pages build (the app lives unde
 
 Outside `src/`: `tests/` (Node's built-in test runner, plain `.mjs`, no test framework), `vercel.json` (sends every URL to `index.html` so deep links survive a reload), `.claude/launch.json` (dev and preview servers for the Claude Code browser pane).
 
-Routes: `/` Home, `/hit-the-gym`, `/workout`, `/summary/:sessionId`, `/plan` (Calendar, or Timetable with `?view=timetable`), `/library` (Exercises, or Guides with `?view=guides`), `/library/:id`, `/library/guides/:id`, `/gyms`, `/profile`, `/profile/settings`, anything else shows Not Found. Hit the gym, Workout and Summary are focused screens: no tab bar, one big button pinned to the bottom (`BottomAction`).
+Routes: `/` Home, `/hit-the-gym`, `/workout`, `/cardio`, `/summary/:sessionId`, `/plan` (Calendar, or Timetable with `?view=timetable`), `/library` (Exercises, or Guides with `?view=guides`), `/library/:id`, `/library/guides/:id`, `/gyms`, `/profile`, `/profile/settings`, anything else shows Not Found. Hit the gym, Workout, Cardio and Summary are focused screens: no tab bar, one big button pinned to the bottom (`BottomAction`).
 
 ## Key rules
 
@@ -97,6 +97,8 @@ Routes: `/` Home, `/hit-the-gym`, `/workout`, `/summary/:sessionId`, `/plan` (Ca
 - To test a notch: set `--safe-top: 59px` and `--safe-bottom: 34px` on `<html>` (see `src/index.css`).
 
 ## Status
+
+- After Phase 5, at the owner's request: first-run intro, pull to refresh, combined muscle groups per timetable day, and **cardio** (timetable tile, `/cardio` timer and log, Home card; counts toward the streak). The database is now at **version 3** (a new `cardio` table) and `BACKUP_VERSION` is 3. See `docs/PROGRESS.md`.
 
 - Phase 1 (foundation) is built and verified: PWA, database and seed data, Home, Profile (onboarding, weight log and chart, BMI), Settings (units, export and import backup).
 - Phase 2 (core loop) is built and verified: gyms with an equipment checklist (40 items, grouped, each with a drawing) and one-time locations, the exercise library with filters and how-to pages, Hit the gym, workout mode with set logging, rest timer, swap, skip, resume, and the session summary. Database is at version 2.

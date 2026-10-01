@@ -1,11 +1,12 @@
 import { ChevronLeft, ChevronRight } from 'lucide-react'
 import { useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { useGyms, useSessionsBetween, useSettings, useTimetable } from '../hooks/useData'
+import { useCardioBetween, useGyms, useSessionsBetween, useSettings, useTimetable } from '../hooks/useData'
+import { cardioLabel, cardioText, goalText, isRestDay } from '../lib/cardio'
 import { addMonths, monthWeeks, plannedFor, WEEK_ORDER } from '../lib/calendar'
 import { addDays, formatDate, todayKey, weekdayName } from '../lib/dates'
 import { groupsLabel, groupsOf } from '../lib/recommend'
-import type { DateKey, Gym, Session, TimetableDay } from '../types'
+import type { CardioSession, DateKey, Gym, Session, TimetableDay } from '../types'
 import { AdaptiveNote } from './AdaptiveNote'
 import { Card, SectionLabel } from './ui/Card'
 import { IconButton } from './ui/IconButton'
@@ -23,6 +24,7 @@ export function PlanCalendar() {
   const touch = useRef<{ x: number; y: number } | null>(null)
 
   const sessions = useSessionsBetween(month, addDays(addMonths(month, 1), -1))
+  const cardio = useCardioBetween(month, addDays(addMonths(month, 1), -1))
   const rows = useTimetable()
   const gyms = useGyms()
   const settings = useSettings()
@@ -40,7 +42,7 @@ export function PlanCalendar() {
   }
 
   const title = new Date(`${month}T00:00:00`).toLocaleDateString(undefined, { month: 'long', year: 'numeric' })
-  const ready = sessions && rows && gyms && settings
+  const ready = sessions && cardio && rows && gyms && settings
   const timetableMode = settings?.workoutMode === 'timetable'
 
   return (
@@ -102,6 +104,7 @@ export function PlanCalendar() {
                       today={today}
                       selected={key === selected}
                       trained={sessions.filter((s) => s.date === key)}
+                      cardio={cardio.filter((c) => c.date === key)}
                       planned={timetableMode && key >= today ? plannedFor(key, rows) : undefined}
                       onSelect={() => setSelected(key)}
                     />
@@ -118,6 +121,7 @@ export function PlanCalendar() {
             day={selected}
             today={today}
             sessions={sessions.filter((s) => s.date === selected)}
+            cardio={cardio.filter((c) => c.date === selected)}
             plan={plannedFor(selected, rows)}
             timetableMode={timetableMode}
             gyms={gyms}
@@ -133,20 +137,25 @@ interface CellProps {
   today: DateKey
   selected: boolean
   trained: Session[]
+  cardio: CardioSession[]
   /** The timetable row, only for today and later and only in Timetable mode. */
   planned: TimetableDay | undefined
   onSelect: () => void
 }
 
-function DayCell({ day, today, selected, trained, planned, onSelect }: CellProps) {
+function DayCell({ day, today, selected, trained, cardio, planned, onSelect }: CellProps) {
   const isToday = day === today
   const plannedGroups = planned ? groupsOf(planned) : []
-  const status = trained.length > 0 ? 'trained' : plannedGroups.length > 0 ? 'planned' : null
+  const didAny = trained.length > 0 || cardio.length > 0
+  const hasPlan = planned !== undefined && !isRestDay(planned)
+  const status = didAny ? 'trained' : hasPlan ? 'planned' : null
   const label = [
     formatDate(day, { weekday: true }),
     isToday ? 'today' : '',
-    trained.length > 0 ? `trained ${trained.map((s) => groupsLabel(groupsOf(s)).toLowerCase()).join(' and ')}` : '',
-    trained.length === 0 && plannedGroups.length > 0 ? `planned ${groupsLabel(plannedGroups).toLowerCase()}` : '',
+    didAny
+      ? `trained ${[...trained.map((s) => groupsLabel(groupsOf(s))), ...cardio.map((c) => cardioLabel(c.kind))].join(' and ').toLowerCase()}`
+      : '',
+    !didAny && hasPlan ? `planned ${[groupsLabel(plannedGroups), planned?.cardio ? cardioLabel(planned.cardio.kind) : ''].filter(Boolean).join(' and ').toLowerCase()}` : '',
   ]
     .filter(Boolean)
     .join(', ')
@@ -200,20 +209,27 @@ interface PanelProps {
   day: DateKey
   today: DateKey
   sessions: Session[]
+  cardio: CardioSession[]
   plan: TimetableDay | undefined
   timetableMode: boolean
   gyms: Gym[]
 }
 
 /** What happened on the chosen day, and for today and later, what the timetable says. */
-function DayPanel({ day, today, sessions, plan, timetableMode, gyms }: PanelProps) {
+function DayPanel({ day, today, sessions, cardio, plan, timetableMode, gyms }: PanelProps) {
   const gymName = (id?: string) => gyms.find((g) => g.id === id)?.name
   const upcoming = day >= today
   const planText = !plan
     ? 'Nothing set for this weekday.'
-    : groupsOf(plan).length > 0
-      ? `${groupsLabel(groupsOf(plan))}${gymName(plan.defaultGymId) ? ` at ${gymName(plan.defaultGymId)}` : ''}`
-      : 'Rest day'
+    : isRestDay(plan)
+      ? 'Rest day'
+      : [
+          groupsOf(plan).length > 0 ? `${groupsLabel(groupsOf(plan))}${gymName(plan.defaultGymId) ? ` at ${gymName(plan.defaultGymId)}` : ''}` : '',
+          plan.cardio ? cardioText(plan.cardio) : '',
+        ]
+          .filter(Boolean)
+          .join(' + ')
+  const nothingDone = sessions.length === 0 && cardio.length === 0
 
   return (
     <Card>
@@ -237,15 +253,29 @@ function DayPanel({ day, today, sessions, plan, timetableMode, gyms }: PanelProp
         </ul>
       )}
 
+      {cardio.length > 0 && (
+        <ul className={sessions.length > 0 ? '' : 'mt-1.5'}>
+          {cardio.map((c) => (
+            <li key={c.id} className="border-t border-border py-2.5 first:border-t-0">
+              <span className="block text-[15px] font-bold">{cardioLabel(c.kind)}</span>
+              <span className="block text-[13px] text-muted">
+                {c.minutes} min{c.steps ? ` · ${c.steps.toLocaleString('en-US')} steps` : ''}
+                {c.goal ? ` · goal ${goalText(c.goal)}` : ''}
+              </span>
+            </li>
+          ))}
+        </ul>
+      )}
+
       {upcoming && timetableMode && (
-        <p className={`text-[15px] leading-relaxed ${sessions.length > 0 ? 'mt-1 border-t border-border pt-3' : 'mt-1.5'}`}>
+        <p className={`text-[15px] leading-relaxed ${!nothingDone ? 'mt-1 border-t border-border pt-3' : 'mt-1.5'}`}>
           <span className="text-muted">Planned: </span>
           <span className="font-semibold">{planText}</span>
         </p>
       )}
 
-      {sessions.length === 0 && !upcoming && <p className="mt-1.5 text-[15px] text-muted">No workout logged.</p>}
-      {sessions.length === 0 && upcoming && !timetableMode && (
+      {nothingDone && !upcoming && <p className="mt-1.5 text-[15px] text-muted">No workout logged.</p>}
+      {nothingDone && upcoming && !timetableMode && (
         <p className="mt-1.5 text-[15px] leading-relaxed text-muted">Adaptive mode picks the muscle group when you hit the gym.</p>
       )}
     </Card>

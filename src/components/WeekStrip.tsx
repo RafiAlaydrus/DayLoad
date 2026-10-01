@@ -1,11 +1,11 @@
 import { addDays, parseDateKey, todayKey, weekStartKey } from '../lib/dates'
-import type { Session } from '../types'
+import type { DateKey } from '../types'
 import { Card, SectionLabel } from './ui/Card'
 
 const LETTERS = ['M', 'T', 'W', 'T', 'F', 'S', 'S']
 
-/** This week, Monday to Sunday: a filled dot on each day you finished a session. Real sessions only. */
-export function WeekStrip({ sessions }: { sessions: Session[] }) {
+/** This week, Monday to Sunday: a filled dot on each day you finished a workout or a cardio session. Real ones only. */
+export function WeekStrip({ sessions }: { sessions: { date: DateKey }[] }) {
   const today = todayKey()
   const monday = weekStartKey(today)
   const trained = new Set(sessions.map((s) => s.date))

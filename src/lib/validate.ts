@@ -1,4 +1,5 @@
-import type { LengthUnit, WeightUnit } from '../types'
+import type { CardioKind, LengthUnit, WeightUnit } from '../types'
+import { allowsSteps } from './cardio.ts'
 import { isDateKey, todayKey } from './dates.ts'
 import type { Thing, Units } from './goals.ts'
 import { cmToFtIn, cmToIn, fromKg, ftInToCm, heightParts, inToCm, LIMITS, parseDecimal, partsToText, toKg } from './units.ts'
@@ -115,4 +116,35 @@ export function validateLoad(unit: WeightUnit, text: string): Result<number> {
     return { error: `Enter a weight up to ${Math.round(fromKg(LIMITS.loadKg.max, unit))} ${unit}, or leave it blank for bodyweight.` }
   }
   return { value: kg }
+}
+
+export const CARDIO_LIMITS = { minutes: { min: 1, max: 600 }, steps: { min: 100, max: 100_000 } } as const
+
+/** Whole minutes of a cardio session, from 1 to 600. */
+export function validateCardioMinutes(text: string): Result<number> {
+  const n = parseDecimal(text)
+  const { min, max } = CARDIO_LIMITS.minutes
+  if (!Number.isInteger(n) || n < min || n > max) return { error: `Enter whole minutes from ${min} to ${max}.` }
+  return { value: n }
+}
+
+/** A step count, from 100 to 100,000. */
+export function validateCardioSteps(text: string): Result<number> {
+  const n = parseDecimal(text)
+  const { min, max } = CARDIO_LIMITS.steps
+  if (!Number.isInteger(n) || n < min || n > max) return { error: `Enter a whole number of steps from ${min} to ${max.toLocaleString('en-US')}.` }
+  return { value: n }
+}
+
+/** Steps typed after a session: blank is fine (null), anything else must be a real count. */
+export function validateOptionalSteps(text: string): Result<number | null> {
+  if (text.trim() === '') return { value: null }
+  const steps = validateCardioSteps(text)
+  return steps.error === undefined ? { value: steps.value } : steps
+}
+
+/** The goal number for a cardio plan, in minutes or steps. A step goal is refused for kinds you do not walk or run. */
+export function validateCardioGoal(kind: CardioKind, type: 'minutes' | 'steps', text: string): Result<number> {
+  if (type === 'steps' && !allowsSteps(kind)) return { error: 'A step goal only works for walking, running and the treadmill.' }
+  return type === 'minutes' ? validateCardioMinutes(text) : validateCardioSteps(text)
 }

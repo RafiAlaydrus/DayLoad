@@ -1,4 +1,5 @@
 // The ".ts" extension lets Node's test runner load this file directly.
+import { CARDIO_KIND_IDS } from './cardio.ts'
 import { isDateKey } from './dates.ts'
 
 // Pure validation for backup files, so it can be tested without a browser.
@@ -6,7 +7,7 @@ import { isDateKey } from './dates.ts'
 
 export const BACKUP_APP = 'dayload'
 /** Must match the highest Dexie version() in src/db/db.ts. */
-export const BACKUP_VERSION = 2
+export const BACKUP_VERSION = 3
 
 const MUSCLES = ['chest', 'back', 'shoulders', 'arms', 'legs', 'core'] as const
 
@@ -30,6 +31,7 @@ const TABLE_SHAPES = {
   timetable: { dayOfWeek: 'number' },
   sessions: { date: 'date', gymId: 'string', muscleGroup: MUSCLES, exerciseIds: 'array', startedAt: 'number' },
   sets: { sessionId: 'number', exerciseId: 'string', reps: 'number', weightKg: 'number', order: 'number' },
+  cardio: { date: 'date', kind: CARDIO_KIND_IDS, startedAt: 'number' },
   settings: {
     id: 'number',
     workoutMode: ['timetable', 'adaptive'],
@@ -86,6 +88,9 @@ export function parseBackup(text: string): Backup {
   if (data.version > BACKUP_VERSION) {
     throw new BackupError('This backup was made by a newer version of DayLoad. Update the app, then try again.')
   }
+
+  // Backups from before cardio existed (version 2 and older) simply have none.
+  if (data.version < 3 && data.tables.cardio === undefined) data.tables.cardio = []
 
   for (const name of TABLE_NAMES) {
     const rows = data.tables[name]

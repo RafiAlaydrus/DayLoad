@@ -1,5 +1,6 @@
 import { ChevronRight } from 'lucide-react'
 import { Link } from 'react-router-dom'
+import { CardioCard } from '../components/CardioCard'
 import { HeroArt } from '../components/HeroArt'
 import { LogoMark } from '../components/LogoMark'
 import { WeekStrip } from '../components/WeekStrip'
@@ -10,13 +11,16 @@ import { Measure } from '../components/ui/Measure'
 import {
   useActiveSession,
   useBodyLogs,
+  useCardioBetween,
+  useFinishedCardio,
   useFinishedSessions,
   useSettings,
   useTimetableToday,
   useWeekSessions,
 } from '../hooks/useData'
 import { REST_AFTER_DAYS, trainingStreak } from '../lib/adaptive'
-import { formatDate, todayKey } from '../lib/dates'
+import { isRestDay } from '../lib/cardio'
+import { addDays, formatDate, todayKey, weekStartKey } from '../lib/dates'
 import { groupsLabel, groupsOf } from '../lib/recommend'
 import { STREAK_MIN, weeklyStreak } from '../lib/streak'
 import { weightParts } from '../lib/units'
@@ -37,6 +41,7 @@ export default function Home() {
 
       <TodayPlan />
       <Hero />
+      <CardioCard />
       <RestSuggestion />
       <Week />
       <Streak />
@@ -64,8 +69,9 @@ function RestSuggestion() {
 /** Weeks in a row with at least 3 finished workouts. A week still running never breaks it. */
 function Streak() {
   const sessions = useFinishedSessions()
-  if (!sessions) return <Loading className="h-[100px]" />
-  const { weeks, thisWeek } = weeklyStreak(sessions, todayKey())
+  const cardio = useFinishedCardio()
+  if (!sessions || !cardio) return <Loading className="h-[100px]" />
+  const { weeks, thisWeek } = weeklyStreak([...sessions, ...cardio], todayKey())
   return (
     <Card>
       <SectionLabel>Streak</SectionLabel>
@@ -90,7 +96,11 @@ function TodayPlan() {
   if (!entry || settings?.workoutMode !== 'timetable') return null
   return (
     <p className="font-display text-[40px] font-bold leading-none">
-      {groupsOf(entry).length > 0 ? `Today is ${groupsLabel(groupsOf(entry)).toLowerCase()} day` : 'Today is a rest day'}
+      {isRestDay(entry)
+        ? 'Today is a rest day'
+        : groupsOf(entry).length === 0
+          ? 'Today is a cardio day'
+          : `Today is ${groupsLabel(groupsOf(entry)).toLowerCase()} day${entry.cardio ? ', plus cardio' : ''}`}
     </p>
   )
 }
@@ -126,8 +136,11 @@ function Hero() {
 
 function Week() {
   const sessions = useWeekSessions()
-  if (!sessions) return <Loading className="h-[122px]" />
-  return <WeekStrip sessions={sessions} />
+  const monday = weekStartKey(todayKey())
+  const cardio = useCardioBetween(monday, addDays(monday, 6))
+  if (!sessions || !cardio) return <Loading className="h-[122px]" />
+  // A cardio session fills a day of the week like a workout does.
+  return <WeekStrip sessions={[...sessions, ...cardio]} />
 }
 
 function LatestWeight() {

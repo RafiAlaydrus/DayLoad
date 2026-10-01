@@ -4,6 +4,7 @@ import { Shell } from './components/Shell'
 import { ThemeSync } from './components/ThemeSync'
 import ExerciseDetail from './pages/ExerciseDetail'
 import Guide from './pages/Guide'
+import Cardio from './pages/Cardio'
 import Gyms from './pages/Gyms'
 import HitTheGym from './pages/HitTheGym'
 import Home from './pages/Home'
@@ -27,6 +28,7 @@ export default function App() {
             <Route index element={<Home />} />
             <Route path="hit-the-gym" element={<HitTheGym />} />
             <Route path="workout" element={<Workout />} />
+            <Route path="cardio" element={<Cardio />} />
             <Route path="summary/:sessionId" element={<Summary />} />
             <Route path="library" element={<Library />} />
             <Route path="library/guides/:id" element={<Guide />} />

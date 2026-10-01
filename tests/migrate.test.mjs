@@ -46,12 +46,14 @@ test('migrateToV2 does not mutate its input (a failed upgrade must leave data as
   assert.equal(JSON.stringify({ exercises: [oldExercise, customExercise], gyms }), before)
 })
 
-test('backup: files from data version 1 and 2 are accepted, a newer one is not', () => {
+test('backup: files from data version 1, 2 and 3 are accepted, a newer one is not', () => {
   const file = (version) => JSON.stringify({
     app: 'dayload', version, exportedAt: '2026-09-30T12:00:00.000Z',
     tables: { profile: [], bodyLogs: [], goals: [], equipment: [], exercises: [], gyms: [], timetable: [], sessions: [], sets: [], settings: [] },
   })
   assert.equal(parseBackup(file(1)).version, 1)
   assert.equal(parseBackup(file(2)).version, 2)
-  assert.throws(() => parseBackup(file(3)), (e) => e instanceof BackupError && /newer version/.test(e.message))
+  // Version 3 added cardio: an older file has no such table, and imports as no cardio history.
+  assert.deepEqual(parseBackup(file(2)).tables.cardio, [])
+  assert.throws(() => parseBackup(file(4)), (e) => e instanceof BackupError && /newer version/.test(e.message))
 })

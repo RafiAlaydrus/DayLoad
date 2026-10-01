@@ -3,7 +3,7 @@ import { db } from '../db/db'
 import { DEFAULT_SETTINGS, PROFILE_ID, SETTINGS_ID, sortBySeedOrder, sortEquipmentBySeedOrder } from '../db/seed'
 import { addDays, weekStartKey, todayKey } from '../lib/dates'
 import type { History } from '../lib/progress'
-import type { BodyLog, Equipment, Exercise, Goal, Gym, Profile, Session, Settings, TimetableDay, WorkoutSet } from '../types'
+import type { BodyLog, CardioSession, Equipment, Exercise, Goal, Gym, Profile, Session, Settings, TimetableDay, WorkoutSet } from '../types'
 
 // useLiveQuery returns undefined while loading and re-renders on every change to the
 // tables it read. It also throws query errors, which the route ErrorBoundary catches.
@@ -130,4 +130,27 @@ export function useSessionsBetween(from: string, to: string): Session[] | undefi
 /** Today's row of the weekly timetable, or null. */
 export function useTimetableToday(): TimetableDay | null | undefined {
   return useLiveQuery(async () => (await db.timetable.get(new Date().getDay())) ?? null, [])
+}
+
+/** The cardio session in progress. null means none. */
+export function useActiveCardio(): CardioSession | null | undefined {
+  return useLiveQuery(async () => (await db.cardio.filter((c) => c.finishedAt === undefined).first()) ?? null, [])
+}
+
+/** Every finished cardio session, newest last. */
+export function useFinishedCardio(): CardioSession[] | undefined {
+  return useLiveQuery(() => db.cardio.orderBy('date').filter((c) => c.finishedAt !== undefined).toArray(), [])
+}
+
+/** Finished cardio from `from` to `to` (both included), for the calendar. */
+export function useCardioBetween(from: string, to: string): CardioSession[] | undefined {
+  return useLiveQuery(
+    () =>
+      db.cardio
+        .where('date')
+        .between(from, to, true, true)
+        .filter((c) => c.finishedAt !== undefined)
+        .toArray(),
+    [from, to],
+  )
 }
