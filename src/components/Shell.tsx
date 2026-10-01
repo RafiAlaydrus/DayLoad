@@ -2,7 +2,9 @@ import { motion } from 'motion/react'
 import { useEffect, useState } from 'react'
 import { Outlet, useLocation } from 'react-router-dom'
 import { db } from '../db/db'
+import { useNeedsIntro, useSettings } from '../hooks/useData'
 import { ErrorBoundary } from './ErrorBoundary'
+import { Intro } from './Intro'
 import { TabBar } from './TabBar'
 
 /**
@@ -26,6 +28,12 @@ function DbGuard() {
  */
 export function Shell() {
   const { pathname } = useLocation()
+  const needsIntro = useNeedsIntro()
+  const settings = useSettings()
+  // The intro saves a profile part way through, which makes needsIntro false while it is still on screen.
+  // So once it starts it stays until it says it is done, and "done" is final.
+  const [intro, setIntro] = useState<'waiting' | 'on' | 'done'>('waiting')
+  if (intro === 'waiting' && needsIntro) setIntro('on')
   // Hit the gym, Workout and the summary are focused screens (see the mockups): no tab bar, a pinned button instead.
   const focused = pathname === '/hit-the-gym' || pathname === '/workout' || pathname.startsWith('/summary')
 
@@ -33,6 +41,18 @@ export function Shell() {
   useEffect(() => {
     window.scrollTo(0, 0)
   }, [pathname])
+
+  // Nothing to show yet (a few milliseconds on launch). DbGuard still runs, so a database that cannot open shows its error.
+  if (needsIntro === undefined || !settings) {
+    return (
+      <div className="mx-auto min-h-dvh w-full max-w-[430px] px-[22px] pt-[var(--page-top)]">
+        <ErrorBoundary>
+          <DbGuard />
+        </ErrorBoundary>
+      </div>
+    )
+  }
+  if (intro === 'on') return <Intro settings={settings} onDone={() => setIntro('done')} />
 
   return (
     // overflow-x-clip: the 16px slide-in must never create a horizontal scrollbar.

@@ -67,7 +67,7 @@ Touch targets at least 44px. Icons are 2px stroke outline icons with round caps 
 ## Components
 
 - **Bottom tab bar:** Home, Plan, Library, Gyms, Profile. 84px tall including safe area, `surface` background, top border, active tab in `ink`, inactive in `muted`.
-- **Hero card:** `accent` background, large faded logo mark (22% opacity) bleeding off the bottom right, label + big title + white pill button.
+- **Hero card:** `accent` background, a large faded gym drawing (22% opacity, `components/HeroArt.tsx`: barbell on Home, kettlebell and dumbbell in the intro) bleeding off the right, label + big title + white pill button.
 - **Selectable option (gym, time):** `surface` with `border`; when selected, `surface-2` with an `ink`-colored border and a filled check circle.
 - **Set row:** grid of set number, weight, reps, and a 44px round check button. Completed rows switch to `surface-2` with a filled check.
 - **Progress bar:** segmented, one segment per exercise; done = `ink`, current = `muted`, upcoming = `border`.
@@ -82,7 +82,7 @@ The app should feel smooth and native. Use spring transitions for screen changes
 Design Read: Reading this as: a personal gym tracker app for its owner, used one-handed on an iPhone in a bright gym, in a warm dark charcoal-and-taupe style with gym-poster condensed type, dial ENERGY 2 / RHYTHM 2 / MOTION 2.
 
 - Focal point per screen: Home is the hero card, Profile is the weight card.
-- Identity motif: the logo mark bleeding off the hero card, and Barlow Condensed for every big number.
+- Identity motif: a big faint barbell, kettlebell or dumbbell bleeding off the hero card (changed from the logo mark at the owner's request; the logo stays in the Home header), and Barlow Condensed for every big number.
 - One accent: the taupe hero card. Nothing else uses `accent` on Home.
 - Contrast: `muted` text on `accent` fails WCAG AA, so text on the hero card is `ink`.
 - No red or other status colors exist in the palette. Errors are shown with an icon and words, on `surface-2`.

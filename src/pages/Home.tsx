@@ -1,5 +1,6 @@
 import { ChevronRight } from 'lucide-react'
 import { Link } from 'react-router-dom'
+import { HeroArt } from '../components/HeroArt'
 import { LogoMark } from '../components/LogoMark'
 import { WeekStrip } from '../components/WeekStrip'
 import { ButtonLink } from '../components/ui/Button'
@@ -105,8 +106,8 @@ function Hero() {
       to={active ? '/workout' : '/hit-the-gym'}
       className="press relative flex h-[190px] flex-col justify-between overflow-hidden rounded-hero bg-accent p-[22px]"
     >
-      {/* The logo mark bleeding off the corner is the identity motif (DESIGN.md). */}
-      <LogoMark size={210} className="pointer-events-none absolute -right-6 -bottom-[30px] opacity-[0.22]" />
+      {/* A big faint barbell bleeding off the corner (DESIGN.md). The logo mark stays in the header. */}
+      <HeroArt kind="barbell" className="pointer-events-none absolute -right-16 -bottom-5 w-[290px] -rotate-[16deg] opacity-[0.22]" />
       {/* Ink, not muted: muted text on the taupe accent fails WCAG AA contrast. */}
       <p className="relative text-[13px] font-semibold uppercase tracking-[0.08em]">
         {active ? 'Workout in progress' : 'Ready when you are'}

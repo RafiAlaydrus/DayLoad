@@ -18,6 +18,18 @@ export function useProfile(): Profile | null | undefined {
   return useLiveQuery(async () => (await db.profile.get(PROFILE_ID)) ?? null, [])
 }
 
+/**
+ * True on a brand-new install: no profile yet and the intro was never finished or skipped.
+ * Anyone who already has a profile (an existing phone, a restored backup) never sees it.
+ * undefined while loading.
+ */
+export function useNeedsIntro(): boolean | undefined {
+  return useLiveQuery(async () => {
+    const [settings, profile] = await Promise.all([db.settings.get(SETTINGS_ID), db.profile.get(PROFILE_ID)])
+    return profile === undefined && settings?.introDone !== true
+  }, [])
+}
+
 /** Oldest first. The latest entry is the last one. */
 export function useBodyLogs(): BodyLog[] | undefined {
   return useLiveQuery(() => db.bodyLogs.orderBy('date').toArray(), [])

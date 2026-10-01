@@ -102,6 +102,14 @@ Size today: about 6,300 lines of TypeScript, 40 equipment items, 78 exercises, 2
 - **Result:** first push of the workflow built fine but the deploy step failed (HTTP 404, "Ensure GitHub Pages has been enabled"), because Pages was not switched on. The owner set Settings, Pages, Source to GitHub Actions and re-ran the jobs; it succeeded and the site is live at https://rafialaydrus.github.io/DayLoad/. This is a one-time step.
 - 28 stray copies named like `Card 2.tsx` appeared in the project folder (untracked, byte-identical to the originals, and never pushed). They look like iCloud sync-conflict copies: this Mac has Desktop in iCloud. They were deleted. If they come back, move the project out of the Desktop folder.
 
+### After deployment: first-run intro and tighter top spacing
+- **Intro** (`components/Intro.tsx`, wired in `Shell.tsx`): six animated steps (welcome, "Your gym, your plan", "Beat last time", units plus age and height, first weight, all set), a Skip button and a back arrow. Steps slide sideways and their contents rise in one by one; the progress bars fill with a scale. It reuses `StatsFields`, `Segmented`, `Field`, `EquipmentIcon` and the Home hero look, and it saves the same profile and first weigh-in as the Profile tab's onboarding. The last step offers "Add my gym" (opens Gyms) or "Go to Home".
+- **When it shows:** only when there is no profile and `settings.introDone` is not true (`useNeedsIntro`). Anyone with a profile (an existing phone, a restored backup) never sees it. Finishing or skipping sets `introDone`. A skipped intro leaves the Profile tab's onboarding as the fallback. `introDone` is a new optional field, so there is still no new Dexie version (still 2, `BACKUP_VERSION` 2).
+- **Shell latch:** saving the profile makes "needs intro" false while the last step is on screen, so the Shell keeps the intro up until it says it is done.
+- **Hero art:** at the owner's request the logo watermark on the hero cards was replaced by solid gym drawings (`components/HeroArt.tsx`): a barbell on Home's "Hit the gym", a kettlebell on the intro's welcome and a dumbbell on its last step. Same 22% opacity and corner bleed. The logo itself is untouched and still in the Home header.
+- **Top spacing:** `--page-top` went from safe area + 12px to + 2px, on every screen.
+- Verified in the browser pane on `dev-test` at 390x844 (dark) and 375x667 (light): every step, validation errors, lb units carrying through, Enter to submit, saving (180 lb stored as 81.647 kg), "Add my gym" landing on Gyms, Skip, and no intro after a reload. Console clean. **Not checked on a real iPhone** (keyboard over the form steps, the real status bar spacing, animation smoothness on a phone).
+
 ## Bugs found by testing and fixed
 
 Things a green build did not catch, found by running the app:

@@ -121,4 +121,6 @@ export interface Settings {
   lengthUnit: LengthUnit
   /** Missing on rows saved before the light theme existed, which means "system". */
   theme?: ThemePref
+  /** True once the first-run intro was finished or skipped. Missing on older rows, which is fine: the intro only shows when there is also no profile. */
+  introDone?: boolean
 }
