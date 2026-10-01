@@ -3,7 +3,9 @@ import { Link, useSearchParams } from 'react-router-dom'
 import { MuscleTiles } from '../components/MuscleTiles'
 import { Card } from '../components/ui/Card'
 import { Loading } from '../components/ui/Loading'
+import { Segmented } from '../components/ui/Segmented'
 import { Select } from '../components/ui/Select'
+import { GUIDES } from '../content/guides'
 import { useEquipment, useExercises, useSettings } from '../hooks/useData'
 import { groupBy, listNames } from '../lib/format'
 import { MUSCLE_GROUPS, muscleLabel } from '../lib/recommend'
@@ -11,18 +13,72 @@ import { MUSCLE_GROUPS, muscleLabel } from '../lib/recommend'
 const ANY = 'all'
 const BODYWEIGHT = 'none'
 
+type View = 'exercises' | 'guides'
+
+/** The Library tab: the exercises, and the general guides. The view is in the address (?view=guides). */
 export default function Library() {
+  const [params, setParams] = useSearchParams()
+  const view: View = params.get('view') === 'guides' ? 'guides' : 'exercises'
+  return (
+    <>
+      <h1 className="font-display text-[34px] font-bold leading-none">Library</h1>
+      <Segmented<View>
+        legend="Library view"
+        hideLegend
+        filled
+        name="libraryView"
+        value={view}
+        options={[
+          { value: 'exercises', label: 'Exercises' },
+          { value: 'guides', label: 'Guides' },
+        ]}
+        onChange={(v) =>
+          setParams(
+            (prev) => {
+              const next = new URLSearchParams(prev)
+              if (v === 'guides') next.set('view', v)
+              else next.delete('view')
+              return next
+            },
+            { replace: true },
+          )
+        }
+      />
+      {view === 'guides' ? <GuidesList /> : <Exercises />}
+    </>
+  )
+}
+
+function GuidesList() {
+  return (
+    <Card className="py-1">
+      <ul>
+        {GUIDES.map((guide) => (
+          <li key={guide.id} className="border-t border-border first:border-t-0">
+            <Link to={`/library/guides/${guide.id}`} className="press flex min-h-[64px] items-center justify-between gap-3 py-2.5">
+              <span className="min-w-0">
+                <span className="block text-[15px] font-bold">{guide.title}</span>
+                <span className="block text-[13px] leading-snug text-muted">{guide.summary}</span>
+              </span>
+              <ChevronRight size={20} strokeWidth={2} aria-hidden="true" className="shrink-0 text-muted" />
+            </Link>
+          </li>
+        ))}
+      </ul>
+    </Card>
+  )
+}
+
+function Exercises() {
   const exercises = useExercises()
   const equipment = useEquipment()
   const settings = useSettings()
   // Filters live in the address (?muscle=chest&equipment=barbell), so Back from an exercise keeps them.
   const [params, setParams] = useSearchParams()
 
-  const title = <h1 className="font-display text-[34px] font-bold leading-none">Library</h1>
   if (!exercises || !equipment || !settings) {
     return (
       <>
-        {title}
         <Loading className="h-12" />
         <Loading className="h-[300px]" />
       </>
@@ -54,8 +110,6 @@ export default function Library() {
 
   return (
     <>
-      {title}
-
       <MuscleTiles name="muscle" value={muscle} onChange={(v) => setFilter('muscle', v)} />
 
       <Select label="Equipment" value={gear} onChange={(e) => setFilter('equipment', e.target.value)}>

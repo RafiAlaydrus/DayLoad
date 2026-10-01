@@ -15,7 +15,7 @@ import { REST_AFTER_DAYS } from '../lib/adaptive'
 import { BackupError, backupSummary, parseBackup, type Backup } from '../lib/backup'
 import { formatDate, toDateKey } from '../lib/dates'
 import type { Pref } from '../lib/recommend'
-import type { Exercise, Settings as SettingsRow, WorkoutMode } from '../types'
+import type { Exercise, Settings as SettingsRow, ThemePref, WorkoutMode } from '../types'
 
 export default function Settings() {
   const settings = useSettings()
@@ -29,6 +29,7 @@ export default function Settings() {
         <h1 className="font-display text-[34px] font-bold leading-none">Settings</h1>
       </div>
       {settings ? <Mode settings={settings} /> : <Loading className="h-[190px]" />}
+      {settings ? <Appearance settings={settings} /> : <Loading className="h-[140px]" />}
       {settings ? <Units settings={settings} /> : <Loading className="h-[230px]" />}
       {settings && exercises ? (
         <>
@@ -75,9 +76,41 @@ function Mode({ settings }: { settings: SettingsRow }) {
       />
       <p className="text-[13px] leading-relaxed text-muted">
         {settings.workoutMode === 'adaptive'
-          ? `Picks the muscle group you trained longest ago, and suggests a rest day after ${REST_AFTER_DAYS} training days in a row. You can always train something else.`
-          : 'Follows your weekly timetable, which you set on the Plan tab. A weekday you leave unset means you pick the muscle group that day.'}
+          ? 'Picks the muscle group you trained longest ago. You can always train something else.'
+          : 'Follows your weekly timetable, which you set on the Plan tab. A weekday you leave unset means you pick the muscle group that day.'}{' '}
+        In both modes, a rest day is suggested after {REST_AFTER_DAYS} training days in a row.
       </p>
+      {error && <FieldError>{error}</FieldError>}
+    </Card>
+  )
+}
+
+const THEME_HELP: Record<ThemePref, string> = {
+  system: 'Follows the light or dark setting of your iPhone.',
+  light: 'Warm off-white, always.',
+  dark: 'Warm charcoal, always.',
+}
+
+/** Dark, Light, or follow the phone. ThemeSync applies the choice, so changing it here is all it takes. */
+function Appearance({ settings }: { settings: SettingsRow }) {
+  const { save, error } = useSave(settings)
+  const theme = settings.theme ?? 'system'
+  return (
+    <Card className="flex flex-col gap-4">
+      <SectionLabel>Appearance</SectionLabel>
+      <Segmented<ThemePref>
+        legend="Theme"
+        hideLegend
+        name="theme"
+        value={theme}
+        options={[
+          { value: 'system', label: 'System' },
+          { value: 'light', label: 'Light' },
+          { value: 'dark', label: 'Dark' },
+        ]}
+        onChange={(next) => save({ theme: next })}
+      />
+      <p className="text-[13px] leading-relaxed text-muted">{THEME_HELP[theme]}</p>
       {error && <FieldError>{error}</FieldError>}
     </Card>
   )

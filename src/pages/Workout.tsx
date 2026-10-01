@@ -5,6 +5,7 @@ import { useNavigate } from 'react-router-dom'
 import { HowTo } from '../components/HowTo'
 import { REST_SECONDS, RestTimer } from '../components/RestTimer'
 import { SetRow } from '../components/SetRow'
+import { WarmUp } from '../components/WarmUp'
 import { BottomAction } from '../components/ui/BottomAction'
 import { BottomSheet } from '../components/ui/BottomSheet'
 import { Button, ButtonLink } from '../components/ui/Button'
@@ -213,6 +214,9 @@ function WorkoutView({ session, exercises, gym, equipmentName, unit, avoidIds }:
             </p>
             <h1 className="mt-1 font-display text-[44px] font-bold leading-[0.95]">{current.name}</h1>
           </div>
+
+          {/* Only the first exercise of the workout: the rest of the muscle group is already warm. */}
+          {index === 0 && <WarmUp exercise={current} target={target} unit={unit} startOpen={sets.length === 0} />}
 
           <div className="flex items-center gap-2.5 rounded-2xl border border-border bg-surface px-3.5 py-3">
             <span className="shrink-0 rounded-lg bg-ink px-2 py-1 text-xs font-bold uppercase tracking-[0.06em] text-bg">Target</span>

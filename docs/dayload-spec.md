@@ -43,7 +43,7 @@ The recommender picks a muscle group, then fills it with exercises the chosen gy
 
 ### The numbers behind the rules (the owner's Phase 3 decisions)
 
-- **Rest (rule 2):** adaptive mode suggests a rest day after 3 days in a row with a finished workout (counted back from today, or from yesterday if today is not trained yet). "Hard day" means a finished session, because sets have no effort score. The suggestion can be overridden with "Train anyway".
+- **Rest (rule 2):** a rest day is suggested, in both Timetable and Adaptive mode (Phase 5), after 3 days in a row with a finished workout (counted back from today, or from yesterday if today is not trained yet). "Hard day" means a finished session, because sets have no effort score. The suggestion can be overridden with "Train anyway".
 - **Time (rule 6):** a set takes about 2.25 min counting the 90 s rest, and changing exercise about 2 min. 30 min is 3 exercises of 3 sets, 45 min is 4 of 4, 60 min is 5 of 4 (about 26, 44 and 55 min; the 60 min plan leaves room for the Phase 5 warm-up).
 - **Overload (rule 8):** if every set last time reached 8 reps, the target is the same lift 2.5 kg heavier (5 lb in lb mode), for 8 reps. Otherwise repeat the weight and aim for 8 on every set. Bodyweight exercises aim for one more rep than the best set. The first set of an exercise starts filled in with the target.
 - **Personal record:** the heaviest weight ever logged for an exercise, with more reps at the same weight also counting. Bodyweight sets (weight 0) are ranked by reps. The summary lists records that beat an earlier session; the first time an exercise is logged is a starting point, not a record.
@@ -55,6 +55,14 @@ The recommender picks a muscle group, then fills it with exercises the chosen gy
 - **Calendar:** one month at a time (arrows or a sideways swipe), Monday first. A filled dot marks a day with a finished workout, a ring marks today or a later day that the timetable plans a workout for (Timetable mode only; rest days and unset days have no mark). The panel under the grid shows what was done that day, with a link to its summary, and for today and later what the timetable says. In Adaptive mode there is no plan to show, so the calendar says so.
 - **Measurements:** five, all optional, entered with a weigh-in: Waist, Chest, Hips, Arm and Thigh. Stored in cm under `bodyLogs.measurements`; shown in cm, or in inches for the ft/in setting. Profile shows a card for each one you have logged, with how far it moved since the first entry.
 - **Goals:** at most one per thing (weight, or one of the five measurements), each with a target and an optional deadline. A goal remembers where you started (`start`, `startDate`, taken from your latest value when it is set), and progress is the share of the way from there to the target, for losing and gaining alike. Profile lists them with a bar, what is left, and the days to the deadline; the weight chart draws the weight target as a dashed line. There is no on-pace forecast.
+
+### Polish (the owner's Phase 5 decisions)
+
+- **Streak:** weeks in a row (Monday to Sunday) with at least 3 finished workouts. Days off do not break it. The week still running never breaks it either: it counts once it has 3, and until then the streak is the finished weeks before it. Shown on Home.
+- **Warm-up:** before the first exercise of a workout, a card with three short lines for that muscle group (easy cardio, movement prep, a pulling or activation drill), and ramp-up sets worked out from the target weight: about half for 8 reps, then about three quarters for 4, rounded to 2.5 kg (5 lb). A weighted lift with no history gets "two easy sets of 8", and a bodyweight exercise one easy set. A suggestion only, nothing is saved. The 60 minute plan leaves about 5 minutes for it.
+- **Rest days:** the same rule in both modes (3 training days in a row), on Hit the gym with "Train anyway", and as a small card on Home.
+- **Guides:** two, in the Library under Guides: Training splits and Warming up. Plain written content in `src/content/guides.ts`, with no statistics.
+- **Theme:** System (default, follows the iPhone), Light or Dark, chosen in Settings. The light palette is the same palette turned over (see `DESIGN.md`) and every text pair passes WCAG AA in both, checked by a test. On iPhone a charcoal strip stays behind the status bar in the light theme.
 
 ## Screens and navigation
 
@@ -87,7 +95,7 @@ Ten IndexedDB tables via Dexie. The key link is equipment: exercises need it, gy
 | timetable | dayOfWeek, muscleGroup, defaultGymId | gyms |
 | sessions | date, gymId, muscleGroup, plannedMin, durationMin, startedAt, finishedAt, exerciseIds, currentIndex, setsPerExercise | gyms, exercises |
 | sets | sessionId, exerciseId, reps, weightKg, order (set number within its exercise) | sessions, exercises |
-| settings | workoutMode, avoidIds, favoriteIds, weightUnit, lengthUnit | exercises |
+| settings | workoutMode, avoidIds, favoriteIds, weightUnit, lengthUnit, theme | exercises |
 
 Everything is stored in metric (kg, cm). The unit settings only change what is shown and typed. Units live in `settings`, not `profile`, because onboarding asks for height before a profile exists. Dark mode is fixed for v1, so there is no `darkMode` setting yet. The built-in "No equipment" gym has the id `no-equipment`.
 

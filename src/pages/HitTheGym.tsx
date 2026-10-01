@@ -157,8 +157,9 @@ function Planner({
   const suggestion = adaptive ? longestAgo(sessions) : null
   const defaultGroup = suggestion?.group ?? timetableGroup
   const group = override ?? defaultGroup
-  const streak = adaptive ? trainingStreak(sessions, todayKey()) : 0
-  const resting = adaptive && streak >= REST_AFTER_DAYS && !trainAnyway
+  // The rest suggestion is the same in both modes: after enough training days in a row.
+  const streak = trainingStreak(sessions, todayKey())
+  const resting = streak >= REST_AFTER_DAYS && !trainAnyway
 
   const target = PLAN_BY_TIME[time]
   const picks = group ? recommend(exercises, group, equipmentIds, target.exercises, settings) : []
@@ -249,7 +250,7 @@ function Planner({
         <SectionLabel>{resting ? 'Rest day suggested' : 'Plan'}</SectionLabel>
         {resting ? (
           <p className="mt-1.5 text-[15px] leading-relaxed">
-            You trained {streak} days in a row, so adaptive mode suggests a rest day. It is your call, you can still train today.
+            You trained {streak} days in a row, so a rest day is suggested. It is your call, you can still train today.
           </p>
         ) : group && picks.length === 0 ? (
           <>

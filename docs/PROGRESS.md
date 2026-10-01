@@ -9,12 +9,14 @@ Last updated: 2026-10-01 (Phase 4). Update this file at the end of every phase (
 | 1. Foundation | PWA setup, database, seed data, profile and weight log, export/import | **Done** (`5b068e8`) |
 | 2. Core loop | Gyms with equipment, exercise library, Hit the gym, workout mode with logging | **Done** (`daea30b`) |
 | 3. Smart features | Adaptive mode, progressive overload, PRs, time scaling, avoid and favorites | **Done** (`fba816a`) |
-| 4. Planning | Timetable editor, calendar, goals, BMI and measurements | **Done** (this commit) |
-| 5. Polish | General guides, streaks, warm-ups, rest day suggestions, light theme | **Next. Not started.** |
+| 4. Planning | Timetable editor, calendar, goals, BMI and measurements | **Done** (`4edb79b`) |
+| 5. Polish | General guides, streaks, warm-ups, rest day suggestions, light theme | **Done** (this commit) |
+
+All five phases of the spec are built. What is left is outside the phases: custom exercises (never scheduled), deploying the app, and trying it on a real iPhone.
 
 Pulled forward: kg/lb and cm/ft-in units (Phase 1, planned for 5), BMI (Phase 1, planned for 4), a per-exercise how-to page (Phase 2), Home's week strip (Phase 2). Added at the owner's request during Phase 3: body figures on the Library's muscle filter.
 
-Size today: about 5,800 lines of TypeScript, 40 equipment items, 78 exercises, 57 automated tests, all passing.
+Size today: about 6,300 lines of TypeScript, 40 equipment items, 78 exercises, 2 guides, 68 automated tests, all passing.
 
 ## What works today
 
@@ -29,6 +31,10 @@ Size today: about 5,800 lines of TypeScript, 40 equipment items, 78 exercises, 5
 - **Profile:** a **Personal records** card (best set per exercise, five shown, "Show all" for the rest). Cards for each **measurement** you have logged (with the change since the first entry), a **Goals** card, and a dashed **target line** on the weight chart.
 - **Plan tab:** a **Calendar** (month grid, dot for a trained day, ring for a planned one, a panel for the tapped day with a link to its summary) and a **Timetable** (seven weekdays, each a muscle group or Rest plus an optional default gym). Hit the gym and Home follow the timetable in Timetable mode.
 - **Weigh-in sheet:** five optional **measurements** (waist, chest, hips, arm, thigh), in cm or inches.
+- **Home:** a **Streak** card (weeks in a row with 3+ workouts, and how far this week is) and, after 3 training days in a row, a small **rest day** card, in both workout modes.
+- **Workout:** a **Warm-up** card on the first exercise (three lines for the muscle group, plus ramp-up sets from the target weight). Open until you log a set, collapsible.
+- **Library:** an **Exercises | Guides** switch. Two guides: Training splits and Warming up.
+- **Settings:** an **Appearance** card, System (default), Light or Dark. The light theme is the same palette turned over.
 - **Library:** the muscle filter is a grid of tiles with body figures. Favorites and avoided exercises carry a small heart or crossed-circle mark. The exercise page has Favorite and Avoid toggles.
 - **Settings:** Workout mode (Timetable or Adaptive), the Favorites and Avoid lists (each with a remove button), then units and backup as before.
 - **Home:** hero that starts or resumes a workout, a week strip of days trained, latest weight.
@@ -82,6 +88,14 @@ Size today: about 5,800 lines of TypeScript, 40 equipment items, 78 exercises, 5
 - No table changed, so there is **no new Dexie version** and `BACKUP_VERSION` stays 2. A goal row gained two optional fields (`start`, `startDate`); goals written without them fall back to the first value logged.
 - Verified in the browser on `dev-test` at 375 and 390 wide, in kg/cm and lb/ft-in, in Timetable and Adaptive mode: every control clicked and the result read back from the database (see the delivery report). Also run once on the production build under the service worker.
 
+### Phase 5: polish
+- Asked the owner four questions (streak, warm-up, light theme, rest days); every answer was the recommended option (see Decisions). The owner then asked for the theme choice to be called "System" instead of "Match phone".
+- New pure logic with 11 more tests (68 in total): the weekly streak (`lib/streak.ts`), warm-up text and ramp-up rounding (`lib/warmup.ts`), which theme is in use (`lib/theme.ts`), the guides' structure and wording, and a contrast test that **reads `src/index.css` and checks every text pair in both palettes against WCAG AA**.
+- Light theme: a second set of the same colour tokens (`:root[data-theme="light"]`), `ThemeSync` (applies the choice and follows the phone), a small script in `index.html` that picks the theme before the first paint (the choice is mirrored into `localStorage` because the database opens too late), a `color-scheme` and browser-colour update, and a charcoal strip behind the iPhone status bar in light. There was only one hard-coded colour in the whole app (the sheet scrim), so no component needed restyling.
+- `settings.theme` is a new optional field, so there is **no new Dexie version** and `BACKUP_VERSION` stays 2. Rows without it mean System. It rides along in backups with no change.
+- Rest suggestion: Hit the gym's card no longer depends on the mode, and Home got the same rule as a small card.
+- Verified in the browser on `dev-test` at 375 and 390 wide, in dark and light, in Timetable mode, and once on the production build under the service worker (see the delivery report).
+
 ## Bugs found by testing and fixed
 
 Things a green build did not catch, found by running the app:
@@ -115,6 +129,15 @@ Phase 4, caught while building or testing:
 - `GoalsCard` and `GoalSheet` imported each other. The shared `Units` type and `valueText` moved into `lib/goals.ts`.
 - The Adaptive note on the Plan tab was a large card that pushed the calendar down the screen. It is now one short row with a Settings button.
 - Test-script traps, not app bugs: closed sheets linger in the DOM while the pane is hidden, so scripts that grab "the open dialog" can act on the wrong one (one test run looked like a stuck save and was not). Noted in `CLAUDE.md`. After a rebuild, the production service worker shows the old version on the first load and the new one on the next.
+
+Phase 5, caught while building or testing:
+
+- A condition I typed on Home's rest card was nonsense (`!active === undefined`); TypeScript did not object but it would never have worked. Rewritten before it ran.
+- The warm-up line for a bodyweight exercise said "one easy set of 5 reps", which is wrong for a plank. It is now "one easy set, well short of what you usually do". The no-history line says "easy sets", not "light sets", for the same kind of reason.
+- The full-body bullet in the splits guide implied DayLoad could plan a full-body session. It cannot (one muscle group per workout), and now says so.
+- A help line I wrote for Dark ("easier on the eyes in a dim gym") was a claim with nothing behind it, and the owner's own note says gyms are harsh-lit. Removed.
+- The contrast test first failed because it looked for `'light'` in single quotes and the stylesheet uses double quotes (it found no light palette, which is the right failure). The test now accepts either.
+- Test-harness traps, not app bugs: the pane's page fade and media-query events only run when a frame is drawn, so a screenshot is needed before reading the result of switching the phone's appearance. Noted in `CLAUDE.md`.
 
 ## How it fits together
 
@@ -183,15 +206,28 @@ A session with no `finishedAt` is the workout in progress. It stores its plan (`
 - **Editing a goal in lb or ft/in re-saves from a rounded value**, so a target stored in kg can shift by up to about 0.05 lb. Same behavior the weigh-in sheet already had.
 - **Home's "Today is ..." line only shows in Timetable mode**, since Adaptive mode does not use the timetable.
 
-## Next: Phase 5 (polish)
+### Made by the owner in Phase 5
+- All four questions answered with the recommended option: a streak is weeks in a row with 3+ workouts; the warm-up is text plus ramp-up sets from the target weight; a light theme as System / Light / Dark with System the default; rest suggestions in both modes plus a Home card.
+- The theme choice is labelled "System" (not "Match phone").
 
-General guides (splits, warm-up), streaks, a warm-up suggestion before each session, rest-day suggestions, and a light theme (the spec's Phase 5). Things already in place: a rest-day suggestion in adaptive mode (Phase 3), the week strip on Home (a streak needs the same days), kg/lb and cm/ft-in units, and a fixed dark theme (a light theme needs both modes to work, per the antislop rule R-34).
+### Made by the agent in Phase 5 (change any of these)
+- **System is the default theme**, as chosen, so an iPhone set to light shows the light theme as soon as this version arrives. Existing data is untouched; Settings, Appearance, Dark puts it back.
+- **Light palette** (see `DESIGN.md`): warm off-white `#F3EFE7` ground, lighter cards, charcoal text, and a lighter taupe accent (`#BDB4A3`) because dark text on the original taupe fails contrast.
+- **Status bar:** the app keeps the iOS see-through status bar with white text, so in the light theme a charcoal strip stays behind it (as tall as the safe area, so it is invisible anywhere there is no status bar). Not testable without a real iPhone.
+- **Streak:** a week counts at 3 or more workouts, and the week still running does not break the streak. Two workouts on one day both count toward the 3.
+- **Warm-up:** only on the first exercise of a workout, open until you log a set. Ramp-up weights are about 50% for 8 reps and 75% for 4, rounded to 2.5 kg or 5 lb, and left out when they round to nothing or to the working weight. "Weighted" means the exercise uses any equipment, the same as the weight box on the set rows, so a pull-up bar exercise with no history gets the "easy sets of 8" line.
+- **Warm-up lines are generic advice** I wrote, one set per muscle group, with no sources or statistics. Edit them in `lib/warmup.ts`.
+- **Guides:** two, as the spec says (splits and warm-up), written by me in `content/guides.ts`, in plain words with no statistics. Edit or add guides there, and the list picks them up.
+- **Rest rule** stays "3 days in a row", in both modes. The Home card hides while a workout is in progress.
+- **The Streak card says "No streak yet"** with a line on what is needed, rather than showing "0 weeks".
 
-Rules to remember when building it:
-- If exercise or equipment data changes, add a Dexie `version(3)` upgrade and a function in `lib/migrate.ts`, and test it. Never edit a released version.
-- Keep workout state in the database, not only in React state.
-- Any new equipment needs an exercise and a drawing (tests enforce this).
-- The 60 minute plan leaves about 5 minutes for the warm-up; a warm-up suggestion should fit in that.
+## What is left
+
+The spec's five phases are all built. What is not done:
+- **Deploying.** The owner will create the GitHub repo and push. Hosting on GitHub Pages is possible (it needs a base path of `/DayLoad/` in the build, the PWA manifest and the service worker, a `404.html` copy for deep links, and a build workflow) and `vercel.json` is only for Vercel. Nothing has been pushed or deployed from here.
+- **A real iPhone.** The biggest unknown (see "Not verified").
+- **Custom exercises** (the spec lists them under Library; no phase scheduled them).
+- Smaller open questions below.
 
 ## Open questions
 
@@ -200,6 +236,8 @@ Rules to remember when building it:
 - Should the Hit the gym muscle chooser get the same body figures as the Library?
 - Should a body measurement be loggable without a weight? Today it is saved with a weigh-in, because the weigh-in row requires a weight. Changing that means a data change (and a backup-format change).
 - Should a past day that the timetable planned but you skipped be marked on the calendar? Today it is not.
+- Should the warm-up lines and the guides be reviewed by someone who coaches? They are general advice I wrote.
+- Should the Home page be shorter? With the rest, week, streak and weight cards it now scrolls on a small phone.
 - Overload at 8 reps jumps small isolation lifts by a lot (a 8 kg lateral raise would target 10.5 kg). Worth a smaller step per exercise type?
 
 ## Not verified yet
@@ -212,8 +250,12 @@ Rules to remember when building it:
 - Swiping the calendar with a real finger. The swipe was tested with synthetic touch events only (a long level swipe turns the month, a short or mostly vertical one does not).
 - The iOS date picker for a goal deadline (an empty iOS date field has no clear button, so there is a "Clear deadline" link).
 - The Plan tab in the production build was opened and one timetable day saved there, but the full calendar and goals flows were only run on the dev server.
-- iOS launch splash: there are no startup images, so expect a brief blank screen on launch.
-- Deployment: no git remote is set up in this repo, and it has not been deployed to Vercel from here. `vercel.json` (SPA fallback) is ready.
+- **The light theme on a real iPhone**, above all the status bar: the clock and battery are white, and the charcoal strip behind them was only simulated in the browser pane (`--safe-top: 47px`). If the strip looks wrong or the text is hard to read in light, that is the first thing to look at.
+- "System" following the phone live: checked in the browser pane by switching its emulated appearance, but not on an iPhone (iOS can also switch at sunset on its own).
+- A flash of the wrong theme at launch: the script that prevents it is in the production build and the choice is saved for it, but a flash cannot be seen from the pane.
+- Phase 5 in the production build: the guides, the theme switch and the Streak card's empty state were opened there. The warm-up, the Home rest card and a full light-theme pass were run on the dev server only.
+- iOS launch splash: there are no startup images, so expect a brief blank screen on launch (white or black, whichever iOS picks, whatever the theme).
+- Deployment: no git remote is set up in this repo and nothing has been pushed. The owner will do it.
 
 ## Known limits
 
@@ -234,7 +276,7 @@ Rules to remember when building it:
 
 ## Checks that run automatically
 
-`npm test` (57 tests): seed data integrity (every id link, bodyweight options, the owner's exact equipment list, every equipment item has an exercise and a drawing), the recommender (time plans, avoid, favorites, swaps), the Phase 3 rules (overload, records, adaptive group, rest streak), the Phase 4 rules (month grid, timetable lookup, measurements, goal progress, validation), units, backup import (including the new data shapes), and the data upgrade. `npm run build` must finish with no warnings and `npm run lint` must be clean.
+`npm test` (68 tests, including a contrast check of both colour palettes): seed data integrity (every id link, bodyweight options, the owner's exact equipment list, every equipment item has an exercise and a drawing), the recommender (time plans, avoid, favorites, swaps), the Phase 3 rules (overload, records, adaptive group, rest streak), the Phase 4 rules (month grid, timetable lookup, measurements, goal progress, validation), units, backup import (including the new data shapes), and the data upgrade. `npm run build` must finish with no warnings and `npm run lint` must be clean.
 
 ## How to resume
 
@@ -257,4 +299,5 @@ On the iPhone (same Wi-Fi) open the "Network" address Vite prints. For the real 
 | `daea30b` | Phase 2: core loop, plus the 40-item equipment list with drawings and data version 2 |
 | `efd35e4` | Progress log |
 | `fba816a` | Phase 3: adaptive mode, overload targets, records, time scaling, avoid and favorites, Library body figures |
-| (this commit) | Phase 4: Plan tab (calendar and timetable), measurements, goals |
+| `4edb79b` | Phase 4: Plan tab (calendar and timetable), measurements, goals |
+| (this commit) | Phase 5: streak, warm-up, rest suggestions in both modes, guides, light theme |

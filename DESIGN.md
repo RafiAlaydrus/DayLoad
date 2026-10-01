@@ -10,7 +10,7 @@ Dark, warm and minimal, taken from the logo: warm charcoal grounds, a taupe acce
 
 ## Why these choices (the owner's reasons, per antislop R-31)
 
-- **Dark mode only for v1.** The brand comes from the logo's charcoal-to-taupe palette, and the app is used in gyms with harsh lighting. A light theme can come later.
+- **Dark is the home look; a light theme came in Phase 5.** The brand comes from the logo's charcoal-to-taupe palette, and the app is used in gyms with harsh lighting. The owner then asked for a light theme, chosen in Settings as System (the default, follows the iPhone), Light or Dark.
 - **Uppercase small section labels.** They separate data labels from values at a glance on small phone screens. Used only for small labels.
 - **Lucide icons.** Consistent 2px round-cap strokes that match the logo's rounded line style.
 - **Barlow Condensed.** Condensed bold numbers and titles give a gym-poster feel and fit big weights and timers on narrow phone screens.
@@ -26,6 +26,22 @@ Dark, warm and minimal, taken from the logo: warm charcoal grounds, a taupe acce
 | `accent` | `#6B655A` | Hero "Hit the gym" card, rest timer (taupe from the logo) |
 | `ink` | `#F3EFE7` | Primary text, primary buttons, active states (the style guide calls this `text`) |
 | `muted` | `#B3AC9F` | Secondary text, labels, inactive icons |
+
+### Light theme
+
+The same palette turned over, set with `:root[data-theme="light"]` in `src/index.css`. Every token is redefined, and `tests/polish.test.mjs` reads the stylesheet and fails if any text pair in either palette drops below WCAG AA (4.5:1).
+
+| Token | Hex | Use |
+| --- | --- | --- |
+| `bg` | `#F3EFE7` | App background (the dark theme's `ink`) |
+| `surface` | `#FBF9F4` | Cards, tab bar, secondary buttons (a little lighter than the ground, as cards are in dark) |
+| `surface-2` | `#E9E3D7` | Selected cards, completed set rows |
+| `border` | `#D3CBBB` | Card borders, dividers (1.4:1 against `bg`, about the same as dark's 1.5:1) |
+| `accent` | `#BDB4A3` | Hero card, rest timer. Lighter than dark's taupe, because dark text on `#6B655A` would fail contrast (3.0:1) |
+| `ink` | `#1B1A17` | Primary text and buttons (the dark theme's `bg`) |
+| `muted` | `#5F594F` | Secondary text (6.0:1 on `bg`, 5.4:1 on `surface-2`) |
+
+On iPhone the status bar is see-through with white text, which cannot be read on a light ground, so in the light theme a charcoal strip stays behind it (`body::before`, as tall as the safe area, so it is invisible anywhere there is no status bar). That strip could not be tested on a real phone.
 
 Primary buttons are `ink` background with `bg` colored text. Selected states use an `ink`-colored border or fill.
 
@@ -97,4 +113,9 @@ One-line reasons for the choices the guide does not already explain (antislop R-
 - The Adaptive note on the Plan tab is one short row with a Settings button: it only explains why the screen does not drive Hit the gym, so it must not push the calendar down the page.
 - Measurement cards sit in the stat grid like the mockup's Waist card, with one muted line for the change (in words: "Down 2 cm since 10 Sep"), because a minus sign is easy to misread at a glance.
 - Goals are a plain list with one thin `ink` bar each: the bar is the only progress element, and it is not animated because nothing about a saved number needs to move. The weight target is a dashed line on the chart, drawn lighter than the weight line, so it reads as a target and not a second series.
+- The warm-up is one card above the Target row on the first exercise only, open until you have logged a set and collapsible after that: it is advice you read once, and the number to beat (Target) stays where the eye lands next. It has no check box, because it is a suggestion and nothing about it is saved.
+- The streak is one plain number card under the week strip: a streak is a count of weeks, so the count is the focal point of the card, in Barlow Condensed like every other big number. The words under it say what is still needed this week, so the number never has to be decoded.
+- The rest suggestion on Home is a small card and not a banner or a block: it is advice, and Hit the gym has the bigger version with the "Train anyway" button.
+- Guides are plain cards of a small label and a few lines, like the how-to page: they are reading, so there are no pictures, accordions or icons to get in the way.
+- The theme control is the same radio chips as the other Settings, with System first because it is the default.
 - Favorite (heart) and avoid (crossed circle) are the two marks on the exercise page, the Library rows and the Settings lists: the heart is the usual "like", and the crossed circle is the usual "not this one", so neither needs a legend.

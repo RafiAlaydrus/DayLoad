@@ -18,6 +18,38 @@
   --radius-chip: 14px;
 }
 
+/*
+ * The light theme: the same palette turned over. Warm off-white grounds, charcoal text, a lighter
+ * taupe for the accent (dark text on the original taupe would fail contrast). Every token the dark
+ * theme defines is redefined here, and tests/polish.test.mjs checks both palettes for WCAG AA.
+ * It is chosen in Settings (System, Light or Dark) and set on <html data-theme="...">.
+ */
+:root[data-theme="light"] {
+  --color-bg: #f3efe7;
+  --color-surface: #fbf9f4;
+  --color-surface-2: #e9e3d7;
+  --color-border: #d3cbbb;
+  --color-accent: #bdb4a3;
+  --color-ink: #1b1a17;
+  --color-muted: #5f594f;
+  color-scheme: light;
+}
+
+/*
+ * iPhone status bar: the app uses a see-through bar with white clock and battery text, which
+ * cannot be read on a light ground. In the light theme the strip behind it stays charcoal.
+ * --safe-top is 0 wherever there is no status bar to cover, so it is invisible there.
+ */
+:root[data-theme="light"] body::before {
+  content: "";
+  position: fixed;
+  inset: 0 0 auto 0;
+  height: var(--safe-top);
+  background: #1b1a17;
+  z-index: 40;
+  pointer-events: none;
+}
+
 :root {
   color-scheme: dark;
   /* Kept as variables (not raw env()) so they can be overridden to test a notch on a desktop browser. */

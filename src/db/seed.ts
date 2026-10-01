@@ -14,6 +14,7 @@ export const DEFAULT_SETTINGS: Settings = {
   favoriteIds: [],
   weightUnit: 'kg',
   lengthUnit: 'cm',
+  theme: 'system',
 }
 
 const NO_EQUIPMENT_GYM: Gym = {

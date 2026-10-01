@@ -5,6 +5,8 @@ export type MuscleGroup = 'chest' | 'back' | 'shoulders' | 'arms' | 'legs' | 'co
 export type WorkoutMode = 'timetable' | 'adaptive'
 export type WeightUnit = 'kg' | 'lb'
 export type LengthUnit = 'cm' | 'ftin'
+/** What the user chose: a fixed theme, or "system" to follow the phone. */
+export type ThemePref = 'system' | 'dark' | 'light'
 
 /** Dates are local calendar days as "YYYY-MM-DD" strings (never UTC timestamps). */
 export type DateKey = string
@@ -117,4 +119,6 @@ export interface Settings {
   favoriteIds: string[]
   weightUnit: WeightUnit
   lengthUnit: LengthUnit
+  /** Missing on rows saved before the light theme existed, which means "system". */
+  theme?: ThemePref
 }

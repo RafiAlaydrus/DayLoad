@@ -6,9 +6,18 @@ import { ButtonLink } from '../components/ui/Button'
 import { Card, CardLink, SectionLabel } from '../components/ui/Card'
 import { Loading } from '../components/ui/Loading'
 import { Measure } from '../components/ui/Measure'
-import { useActiveSession, useBodyLogs, useSettings, useTimetableToday, useWeekSessions } from '../hooks/useData'
+import {
+  useActiveSession,
+  useBodyLogs,
+  useFinishedSessions,
+  useSettings,
+  useTimetableToday,
+  useWeekSessions,
+} from '../hooks/useData'
+import { REST_AFTER_DAYS, trainingStreak } from '../lib/adaptive'
 import { formatDate, todayKey } from '../lib/dates'
 import { muscleLabel } from '../lib/recommend'
+import { STREAK_MIN, weeklyStreak } from '../lib/streak'
 import { weightParts } from '../lib/units'
 
 export default function Home() {
@@ -27,9 +36,49 @@ export default function Home() {
 
       <TodayPlan />
       <Hero />
+      <RestSuggestion />
       <Week />
+      <Streak />
       <LatestWeight />
     </>
+  )
+}
+
+/** After enough training days in a row, a short card says so. Same rule as on Hit the gym, in both modes. */
+function RestSuggestion() {
+  const sessions = useFinishedSessions()
+  const active = useActiveSession()
+  // Nothing until both are read. A workout in progress makes the suggestion moot.
+  if (!sessions || active === undefined || active) return null
+  const days = trainingStreak(sessions, todayKey())
+  if (days < REST_AFTER_DAYS) return null
+  return (
+    <Card compact>
+      <SectionLabel>Rest day suggested</SectionLabel>
+      <p className="mt-1.5 text-[15px] leading-relaxed">You trained {days} days in a row. It is your call, you can still train today.</p>
+    </Card>
+  )
+}
+
+/** Weeks in a row with at least 3 finished workouts. A week still running never breaks it. */
+function Streak() {
+  const sessions = useFinishedSessions()
+  if (!sessions) return <Loading className="h-[100px]" />
+  const { weeks, thisWeek } = weeklyStreak(sessions, todayKey())
+  return (
+    <Card>
+      <SectionLabel>Streak</SectionLabel>
+      {weeks === 0 ? (
+        <p className="mt-2 text-[15px] font-semibold">No streak yet</p>
+      ) : (
+        <Measure parts={[[String(weeks), weeks === 1 ? 'week' : 'weeks']]} className="mt-1.5 block text-[38px] leading-none" />
+      )}
+      <p className="mt-2 text-[13px] leading-relaxed text-muted">
+        {thisWeek >= STREAK_MIN
+          ? 'This week is done.'
+          : `${thisWeek} of ${STREAK_MIN} workouts this week. A week with ${STREAK_MIN} or more adds to your streak.`}
+      </p>
+    </Card>
   )
 }
 
